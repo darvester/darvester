@@ -1,5 +1,3 @@
-TOKEN = "ODU4OTAxOTk1MzE4NTQyMzM2.YZ8B6w.nKr_0yvTvomA84HpVqJTvBR6eYk"
-
 import sys, os
 if not os.path.exists(".agreed"):
     x = input("""
@@ -13,6 +11,8 @@ Do you agree? [y/N] """)
         with open(".agreed", "x") as f:
             f.close()
         print("Continuing...")
+
+TOKEN = os.getenv("TOKEN")
 
 import selfcord as discord
 from selfcord.ext import commands
