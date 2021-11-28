@@ -1,5 +1,15 @@
 # darvester
 ### PoC Discord user and guild information harvester 
+**Data logged for each user:**
+- Users' profile created date, and first seen date
+- Users' display name and discriminator
+- Users' user ID
+- Users' connected accounts (reddit, YouTube, Facebook, etc.)
+- Users' public Discord flags (Discord Staff, Early Bot Developer, Certified Mod, etc.)
+- Users' avatar URL
+
+All as nested JSON in `harvested.db` (SQLite). Select data with `id` as user ID (Snowflake)
+> Example: `SELECT data FROM users WHERE id = 503791522401381355`
 
 ---
 
