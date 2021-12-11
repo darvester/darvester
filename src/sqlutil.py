@@ -92,20 +92,55 @@ class SQLiteNoSQL:
             d["first_seen"] = diff1["first_seen"]
 
             # Update row
-            self.db.execute(f"""
-            UPDATE OR IGNORE {table} SET (data, id) = (?, ?) WHERE id = ?""",
-                            (json.dumps(d), id, id,))
-
             # Check for changes
             if diff1 == d:
-                print("Nothing changed")
+                print("Nothing changed. Not updating data")
             else:
                 _diff = DictDiffer(diff1, d)
                 print("Info updated\n--------------")
-                print("Added: ", _diff.added())
-                print("Removed: ", _diff.removed())
+                print("Added: ", ', '.join(_diff.added()))
+                print("Removed: ", ', '.join(_diff.removed()))
                 print("Changed: ", _diff.changed())
+                self.db.execute(f"""
+                UPDATE {table} SET (data, id) = (?, ?) WHERE id = ?""",
+                                (json.dumps(d), id, id,))
 
-    def find(self, query):
-        # what ze freek do i poot heer
-        self.db
+    def find(self, id, table, query: str = None):
+        """
+        id: Discord ID
+        table: Table to look in
+        query: optional - Extract data from specified key in query
+        """
+        # Try three times
+        for _ in range(3):
+            try:
+                # execute SELECT to grab data
+                self.cur.execute(f"\
+                    SELECT data FROM {table} WHERE id = ?", (id,))
+                data = self.cur.fetchone()
+                # try to load the json
+                try:
+                    for _item in data:
+                        _d1 = json.loads(_item[0])
+                except json.decoder.JSONDecodeError:
+                    for _item in data:
+                        _d1 = json.loads(_item)
+                except TypeError:
+                    print("Something wrong happened")
+                    break
+                print(_d1['last_scanned'])
+                print(int(time.time()))
+                if query:
+                    try:
+                        return _d1[query]
+                    except KeyError:
+                        print("Query failed")
+                        break
+                # return as json
+                return _d1
+            except sqlite3.ProgrammingError:
+                print("ProgrammingError raised")
+                self.close()
+                self.open(self.dbfile)
+            finally:
+                break

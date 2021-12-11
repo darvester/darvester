@@ -1,2 +1,3 @@
 git+https://github.com/dolfies/discord.py-self.git@renamed
 discord.py
+async-timeout
