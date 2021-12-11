@@ -26,9 +26,11 @@ Do you agree? [y/N] """)
             f.close()
         print("Continuing...")
 
-
+# Define our database properties
 db = SQLiteNoSQL("harvested.db")
 cur = db.cursor()
+
+# Define a set that will be used to check against later
 tmp_id_array = set()
 
 
@@ -52,6 +54,7 @@ async def on_ready():
     print(f"Logged in as {client.user}")
     print("Starting guild ID dump...")
     try:
+        # Start harvesting
         request_number = 0
         listofguilds = [guild.id for guild in client.guilds]
         async with async_timeout.timeout(120):

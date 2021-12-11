@@ -1,0 +1,7 @@
+TOKEN="Discord *user* token here"
+
+# Enable debug messages
+DEBUG = False
+
+# Enable debug messages for Discord
+DEBUG_DISCORD = False
