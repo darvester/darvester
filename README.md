@@ -1,6 +1,5 @@
 # darvester
 ---
-# Warning! This branch `rewrite` is unusable currently
 ### PoC Discord user and guild information harvester 
 **Data logged for each user:**
 - Users' profile created date, and first seen date
