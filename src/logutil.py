@@ -62,3 +62,21 @@ class CustomFormatter(logging.Formatter):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt, datefmt="%I:%M.%S%p")
         return formatter.format(record)
+
+class CursesHandler(logging.Handler):
+    def __init__(self, screen):
+        logging.Handler.__init__(self)
+        self.screen = screen
+
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            screen = self.screen
+            fs = "\n%s"
+            screen.addstr(fs % msg)
+            screen.box()
+            screen.refresh()
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:  # noqa
+            raise
