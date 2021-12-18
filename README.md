@@ -10,6 +10,7 @@
 - Users' avatar URL
 
 All as nested JSON in `harvested.db` (SQLite). Select data with `id` as user ID (Snowflake)
+- You can access this data through Discord by using the command `,select [USER ID]` (see screenshots below)
 > Example: `SELECT data FROM users WHERE id = 503791522401381355`
 
 ---
@@ -39,3 +40,13 @@ pip3 install -r requirements.txt
 - Navigate to Application in the top navigation bar, and expand Local Storage in the left sidebar
 - Type in the filter box: `token` If nothing comes up, toggle your Device Toolbar. Ctrl+Shift+M on Windows, or Cmd+Shift+M on Mac, or you can click the icon on the top left (on Chrome)
 - Copy your token and define it in `cfg.py` in the root of this project
+
+---
+
+## Screenshots:
+- ![image](https://user-images.githubusercontent.com/29584664/146631888-bc3bd222-6a0e-4543-9977-94e88db96b09.png)
+
+- ![image](https://user-images.githubusercontent.com/29584664/146631952-e14d8afb-ed88-4735-afa6-cce14887cf1f.png)
+
+- ![image](https://user-images.githubusercontent.com/29584664/146631996-31be95fe-67e9-4e14-b3b8-1818cf32e614.png)
+
