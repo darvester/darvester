@@ -2,6 +2,10 @@ import sqlite3
 import time
 import json
 
+from src import logutil
+
+logger = logutil.initLogger("sqlutil")
+
 
 class DictDiffer(object):
     """
@@ -52,9 +56,9 @@ class SQLiteNoSQL:
         try:
             self.db.commit()
             self.db.close()
-            print("Database closed")
+            logger.info("Database closed")
         except:  # noqa: E722
-            print("Something happened trying to close the database")
+            logger.error("Something happened trying to close the database")
 
     def addrow(self, d, id, table):
         """Add row to database"""
@@ -74,11 +78,11 @@ class SQLiteNoSQL:
         except sqlite3.ProgrammingError:
             # Sometimes, the database closes prematurely
             # My code sucks
-            print("Reopenning database...")
+            logger.warning("Reopenning database...")
             self.open(self.dbfile)
         except sqlite3.IntegrityError:
             # Process an already existent row
-            print(f"Already exists: {id}\nUpdating info...")
+            logger.info(f"Already exists: {id}\nUpdating info...")
 
             # Use the 'data' from our try
             try:
@@ -94,16 +98,18 @@ class SQLiteNoSQL:
             # Update row
             # Check for changes
             if diff1 == d:
-                print("Nothing changed. Not updating data")
+                logger.info("Nothing changed. Not updating data")
             else:
                 _diff = DictDiffer(diff1, d)
-                print("Info updated\n--------------")
-                print("Added: ", ', '.join(_diff.added()))
-                print("Removed: ", ', '.join(_diff.removed()))
-                print("Changed: ", _diff.changed())
+                logger.info("Info updated --------------")
+                logger.info("Added: " + ', '.join(_diff.added()))
+                logger.info("Removed: " + ', '.join(_diff.removed()))
+                logger.info("Changed: " + str(_diff.changed()))
                 self.db.execute(f"""
                 UPDATE {table} SET (data, id) = (?, ?) WHERE id = ?""",
                                 (json.dumps(d), id, id,))
+        finally:
+            self.db.commit()
 
     def find(self, id, table, query: str = None):
         """
@@ -111,36 +117,35 @@ class SQLiteNoSQL:
         table: Table to look in
         query: optional - Extract data from specified key in query
         """
-        # Try three times
-        for _ in range(3):
+
+        try:
+            # execute SELECT to grab data
+            self.cur.execute(f"\
+                SELECT data FROM {table} WHERE id = ?", (id,))
+            data = self.cur.fetchone()
+            _d = None
+            # try to load the json
             try:
-                # execute SELECT to grab data
-                self.cur.execute(f"\
-                    SELECT data FROM {table} WHERE id = ?", (id,))
-                data = self.cur.fetchone()
-                # try to load the json
+                for _item in data:
+                    _d = json.loads(_item[0])
+            except json.decoder.JSONDecodeError:
+                for _item in data:
+                    _d = json.loads(_item)
+            except TypeError:
+                logger.debug("json load failed. Probably first seen?")
+            # print(_d1['last_scanned'])
+            # print(int(time.time()))
+            if query:
                 try:
-                    for _item in data:
-                        _d1 = json.loads(_item[0])
-                except json.decoder.JSONDecodeError:
-                    for _item in data:
-                        _d1 = json.loads(_item)
+                    return _d[query]
+                except KeyError:
+                    logger.warning("Query \"%s\" failed. May not be harmful",
+                                   query)
                 except TypeError:
-                    print("Something wrong happened")
-                    break
-                print(_d1['last_scanned'])
-                print(int(time.time()))
-                if query:
-                    try:
-                        return _d1[query]
-                    except KeyError:
-                        print("Query failed")
-                        break
-                # return as json
-                return _d1
-            except sqlite3.ProgrammingError:
-                print("ProgrammingError raised")
-                self.close()
-                self.open(self.dbfile)
-            finally:
-                break
+                    logger.info("Data returned None. Probably first seen?")
+            # return as json
+            return _d
+        except sqlite3.ProgrammingError:
+            logger.error("ProgrammingError raised")
+            self.close()
+            self.open(self.dbfile)
