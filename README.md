@@ -1,4 +1,9 @@
 # darvester
+
+<p align="center">
+<img width="50%" height="50%" align="center" src="https://user-images.githubusercontent.com/29584664/146680484-b63cbde2-5386-4feb-8cbe-f4807ea99b61.png" />
+</p>
+
 ---
 ### PoC Discord user and guild information harvester 
 **Data logged for each user:**
