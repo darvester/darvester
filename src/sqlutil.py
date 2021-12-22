@@ -139,10 +139,11 @@ class SQLiteNoSQL:
                 try:
                     return _d[query]
                 except KeyError:
-                    logger.warning("Query \"%s\" failed. May not be harmful",
+                    if query is not "last_scanned":
+                        logger.debug("Query \"%s\" failed. May not be harmful",
                                    query)
                 except TypeError:
-                    logger.info("Data returned None. Probably first seen?")
+                    logger.debug("Query data returned None. Probably first seen?")
             # return as json
             return _d
         except sqlite3.ProgrammingError:

@@ -17,9 +17,6 @@ class Harvester:
         self.db = SQLiteNoSQL("harvested.db")
         self.cur = self.db.cursor()
 
-    async def harvest():
-        pass
-
     async def thread_start(self, client):
         logger.info("Logged in as %s", client.user.name)
         logger.info("Starting guild ID dump...")
@@ -61,7 +58,7 @@ class Harvester:
                             try:
                                 _d1 = _d1["last_scanned"]
                             except Exception:
-                                logger.warning("\
+                                logger.debug("\
 _d1 assigned to None due to last_scanned query error")
                                 _d1 = None  # last_scanned was not appended
 
