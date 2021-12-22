@@ -1,9 +1,11 @@
 import asyncio
 import sys
 import time
+
 import selfcord as discord
-from src.sqlutil import SQLiteNoSQL
+
 from src import logutil
+from src.sqlutil import SQLiteNoSQL
 
 logger = logutil.initLogger("harvester")
 

@@ -6,6 +6,7 @@ taken from: https://github.com/V3ntus/repo-finder-bot/blob/main/utils/logutil.py
 """
 
 import logging
+
 from cfg import DEBUG, DEBUG_DISCORD
 
 

@@ -1,6 +1,6 @@
+import json
 import sqlite3
 import time
-import json
 
 from src import logutil
 
@@ -139,11 +139,12 @@ class SQLiteNoSQL:
                 try:
                     return _d[query]
                 except KeyError:
-                    if query is not "last_scanned":
+                    if query != "last_scanned":
                         logger.debug("Query \"%s\" failed. May not be harmful",
-                                   query)
+                                     query)
                 except TypeError:
-                    logger.debug("Query data returned None. Probably first seen?")
+                    logger.debug(
+                        "Query data returned None. Probably first seen?")
             # return as json
             return _d
         except sqlite3.ProgrammingError:

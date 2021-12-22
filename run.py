@@ -1,14 +1,16 @@
 import asyncio
-from datetime import datetime
-import sys
 import os
+import sys
 import traceback
+from datetime import datetime
 
-from selfcord.ext import commands
 import selfcord as discord
+from selfcord.ext import commands
+
 from src import logutil
 from src.harvester import Harvester
 from src.sqlutil import SQLiteNoSQL
+
 harvester = Harvester()
 db = SQLiteNoSQL("harvested.db")
 
