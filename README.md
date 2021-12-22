@@ -46,6 +46,8 @@ pip3 install -r requirements.txt
 - Type in the filter box: `token` If nothing comes up, toggle your Device Toolbar. Ctrl+Shift+M on Windows, or Cmd+Shift+M on Mac, or you can click the icon on the top left (on Chrome)
 - Copy your token and define it in `cfg.py` in the root of this project
 
+Copy `cfg.py.template` as `cfg.py` in the root folder, paste your token in that file, and run `python run.py`. It should get going automatically
+
 ---
 
 ## Screenshots:
