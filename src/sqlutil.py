@@ -142,6 +142,7 @@ class SQLiteNoSQL:
         """
 
         try:
+            self.open("harvested.db")
             # execute SELECT to grab data
             self.cur.execute(
                 f"\
