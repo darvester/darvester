@@ -15,9 +15,12 @@ class DictDiffer(object):
     (3) keys same in both but changed values
     (4) keys same in both and unchanged values
     """
+
     def __init__(self, current_dict, past_dict):
         self.current_dict, self.past_dict = current_dict, past_dict
-        self.set_current, self.set_past = set(current_dict.keys()),set(past_dict.keys())  # noqa
+        self.set_current, self.set_past = set(current_dict.keys()), set(
+            past_dict.keys()
+        )  # noqa
         self.intersect = self.set_current.intersection(self.set_past)
 
     def added(self):
@@ -27,21 +30,30 @@ class DictDiffer(object):
         return self.set_past - self.intersect
 
     def changed(self):
-        return {o for o in self.intersect if self.past_dict[o] != self.current_dict[o]}  # noqa
+        return {
+            o for o in self.intersect
+            if self.past_dict[o] != self.current_dict[o]
+        }  # noqa
 
     def unchanged(self):
-        return {o for o in self.intersect if self.past_dict[o] == self.current_dict[o]}  # noqa
+        return {
+            o for o in self.intersect
+            if self.past_dict[o] == self.current_dict[o]
+        }  # noqa
 
 
 class SQLiteNoSQL:
     """Open the database on module init"""
+
     def __init__(self, f):
         self.dbfile = f
         self.db = sqlite3.connect(f)
         self.cur = self.db.cursor()
-        self.cur.execute("""
+        self.cur.execute(
+            """
             CREATE TABLE IF NOT EXISTS \
-                users(data TEXT UNIQUE, id INTEGER UNIQUE);""")
+                users(data TEXT UNIQUE, id INTEGER UNIQUE);"""
+        )
 
     def open(self, f):
         """Open connection"""
@@ -73,8 +85,13 @@ class SQLiteNoSQL:
                 d["first_seen"] = int(time.time())
 
             # Else, this code will throw IntegrityError and continue flow below
-            self.db.execute(f"INSERT INTO {table} VALUES (?, ?);",
-                            (json.dumps(d), id,))
+            self.db.execute(
+                f"INSERT INTO {table} VALUES (?, ?);",
+                (
+                    json.dumps(d),
+                    id,
+                ),
+            )
         except sqlite3.ProgrammingError:
             # Sometimes, the database closes prematurely
             # My code sucks
@@ -102,12 +119,18 @@ class SQLiteNoSQL:
             else:
                 _diff = DictDiffer(diff1, d)
                 logger.info("Info updated --------------")
-                logger.info("Added: " + ', '.join(_diff.added()))
-                logger.info("Removed: " + ', '.join(_diff.removed()))
+                logger.info("Added: " + ", ".join(_diff.added()))
+                logger.info("Removed: " + ", ".join(_diff.removed()))
                 logger.info("Changed: " + str(_diff.changed()))
-                self.db.execute(f"""
+                self.db.execute(
+                    f"""
                 UPDATE {table} SET (data, id) = (?, ?) WHERE id = ?""",
-                                (json.dumps(d), id, id,))
+                    (
+                        json.dumps(d),
+                        id,
+                        id,
+                    ),
+                )
         finally:
             self.db.commit()
 
@@ -120,8 +143,11 @@ class SQLiteNoSQL:
 
         try:
             # execute SELECT to grab data
-            self.cur.execute(f"\
-                SELECT data FROM {table} WHERE id = ?", (id,))
+            self.cur.execute(
+                f"\
+                SELECT data FROM {table} WHERE id = ?",
+                (id,),
+            )
             data = self.cur.fetchone()
             _d = None
             # try to load the json
@@ -140,11 +166,14 @@ class SQLiteNoSQL:
                     return _d[query]
                 except KeyError:
                     if query != "last_scanned":
-                        logger.debug("Query \"%s\" failed. May not be harmful",
-                                     query)
+                        logger.debug(
+                            'Query "%s" failed. May not be harmful',
+                            query
+                        )
                 except TypeError:
                     logger.debug(
-                        "Query data returned None. Probably first seen?")
+                            "Query data returned None. Probably first seen?"
+                        )
             # return as json
             return _d
         except sqlite3.ProgrammingError:

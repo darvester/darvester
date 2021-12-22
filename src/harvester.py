@@ -12,6 +12,7 @@ logger = logutil.initLogger("harvester")
 
 class Harvester:
     """Main class for bot"""
+
     def __init__(self) -> None:
         # Define a set that will be used to check against later
         self._id_array = set()
@@ -30,19 +31,19 @@ class Harvester:
 
             for guildid in _list_of_guilds:
                 guild = client.get_guild(guildid)
-                logger.info("Now working in guild: \"%s\"", guild.name)
+                logger.info('Now working in guild: "%s"', guild.name)
 
                 "Do member/user harvest"
                 for member in guild.members:
                     # Filter for bot and Discord system messages
                     if member.bot and member.system:
-                        logger.info("User \"%s\" is a bot. Skipping...",
+                        logger.info('User "%s" is a bot. Skipping...',
                                     member.name)
                         continue
 
                     # Check if we already harvested this user
                     if member.id in self._id_array:
-                        logger.info("Already checked \"%s\"", member.name)
+                        logger.info('Already checked "%s"', member.name)
                         continue
 
                     # Check if we've reached our request limit
@@ -54,20 +55,26 @@ class Harvester:
                         self._id_array.add(member.id)
 
                         # Check to see if we scanned this user recently
-                        _d1 = self.db.find(member.id, "users",
-                                           "last_scanned")
+                        _d1 = self.db.find(member.id, "users", "last_scanned")
                         if not isinstance(_d1, (str, int, bytes)):
                             try:
                                 _d1 = _d1["last_scanned"]
                             except Exception:
-                                logger.debug("\
-_d1 assigned to None due to last_scanned query error")
+                                logger.debug(
+                                    "\
+_d1 assigned to None due to last_scanned query error"
+                                )
                                 _d1 = None  # last_scanned was not appended
 
-                        if _d1 is not None and \
-                                (int(time.time()) - int(_d1)) < 600:
-                            logger.info("User \"%s\" scanned in the last \
-ten minutes. Skipping...", member.name)
+                        if (
+                            _d1 is not None
+                            and (int(time.time()) - int(_d1)) < 600
+                        ):
+                            logger.info(
+                                'User "%s" scanned in the last \
+ten minutes. Skipping...',
+                                member.name,
+                            )
                             continue
 
                         # Grab the user profile object of member
@@ -82,21 +89,22 @@ ten minutes. Skipping...", member.name)
 
                         # Build harvested data structure
                         data = {
-                            'name': member.name,
-                            'discriminator': member.discriminator,
-                            'mutual_guilds': _user_guilds,
-                            'avatar_url': str(member.avatar_url),
-                            'public_flags': member.public_flags.all(),
-                            'created_at': int(
-                                member.created_at.timestamp()
-                            ),
-                            'connected_accounts':
-                                _profile_object.connected_accounts,
-                            'last_scanned': int(time.time()),
+                            "name": member.name,
+                            "discriminator": member.discriminator,
+                            "mutual_guilds": _user_guilds,
+                            "avatar_url": str(member.avatar_url),
+                            "public_flags": member.public_flags.all(),
+                            "created_at": int(member.created_at.timestamp()),
+                            "connected_accounts":
+                            _profile_object.connected_accounts,
+                            "last_scanned": int(time.time()),
                         }
 
-                        logger.info("\
-Inserting \"%s\" = %s#%s :" % (member.id, member.name, member.discriminator))
+                        logger.info(
+                            '\
+Inserting "%s" = %s#%s :'
+                            % (member.id, member.name, member.discriminator)
+                        )
 
                         # Insert harvested data
                         self.db.addrow(data, member.id, "users")
@@ -109,7 +117,7 @@ Inserting \"%s\" = %s#%s :" % (member.id, member.name, member.discriminator))
                         self.db.close()
                         logger.info("On request cooldown...")
                         for _ in range(60, 0, -1):
-                            sys.stdout.write('\r')
+                            sys.stdout.write("\r")
                             sys.stdout.write("{:2d} remaining".format(_))
                             sys.stdout.flush()
                             await asyncio.sleep(1)
@@ -120,8 +128,10 @@ Inserting \"%s\" = %s#%s :" % (member.id, member.name, member.discriminator))
             self.db.close()
 
         except discord.errors.HTTPException:
-            logger.critical("HTTP 429 returned. You may have been temp banned! \
-Try again later (may take a couple hours or as long as a day)")
+            logger.critical(
+                "HTTP 429 returned. You may have been temp banned! \
+Try again later (may take a couple hours or as long as a day)"
+            )
             sys.exit()
 
     async def close(self):
