@@ -122,7 +122,7 @@ Inserting "%s" = %s#%s :'
                             sys.stdout.write("{:2d} remaining".format(_))
                             sys.stdout.flush()
                             await asyncio.sleep(1)
-                            print("\n")
+                        print("\n")
 
                         # Reset the request counter
                         _request_number = 0

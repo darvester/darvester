@@ -95,7 +95,7 @@ async def on_message(message: discord.Message):
 
                 _message = f"""
 Name: `{data["name"]}#{data["discriminator"]}`
-Bio: `{data["bio"]}`
+Bio: ```{data["bio"]}```
 Mutual Guilds: `{data["mutual_guilds"]["guilds"]}`
 Avatar: {data["avatar_url"]}
 Account Created At: `{datetime.fromtimestamp(data["created_at"])}`
