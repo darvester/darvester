@@ -91,6 +91,7 @@ ten minutes. Skipping...',
                         data = {
                             "name": member.name,
                             "discriminator": member.discriminator,
+                            "bio": _profile_object.bio,
                             "mutual_guilds": _user_guilds,
                             "avatar_url": str(member.avatar_url),
                             "public_flags": member.public_flags.all(),
