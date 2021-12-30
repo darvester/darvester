@@ -20,6 +20,11 @@ All as nested JSON in `harvested.db` (SQLite). Select data with `id` as user ID 
 
 ---
 
+<h3 align="center">To start logging, just join a server with your user. No need to verify*</h3>
+<sub>* Unless the server is using a 3rd party verification bot. For example, non-community servers using mee6 or Dyno to verify by role/reaction</sub>
+
+---
+
 ## DISCLAIMER:
 **Using this tool, you agree not to hold the contributors and developers
 accountable for any damages that occur. This tool violates Discord terms of
