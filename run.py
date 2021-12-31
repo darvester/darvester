@@ -6,16 +6,20 @@ from datetime import datetime
 
 import selfcord as discord
 from selfcord.ext import commands
+from cfg import DEBUG_DISCORD, ENABLE_PRESENCE, DB_NAME
 
 from src import logutil
 from src.harvester import Harvester
 from src.sqlutil import SQLiteNoSQL
 
 harvester = Harvester()
-db = SQLiteNoSQL("harvested.db")
+db = SQLiteNoSQL(DB_NAME)
 
 # Setup logging
 logger = logutil.initLogger()
+
+if DEBUG_DISCORD:
+    logging = logutil.getLogger("selfcord")
 
 # BEGIN token import
 try:
@@ -56,6 +60,7 @@ logger.info("Connecting to gateway... Be patient")
 client = commands.Bot(
     command_prefix=",",
     case_insensitive=True,
+    activity=None if not ENABLE_PRESENCE else discord.Game("Darvester"),
     user_bot=True,
     guild_subscription_options=discord.GuildSubscriptionOptions.default(),
 )  # noqa: E501
