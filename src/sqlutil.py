@@ -1,10 +1,12 @@
 import json
 import sqlite3
 import time
+from cfg import DB_NAME, QUIET_MODE
 
 from src import logutil
 
 logger = logutil.initLogger("sqlutil")
+dbfile = DB_NAME
 
 
 class DictDiffer(object):
@@ -48,6 +50,8 @@ class SQLiteNoSQL:
     def __init__(self, f):
         self.dbfile = f
         self.db = sqlite3.connect(f)
+        global dbfile
+        dbfile = self.dbfile
         self.cur = self.db.cursor()
         self.cur.execute(
             """
@@ -55,7 +59,7 @@ class SQLiteNoSQL:
                 users(data TEXT UNIQUE, id INTEGER UNIQUE);"""
         )
 
-    def open(self, f):
+    def open(self, f: str = dbfile):
         """Open connection"""
         self.db = sqlite3.connect(f)
         self.cur = self.db.cursor()
@@ -81,7 +85,7 @@ class SQLiteNoSQL:
 
             # If data returned is none, try to append a first_seen
             if data is None:
-                print("User is first_seen " + str(int(time.time())))
+                logger.info("User is first_seen " + str(int(time.time())))
                 d["first_seen"] = int(time.time())
 
             # Else, this code will throw IntegrityError and continue flow below
@@ -99,7 +103,8 @@ class SQLiteNoSQL:
             self.open(self.dbfile)
         except sqlite3.IntegrityError:
             # Process an already existent row
-            logger.info(f"Already exists: {id}\nUpdating info...")
+            logger.info(f"Already exists: {id if not QUIET_MODE else None}" +
+                        " -- Updating info...")
 
             # Use the 'data' from our try
             try:
