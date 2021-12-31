@@ -18,23 +18,18 @@ All as nested JSON in `harvested.db` (SQLite). Select data with `id` as user ID 
 - You can access this data through Discord by using the command `,select [USER ID]` (see screenshots below)
 > Example: `SELECT data FROM users WHERE id = 503791522401381355`
 
----
-
 <h3 align="center">To start logging, just join a server with your user. No need to verify*</h3>
 <sub>* Unless the server is using a 3rd party verification bot. For example, non-community servers using mee6 or Dyno to verify by role/reaction</sub>
 
----
 
 ## DISCLAIMER:
 **Using this tool, you agree not to hold the contributors and developers
 accountable for any damages that occur. This tool violates Discord terms of
 service and may result in your access to Discord services terminated.**
 
----
 # Install
 
 See the wiki page [here](https://github.com/V3ntus/darvester/wiki/Installing)
----
 
 ## Screenshots:
 - ![image](https://user-images.githubusercontent.com/29584664/146631888-bc3bd222-6a0e-4543-9977-94e88db96b09.png)
