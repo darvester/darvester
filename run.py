@@ -55,6 +55,9 @@ Do you agree? [y/N] """
         print("Continuing...")
 # END user agreement
 
+logger.critical("QUIET_MODE enabled. Your console/log output will be suppressed \n \
+and sensitive data will be hidden, but this will *not* affect the data \n \
+harvested. Continuing...")
 # Setup bot client
 logger.info("Connecting to gateway... Be patient")
 client = commands.Bot(
