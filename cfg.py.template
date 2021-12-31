@@ -3,5 +3,17 @@ TOKEN="Discord *user* token here"
 # Enable debug messages
 DEBUG = False
 
-# Enable debug messages for Discord
+# Enable debug messages for Discord/Selfcord
+# WARNING: Very spammy
 DEBUG_DISCORD = False
+
+# Update presence for bot and client. In my opinion, it's not really covert but...
+# It's cool :sunglasses:
+ENABLE_PRESENCE = False
+
+# The name of the database file you want to open and log to
+DB_NAME = "harvested.db"
+
+# Enable quiet mode to suppress some info going into your console
+# Mostly hides sensitive information. This does not affect info being harvested
+QUIET_MODE = True
