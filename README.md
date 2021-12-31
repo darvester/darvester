@@ -10,6 +10,7 @@
 - Users' profile created date, and first seen date
 - Users' display name and discriminator
 - Users' user ID
+- Users' bio/about me
 - Users' connected accounts (reddit, YouTube, Facebook, etc.)
 - Users' public Discord flags (Discord Staff, Early Bot Developer, Certified Mod, etc.)
 - Users' avatar URL
