@@ -32,6 +32,7 @@ service and may result in your access to Discord services terminated.**
 
 ---
 # Install
+
 See the wiki page [here](https://github.com/V3ntus/darvester/wiki/Installing)
 ---
 
