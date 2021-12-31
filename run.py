@@ -6,7 +6,7 @@ from datetime import datetime
 
 import selfcord as discord
 from selfcord.ext import commands
-from cfg import DEBUG_DISCORD, ENABLE_PRESENCE, DB_NAME
+from cfg import DEBUG_DISCORD, ENABLE_PRESENCE, DB_NAME, QUIET_MODE
 
 from src import logutil
 from src.harvester import Harvester
@@ -55,9 +55,10 @@ Do you agree? [y/N] """
         print("Continuing...")
 # END user agreement
 
-logger.critical("QUIET_MODE enabled. Your console/log output will be suppressed \n \
-and sensitive data will be hidden, but this will *not* affect the data \n \
-harvested. Continuing...")
+if QUIET_MODE:
+    logger.critical("QUIET_MODE enabled. Your console/log output will be suppressed \n \
+    and sensitive data will be hidden, but this will *not* affect the data \n \
+    harvested. Continuing...")
 # Setup bot client
 logger.info("Connecting to gateway... Be patient")
 client = commands.Bot(
