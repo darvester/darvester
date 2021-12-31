@@ -27,7 +27,7 @@ class Harvester:
         self.cur = self.db.cursor()
 
     async def thread_start(self, client):
-        RichPresence.put(message=["Darvester", "Preparing..."])
+        RichPresence.put(message=["Darvester", "Preparing...", ""])
         logger.info("Logged in as %s", client.user.name if not QUIET_MODE else
                     "user")
         logger.info("Starting guild ID dump...")
@@ -48,7 +48,8 @@ class Harvester:
                                 if not QUIET_MODE else
                                 "(quiet mode enabled)")
                     RichPresence.put(message=[f"Harvesting '{guild.name}'" if not QUIET_MODE else quiet_msg,  # noqa
-                                              f"{len(guild.members)} members"])
+                                              f"{len(guild.members)} members",
+                                              ""])
                     await BotStatus.update(client=client,
                                            state=f'Harvesting "{guild.name}"' if not QUIET_MODE else quiet_msg,  # noqa
                                            status=discord.Status.online)
@@ -142,7 +143,8 @@ ten minutes. Skipping...',
                         else:  # If request counter goes over 40
                             await BotStatus.update(client=client)
                             RichPresence.put(message=["Darvester",
-                                                      "On cooldown"])
+                                                      "On cooldown",
+                                                      "cooldown"])
                             self.db.close()
                             logger.info("On request cooldown...")
                             for _ in range(60, 0, -1):
@@ -151,6 +153,12 @@ ten minutes. Skipping...',
                                 sys.stdout.flush()
                                 await asyncio.sleep(1)
                             print("\n")
+                            RichPresence.put(message=[f"Harvesting '{guild.name}'" if not QUIET_MODE else quiet_msg,  # noqa
+                                                      f"{len(guild.members)} members",  # noqa
+                                                      ""])  # noqa
+                            await BotStatus.update(client=client,
+                                                   state=f'Harvesting "{guild.name}"' if not QUIET_MODE else quiet_msg,  # noqa
+                                                   status=discord.Status.online)  # noqa
 
                             # Reset the request counter
                             _request_number = 0
@@ -158,7 +166,8 @@ ten minutes. Skipping...',
                 self.db.close()
                 logger.info("That's all! Sleeping for a bit then looping")
                 RichPresence.put(message=["- Discord OSINT harvester",
-                                          "- Created by V3ntus"])
+                                          "- Created by V3ntus",
+                                          ""])
                 await asyncio.sleep(1)
                 for _ in range(600, 0, -1):
                     sys.stdout.write("\r")

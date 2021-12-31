@@ -62,6 +62,7 @@ class RichPresence():
                 RPC.update(state=message[1],
                            details=message[0],
                            start=int(time.time()),
+                           end=int(time.time() + 60) if message[2] == "cooldown" else None,  # noqa
                            large_image="darvester_1-1",
                            buttons=[
                                 {
