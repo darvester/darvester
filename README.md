@@ -38,3 +38,6 @@ See the wiki page [here](https://github.com/V3ntus/darvester/wiki/Installing)
 
 - ![image](https://user-images.githubusercontent.com/29584664/146631996-31be95fe-67e9-4e14-b3b8-1818cf32e614.png)
 
+- ![image](https://user-images.githubusercontent.com/29584664/147799316-bae5525d-048f-4f7b-9955-574b17004637.png)
+
+- ![image](https://user-images.githubusercontent.com/29584664/147799297-3b2d489c-dfae-4b08-a68a-61d87bb900af.png)
