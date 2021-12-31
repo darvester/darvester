@@ -114,7 +114,7 @@ Connected Accounts:
 ```
 """
                 logger.info(
-                    'Found "%s" requested by user "%s"',
+                    'Found "%s" requested by user "%s"' %
                     (data["name"], message.author.name),
                 )
                 await message.channel.send(_message)
