@@ -37,7 +37,8 @@ from commands import (
 
 harvester = Harvester()
 db = SQLiteNoSQL(DB_NAME)
-db.init_fts_table()
+db.init_fts_table("users")
+db.init_fts_table("guilds")
 
 # Setup logging
 logger = logutil.initLogger()

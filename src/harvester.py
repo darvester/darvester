@@ -44,6 +44,12 @@ class Harvester:
 
                 for guildid in _list_of_guilds:
                     guild = client.get_guild(guildid)
+                    if guild.unavailable:
+                        logger.warning(
+                            "Guild '%s' is unavailable. Skipping..."
+                            % guild.name
+                        )
+                        continue
                     logger.info('Now working in guild: "%s"', guild.name
                                 if not QUIET_MODE else
                                 "(quiet mode enabled)")
@@ -53,6 +59,30 @@ class Harvester:
                     await BotStatus.update(client=client,
                                            state=f'Harvesting "{guild.name}"' if not QUIET_MODE else quiet_msg,  # noqa
                                            status=discord.Status.online)
+
+                    "Do guild harvest"
+                    # Define the data
+                    guild_data = {
+                        "name": guild.name,
+                        "owner": {
+                            "name": guild.owner.name if guild.owner else None,
+                            "id": guild.owner.id if guild.owner else
+                            guild.owner_id
+                        },
+                        "description": guild.description,
+                        "features": guild.features,
+                        "premium_tier": guild.premium_tier,
+                    }
+                    logger.info(
+                        'Inserting guild "%s" = "%s"'
+                        % (guild.id, guild_data["name"])
+                    ) if not QUIET_MODE else logger.info(
+                        "Inserting a guild...")
+
+                    self.db.addrow(guild_data, guild.id, "guilds")
+                    _request_number += 1
+                    # Mark as read, as "done"
+                    await guild.ack()
 
                     "Do member/user harvest"
                     for member in guild.members:

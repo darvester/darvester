@@ -54,10 +54,11 @@ class SQLiteNoSQL:
         global dbfile
         dbfile = self.dbfile
         self.cur = self.db.cursor()
-        self.cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS \
-                users(data TEXT UNIQUE, id INTEGER UNIQUE);"""
+        self.cur.executescript(
+            "CREATE TABLE IF NOT EXISTS " +
+            "users(data TEXT UNIQUE, id INTEGER UNIQUE);" +
+            "CREATE TABLE IF NOT EXISTS " +
+            "guilds(data TEXT UNIQUE, id INTEGER UNIQUE);"
         )
 
     def open(self, f: str = dbfile):
@@ -142,7 +143,7 @@ class SQLiteNoSQL:
 
     def find(self, id, table, query: str = None):
         """
-        id: Discord ID
+        id: Discord user or guild ID
         table: Table to look in
         query: optional - Extract data from specified key in query
         """
@@ -316,7 +317,6 @@ FROM {table}_fts"
             if json_lookup:
                 try:
                     return [_d[_][json_lookup] for _ in range(len(_d))]
-                                # return [_d[_][json_lookup] for _ in range(len(_d) - 1)]
                 except KeyError:
                     logger.critical("Key not found %s" % json_lookup)
                 except TypeError:
