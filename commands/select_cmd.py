@@ -6,6 +6,33 @@ parse = parser.ConnectedAccounts()
 logger = logutil.initLogger("select_cmd")
 
 
+async def _do_guild_lookup(db, id, ctx):
+    try:
+        data = db.find(id, "guilds")
+        if data:
+            _features = ", ".join(data["features"])
+            _message = f"""
+__Guild Name__: `{data["name"]}`
+__Guild Icon__: {data["icon"]}
+__Guild Owner__: `{data["owner"]["name"]} = {data["owner"]["id"]}`
+__Description__:
+```
+{data["description"]}
+```
+__Boosts__: `{data["premium_tier"]}`
+"""
+            if data["features"] != []:
+                _message += f"""
+__Features__: {_features}"""
+
+            await ctx.channel.send(_message)
+        else:
+            await ctx.channel.send("Guild not found either")
+    except Exception as e:
+        logger.error(",select guild lookup raised exception", exc_info=1)
+        ctx.channel.send("Something wrong happened: ```\n%s```" % e)
+
+
 async def _main(message, db):
     logger.info('"%s" - initiated a select command', message.author.name)
     if len(message.content) > 7:
@@ -62,9 +89,12 @@ __Connected Accounts__:
                 await message.channel.send(_message)
             else:
                 await message.channel.send(
-                    "Query returned empty. User not\
-found"
+                    "Query returned empty. User not \
+found. Trying to find guild..."
                 )
+                await _do_guild_lookup(db,
+                                       message.content[7:].lstrip().rstrip(),
+                                       message)
         except Exception as e:  # noqa
             logger.warning(",select triggered exception")
             traceback.print_exc()
