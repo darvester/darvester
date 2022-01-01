@@ -12,7 +12,12 @@ class ConnectedAccounts:
         except:  # noqa
             return f"https://github.com/{self._name}"
 
-    async def __init__(self, *args, **kwargs) -> str:
+    def __init__(self, *args, **kwargs) -> None:
+        self._type = kwargs.pop('type', None)
+        self._id = kwargs.pop('id', None)
+        self._name = kwargs.pop('name', None)
+
+    async def parse(self, *args, **kwargs):
         self._type = kwargs.pop('type', None)
         self._id = kwargs.pop('id', None)
         self._name = kwargs.pop('name', None)
