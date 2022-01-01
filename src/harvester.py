@@ -64,6 +64,7 @@ class Harvester:
                     # Define the data
                     guild_data = {
                         "name": guild.name,
+                        "icon": str(guild.icon_url),
                         "owner": {
                             "name": guild.owner.name if guild.owner else None,
                             "id": guild.owner.id if guild.owner else
