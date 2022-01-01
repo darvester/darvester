@@ -17,3 +17,7 @@ DB_NAME = "harvested.db"
 # Enable quiet mode to suppress some info going into your console
 # Mostly hides sensitive information. This does not affect info being harvested
 QUIET_MODE = True
+
+# Add user IDs here who are allowed to execute your commands to your database
+# If empty, all users will have access
+ID_WHITELIST = []
