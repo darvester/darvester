@@ -1,7 +1,7 @@
 from datetime import datetime
 import traceback
-import asyncio
-from src import logutil
+from src import logutil, parser
+parse = parser.ConnectedAccounts()
 
 logger = logutil.initLogger("select_cmd")
 
@@ -15,10 +15,21 @@ async def _main(message, db):
                 "users",
             )
             if data:
-                _connected_accounts = "".join(
-                    f"- {i['type']} - {i['name']}\n"
-                    for i in data["connected_accounts"]
-                )
+                _bio = data["bio"].replace("`", "-")
+
+                _connected_accounts = []
+                for _i in data["connected_accounts"]:
+                    _p = await parse.parse(
+                        type=_i["type"],
+                        name=_i["name"],
+                        id=_i["id"]
+                    )
+                    _connected_accounts.append(
+                        f"{_i['type']} - {_i['name']}\n   - {_p}"
+                    )
+
+                _connected_accounts = "\n".join(_connected_accounts) if not \
+                    '\n' else "None"
 
                 _mutual_guilds = []
                 for _i in data["mutual_guilds"]["guilds"]:
@@ -26,12 +37,15 @@ async def _main(message, db):
                     if _result is not None:
                         _mutual_guilds.append(_result)
 
-                _mutual_guilds = "\n".join(_mutual_guilds)
+                _mutual_guilds = "\n".join(_mutual_guilds) if not \
+                    '\n' or None else "None"
 
                 _message = f"""
 __Name__: `{data["name"]}#{data["discriminator"]}`
-__Bio__: ```{data["bio"]}```
-__Mutual Guilds__: ```{_mutual_guilds}```
+__Bio__: ```{_bio}```
+__Mutual Guilds__: ```
+{_mutual_guilds}
+```
 __Avatar__: {data["avatar_url"]}
 __Account Created At__: `{datetime.fromtimestamp(data["created_at"])}`
 __Connected Accounts__:
@@ -47,16 +61,14 @@ __Connected Accounts__:
             else:
                 await message.channel.send(
                     "Query returned empty. User not\
-    found"
+found"
                 )
         except Exception as e:  # noqa
             logger.warning(",select triggered exception")
             traceback.print_exc()
             await message.channel.send(
-                "Something wrong happened:```py \
-    %s \
-    ```"
+                "Something wrong happened:```py\n \
+%s \
+```"
                 % (e)
             )
-            await asyncio.sleep(2)
-            await message.channel.send("```%s```" % traceback.format_exc())
