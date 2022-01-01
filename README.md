@@ -37,7 +37,7 @@ See the wiki page [here](https://github.com/V3ntus/darvester/wiki/Installing)
 
 - ![image](https://user-images.githubusercontent.com/29584664/146631952-e14d8afb-ed88-4735-afa6-cce14887cf1f.png)
 
-- ![image](https://user-images.githubusercontent.com/29584664/146631996-31be95fe-67e9-4e14-b3b8-1818cf32e614.png)
+- ![Screen Shot 2022-01-01 at 16 21 22](https://user-images.githubusercontent.com/29584664/147861381-d5c48a42-3d1b-4d5f-825a-6bda4cc7b012.png)
 
 - Slave/Harvester: ![image](https://user-images.githubusercontent.com/29584664/147799316-bae5525d-048f-4f7b-9955-574b17004637.png)
 
