@@ -20,10 +20,18 @@ async def _main(message, db):
                     for i in data["connected_accounts"]
                 )
 
+                _mutual_guilds = []
+                for _i in data["mutual_guilds"]["guilds"]:
+                    _result = db.find(_i, "guilds", "name")
+                    if _result is not None:
+                        _mutual_guilds.append(_result)
+
+                _mutual_guilds = "\n".join(_mutual_guilds)
+
                 _message = f"""
 __Name__: `{data["name"]}#{data["discriminator"]}`
 __Bio__: ```{data["bio"]}```
-__Mutual Guilds__: `{data["mutual_guilds"]["guilds"]}`
+__Mutual Guilds__: `{_mutual_guilds}`
 __Avatar__: {data["avatar_url"]}
 ___Account Created At__: `{datetime.fromtimestamp(data["created_at"])}`
 __Connected Accounts__:
