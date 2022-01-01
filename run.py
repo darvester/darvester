@@ -1,3 +1,4 @@
+# flake8: ignore = E402
 import os
 import sys
 from distutils.util import strtobool
@@ -21,16 +22,22 @@ Do you agree? [y/N] """
     print("Continuing...")
 # END user agreement
 
-import selfcord as discord
-from selfcord.ext import commands
-from cfg import DEBUG_DISCORD, ENABLE_PRESENCE, DB_NAME, QUIET_MODE
+help_message = """
+__Help:__
+`,select [user or guild ID]` = Select and send a row in the database with \
+the ID you choose (in Snowflake form)
+"""
 
-from src import logutil
-from src.harvester import Harvester
-from src.sqlutil import SQLiteNoSQL
+import selfcord as discord  # noqa: ignore = E402
+from selfcord.ext import commands  # noqa: ignore = E402
+from cfg import DEBUG_DISCORD, ENABLE_PRESENCE, DB_NAME, QUIET_MODE  # noqa: ignore = E402
+
+from src import logutil  # noqa: ignore = E402
+from src.harvester import Harvester  # noqa: ignore = E402
+from src.sqlutil import SQLiteNoSQL  # noqa: ignore = E402
 
 # Commands go here
-from commands import (
+from commands import (  # noqa: ignore = E402
     select_cmd,
     filter_cmd
 )
@@ -91,7 +98,7 @@ async def on_ready():
 @client.event
 async def on_message(message: discord.Message):
     if message.content.upper() == ",HELP":
-        await message.channel.send("Help: `,select [USER ID HERE]`")
+        await message.channel.send(help_message)
 
     if message.content.upper().startswith(",SELECT"):
         await select_cmd._main(message, db)
