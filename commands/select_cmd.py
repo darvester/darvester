@@ -31,9 +31,9 @@ async def _main(message, db):
                 _message = f"""
 __Name__: `{data["name"]}#{data["discriminator"]}`
 __Bio__: ```{data["bio"]}```
-__Mutual Guilds__: `{_mutual_guilds}`
+__Mutual Guilds__: ```{_mutual_guilds}```
 __Avatar__: {data["avatar_url"]}
-___Account Created At__: `{datetime.fromtimestamp(data["created_at"])}`
+__Account Created At__: `{datetime.fromtimestamp(data["created_at"])}`
 __Connected Accounts__:
 ```
 {_connected_accounts}
