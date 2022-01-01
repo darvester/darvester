@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import traceback
 import asyncio
 from src import logutil
@@ -21,16 +21,16 @@ async def _main(message, db):
                 )
 
                 _message = f"""
-    Name: `{data["name"]}#{data["discriminator"]}`
-    Bio: ```{data["bio"]}```
-    Mutual Guilds: `{data["mutual_guilds"]["guilds"]}`
-    Avatar: {data["avatar_url"]}
-    Account Created At: `{datetime.fromtimestamp(data["created_at"])}`
-    Connected Accounts:
-    ```
-    {_connected_accounts}
-    ```
-    """
+__Name__: `{data["name"]}#{data["discriminator"]}`
+__Bio__: ```{data["bio"]}```
+__Mutual Guilds__: `{data["mutual_guilds"]["guilds"]}`
+__Avatar__: {data["avatar_url"]}
+___Account Created At__: `{datetime.fromtimestamp(data["created_at"])}`
+__Connected Accounts__:
+```
+{_connected_accounts}
+```
+"""  # TODO print name of guild (log guild to database)
                 logger.info(
                     'Found "%s" requested by user "%s"' %
                     (data["name"], message.author.name),
