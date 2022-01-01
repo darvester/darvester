@@ -141,6 +141,5 @@ class BotStatus():
                     emoji="⛏️"
                 )
             )
-            await asyncio.sleep(15)
             await client.change_presence(activity=discord.Game("Darvester"),
                                          status=status)
