@@ -192,7 +192,7 @@ class SQLiteNoSQL:
             logger.debug("Initializing fts table for %s" % table)
             self.open(DB_NAME)
             # Drop things if they exist
-            self.cur.execute(
+            self.cur.executescript(
                 f"DROP TABLE IF EXISTS {table}_fts;" +
                 f"DROP TRIGGER IF EXISTS {table}_fts_before_update;" +
                 f"DROP TRIGGER IF EXISTS {table}_fts_before_delete;" +
@@ -278,20 +278,31 @@ class SQLiteNoSQL:
                       query: str = None,
                       json_lookup: str = None,
                       table: str = "users",
-                      query_type: str = "MATCH"):
+                      query_type: str = "MATCH",
+                      limit: int = 40):
         try:
             self.open()
 
-            self.cur.execute(
-                "SELECT id, data " +
-                f"FROM {table}_fts " +
-                f"WHERE data {query_type} ?", (query,) if query else None
-            )
+            _sql_query = f"SELECT DISTINCT id, data \
+FROM {table}_fts"
+
+            if query:
+                _sql_query += f" WHERE data {query_type} ?"
+            if limit > 0:
+                _sql_query += f" LIMIT {limit}"
+
+            self.cur.execute(_sql_query, (query,) if query else None)
+
+            # self.cur.execute(
+            #     "SELECT id, data " +
+            #     f"FROM {table}_fts " +
+            #     f"WHERE data {query_type} ? ", (query,) if query else None
+            # )
             _returned = self.cur.fetchall()
 
             _d = []
             try:
-                for _indice in range(len(_returned)):
+                for _ in range(len(_returned) - 1):
                     for _item in _returned:
                         # _item[0] is user ID
                         # _item[1] is data
@@ -302,13 +313,14 @@ class SQLiteNoSQL:
             except TypeError:
                 logger.critical("JSON load failed", exc_info=1)
 
-            if query:
+            if json_lookup:
                 try:
-                    return _d[json_lookup]
+                    return [_d[_][json_lookup] for _ in range(len(_d))]
+                                # return [_d[_][json_lookup] for _ in range(len(_d) - 1)]
                 except KeyError:
                     logger.critical("Key not found %s" % json_lookup)
                 except TypeError:
-                    logger.critical("Query returned none")
+                    logger.critical("Query returned none", exc_info=1)
             return _d
 
         except Exception:
