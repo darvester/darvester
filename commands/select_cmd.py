@@ -1,3 +1,4 @@
+import random
 from datetime import datetime
 import traceback
 from src import logutil, parser
@@ -30,11 +31,20 @@ __Features__: {_features}"""
             await ctx.channel.send("Guild not found either")
     except Exception as e:
         logger.error(",select guild lookup raised exception", exc_info=1)
-        ctx.channel.send("Something wrong happened: ```\n%s```" % e)
+        await ctx.channel.send("Something wrong happened: ```\n%s```" % e)
 
 
 async def _main(message, db):
     logger.info('"%s" - initiated a select command', message.author.name)
+    _hello_there = [
+        "Oh hey there. I'll get that right out for you...",
+        "Gotcha. Give me a second to look that up",
+        "Oh cool. One sec...",
+        "Nice I'll check it out...",
+        "Hm lemme see if I have that",
+        "Hold on, let me see..."
+    ]
+    await message.channel.send(random.choice(_hello_there))
     if len(message.content) > 7:
         try:
             data = db.find(
