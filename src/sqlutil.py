@@ -215,7 +215,7 @@ class SQLiteNoSQL:
             self.cur.execute(
                 f"CREATE TRIGGER IF NOT EXISTS {table}_fts_before_update " +
                 f"BEFORE UPDATE ON {table} BEGIN " +
-                f"DELETE FROM {table}_fts WHERE docid=old.rowid; END"
+                f"DELETE FROM {table}_fts WHERE rowid=old.rowid; END"
             )
             self.db.commit()
             logger.debug("Created %s_fts_before_update" % table)
@@ -223,7 +223,7 @@ class SQLiteNoSQL:
             self.cur.execute(
                 f"CREATE TRIGGER IF NOT EXISTS {table}_fts_before_delete " +
                 f"BEFORE DELETE ON {table} BEGIN " +
-                f"DELETE FROM {table}_fts WHERE docid=old.rowid; END"
+                f"DELETE FROM {table}_fts WHERE rowid=old.rowid; END"
             )
             self.db.commit()
             logger.debug("Created %s_fts_before_delete" % table)
@@ -231,10 +231,8 @@ class SQLiteNoSQL:
             self.cur.execute(
                 f"CREATE TRIGGER IF NOT EXISTS {table}_after_update " +
                 f"AFTER UPDATE ON {table} BEGIN " +
-                f"INSERT INTO {table}_fts(docid, data, id) " +
+                f"INSERT INTO {table}_fts(rowid, data, id) " +
                 f"SELECT rowid, data, id FROM {table} WHERE " +
-                "is_conflict = 0 AND " +
-                "encryption_applied = 0 AND " +
                 f"new.rowid = {table}.rowid; " +
                 "END"
             )
@@ -244,10 +242,8 @@ class SQLiteNoSQL:
             self.cur.execute(
                 f"CREATE TRIGGER IF NOT EXISTS {table}_after_insert " +
                 f"AFTER INSERT ON {table} BEGIN " +
-                f"INSERT INTO {table}_fts(docid, data, id) " +
+                f"INSERT INTO {table}_fts(rowid, data, id) " +
                 f"SELECT rowid, data, id FROM {table} WHERE " +
-                "is_conflict = 0 AND " +
-                "encryption_applied = 0 AND " +
                 f"new.rowid = {table}.rowid; " +
                 "END"
             )
