@@ -25,34 +25,36 @@ async def _main(message, db):
                         id=_i["id"]
                     )
                     _connected_accounts.append(
-                        f"{_i['type']} - {_i['name']}\n   - {_p}"
+                        f"`{_i['type']} - {_i['name']}`\n{_p}\n ---"
                     )
 
-                _connected_accounts = "\n".join(_connected_accounts) if not \
-                    '\n' else "None"
+                _connected_accounts = "\n".join(_connected_accounts)
 
                 _mutual_guilds = []
                 for _i in data["mutual_guilds"]["guilds"]:
                     _result = db.find(_i, "guilds", "name")
                     if _result is not None:
                         _mutual_guilds.append(_result)
+                    else:
+                        _mutual_guilds.append(str(_i))
 
-                _mutual_guilds = "\n".join(_mutual_guilds) if not \
-                    '\n' or None else "None"
+                _mutual_guilds = "\n".join(_mutual_guilds)
 
                 _message = f"""
 __Name__: `{data["name"]}#{data["discriminator"]}`
 __Bio__: ```{_bio}```
-__Mutual Guilds__: ```
-{_mutual_guilds}
-```
 __Avatar__: {data["avatar_url"]}
 __Account Created At__: `{datetime.fromtimestamp(data["created_at"])}`
-__Connected Accounts__:
-```
-{_connected_accounts}
-```
 """  # TODO print name of guild (log guild to database)
+                if _mutual_guilds != "\n":
+                    _message += f"""
+__Mutual Guilds__: ```
+{_mutual_guilds}
+```"""
+                if _connected_accounts != "\n":
+                    _message += f"""
+__Connected Accounts__:
+{_connected_accounts}"""
                 logger.info(
                     'Found "%s" requested by user "%s"' %
                     (data["name"], message.author.name),
