@@ -191,9 +191,13 @@ class SQLiteNoSQL:
         try:
             logger.debug("Initializing fts table for %s" % table)
             self.open(DB_NAME)
-
+            # Drop things if they exist
             self.cur.execute(
-                f"DROP TABLE IF EXISTS {table}_fts"
+                f"DROP TABLE IF EXISTS {table}_fts;" +
+                f"DROP TRIGGER IF EXISTS {table}_fts_before_update;" +
+                f"DROP TRIGGER IF EXISTS {table}_fts_before_delete;" +
+                f"DROP TRIGGER IF EXISTS {table}_after_update;" +
+                f"DROP TRIGGER IF EXISTS {table}_after_insert;"
             )
             self.db.commit()
 
