@@ -93,10 +93,10 @@ async def on_message(message: discord.Message):
         await message.channel.send("Help: `,select [USER ID HERE]`")
 
     if message.content.upper().startswith(",SELECT"):
-        select_cmd._main(message, db)
+        await select_cmd._main(message, db)
 
     if message.content.upper().startswith(",FILTER"):
-        filter_cmd._main(message, db)
+        await filter_cmd._main(message, db)
 
 # Login with bot
 client.run(TOKEN)
