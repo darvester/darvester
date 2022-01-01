@@ -1,6 +1,7 @@
 import json
 import sqlite3
 import time
+import traceback
 from cfg import DB_NAME, QUIET_MODE
 
 from src import logutil
@@ -47,7 +48,7 @@ class DictDiffer(object):
 class SQLiteNoSQL:
     """Open the database on module init"""
 
-    def __init__(self, f):
+    def __init__(self, f: str = DB_NAME):
         self.dbfile = f
         self.db = sqlite3.connect(f)
         global dbfile
@@ -150,8 +151,7 @@ class SQLiteNoSQL:
             self.open(DB_NAME)
             # execute SELECT to grab data
             self.cur.execute(
-                f"\
-                SELECT data FROM {table} WHERE id = ?",
+                f"SELECT data FROM {table} WHERE id = ?",
                 (id,),
             )
             data = self.cur.fetchone()
@@ -186,3 +186,130 @@ class SQLiteNoSQL:
             logger.error("ProgrammingError raised")
             self.close()
             self.open(self.dbfile)
+
+    def init_fts_table(self, table: str = "users"):
+        try:
+            logger.debug("Initializing fts table for %s" % table)
+            self.open(DB_NAME)
+
+            self.cur.execute(
+                f"DROP TABLE IF EXISTS {table}_fts"
+            )
+            self.db.commit()
+
+            # create inital fts db
+            self.cur.execute(
+                f"CREATE VIRTUAL TABLE IF NOT EXISTS {table}_fts " +
+                f"USING fts5(data, id, content='{table}')"
+            )
+            self.db.commit()
+            logger.debug("Created %s_fts" % table)
+
+            # Populate the fts table
+            self.cur.execute(
+                f"INSERT INTO {table}_fts SELECT * FROM {table}"
+            )
+            self.db.commit()
+
+            # setup triggers to update the fts db
+            self.cur.execute(
+                f"CREATE TRIGGER IF NOT EXISTS {table}_fts_before_update " +
+                f"BEFORE UPDATE ON {table} BEGIN " +
+                f"DELETE FROM {table}_fts WHERE docid=old.rowid; END"
+            )
+            self.db.commit()
+            logger.debug("Created %s_fts_before_update" % table)
+
+            self.cur.execute(
+                f"CREATE TRIGGER IF NOT EXISTS {table}_fts_before_delete " +
+                f"BEFORE DELETE ON {table} BEGIN " +
+                f"DELETE FROM {table}_fts WHERE docid=old.rowid; END"
+            )
+            self.db.commit()
+            logger.debug("Created %s_fts_before_delete" % table)
+
+            self.cur.execute(
+                f"CREATE TRIGGER IF NOT EXISTS {table}_after_update " +
+                f"AFTER UPDATE ON {table} BEGIN " +
+                f"INSERT INTO {table}_fts(docid, data, id) " +
+                f"SELECT rowid, data, id FROM {table} WHERE " +
+                "is_conflict = 0 AND " +
+                "encryption_applied = 0 AND " +
+                f"new.rowid = {table}.rowid; " +
+                "END"
+            )
+            self.db.commit()
+            logger.debug("Created %s_fts_after_update" % table)
+
+            self.cur.execute(
+                f"CREATE TRIGGER IF NOT EXISTS {table}_after_insert " +
+                f"AFTER INSERT ON {table} BEGIN " +
+                f"INSERT INTO {table}_fts(docid, data, id) " +
+                f"SELECT rowid, data, id FROM {table} WHERE " +
+                "is_conflict = 0 AND " +
+                "encryption_applied = 0 AND " +
+                f"new.rowid = {table}.rowid; " +
+                "END"
+            )
+            self.db.commit()
+            logger.debug("Created %s_fts_after_insert" % table)
+            self.db.close()
+        except Exception:
+            logger.critical("An exception occured", exc_info=1)
+        except sqlite3.OperationalError:
+            logger.critical("An exception occured", exc_info=1)
+
+    def rebuild_fts_table(
+                    self,
+                    table: str = "users"):
+        try:
+            logger.debug("Rebuilding the fts table for %s" % table)
+            self.open(DB_NAME)
+            self.cur.execute(
+                F"INSERT INTO {table}_fts({table}_fts) " +
+                "VALUES('rebuild')"
+            )
+            self.db.commit()
+            self.db.close()
+        except Exception:
+            logger.critical("An exception occured", exc_info=1)
+
+    def find_from_fts(self,
+                      query: str = None,
+                      json_lookup: str = None,
+                      table: str = "users",
+                      query_type: str = "MATCH"):
+        try:
+            self.open()
+
+            self.cur.execute(
+                "SELECT id, data " +
+                f"FROM {table}_fts " +
+                f"WHERE data {query_type} ?", (query,) if query else None
+            )
+            _returned = self.cur.fetchall()
+
+            _d = []
+            try:
+                for _indice in range(len(_returned)):
+                    for _item in _returned:
+                        # _item[0] is user ID
+                        # _item[1] is data
+                        _d.append(json.loads(_item[1]))
+            except json.decoder.JSONDecodeError:
+                for _item in _returned:
+                    _d = json.loads(_item)
+            except TypeError:
+                logger.critical("JSON load failed", exc_info=1)
+
+            if query:
+                try:
+                    return _d[json_lookup]
+                except KeyError:
+                    logger.critical("Key not found %s" % json_lookup)
+                except TypeError:
+                    logger.critical("Query returned none")
+            return _d
+
+        except Exception:
+            traceback.print_exc()
