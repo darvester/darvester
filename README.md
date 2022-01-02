@@ -3,6 +3,9 @@
 <p align="center">
 <img width="50%" height="50%" align="center" src="https://user-images.githubusercontent.com/29584664/146680484-b63cbde2-5386-4feb-8cbe-f4807ea99b61.png" />
 </p>
+<p align="center">
+  Worked on for <a href="https://wakatime.com/badge/user/5695f814-ebe9-4e6d-83fd-211468aa6597/project/2a6edb4f-b63b-4fcf-9726-3ef343694a2f"><img src="https://wakatime.com/badge/user/5695f814-ebe9-4e6d-83fd-211468aa6597/project/2a6edb4f-b63b-4fcf-9726-3ef343694a2f.svg" alt="wakatime"></a>
+</p>
 
 ---
 ### PoC Discord user and guild information harvester 
