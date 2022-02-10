@@ -4,7 +4,7 @@ import time
 
 import selfcord as discord
 
-from cfg import QUIET_MODE
+from cfg import QUIET_MODE, IGNORE_GUILD
 from src import logutil
 from src.presence import BotStatus, RichPresence
 from src.sqlutil import SQLiteNoSQL
@@ -47,6 +47,12 @@ class Harvester:
                     if guild.unavailable:
                         logger.warning(
                             "Guild '%s' is unavailable. Skipping..."
+                            % guild.name
+                        )
+                        continue
+                    if guild.id in IGNORE_GUILD:
+                        logger.warning(
+                            "Guild %s ignored. Skipping..."
                             % guild.name
                         )
                         continue

@@ -28,6 +28,10 @@ __Help:__
 the ID you choose (in Snowflake form)
 """
 
+from src.argparsing import _parse_args  # noqaL ignore = E402
+
+args = _parse_args()
+
 import selfcord as discord  # noqa: ignore = E402
 from selfcord.ext import commands  # noqa: ignore = E402
 from cfg import DEBUG_DISCORD, ENABLE_PRESENCE, DB_NAME, QUIET_MODE  # noqa: ignore = E402
@@ -59,7 +63,7 @@ try:
 except ImportError:
     TOKEN = os.getenv("TOKEN")
 
-if TOKEN and os.getenv("TOKEN") == "":
+if (TOKEN and os.getenv("TOKEN")) == "":
     logger.critical(
         "TOKEN not found. Declare TOKEN in your environment or set \
 it in cfg.py"
