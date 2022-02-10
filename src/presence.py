@@ -4,7 +4,6 @@ import threading
 import time
 import pypresence
 import selfcord as discord
-# from threading import Thread
 
 from src.logutil import initLogger
 from cfg import ENABLE_PRESENCE
@@ -12,15 +11,6 @@ rp_logger = initLogger("RichPresence")
 bs_logger = initLogger("BotStatus")
 # You shouldn't change this, unless you know what you're doing
 APPLICATION_ID = 926180199501025342
-
-# try:
-#     from cfg import ENABLE_PRESENCE
-# except ImportError:
-#     os.getenv("ENABLE_PRESENCE")
-
-# if ENABLE_PRESENCE and os.getenv("ENABLE_PRESENCE") == "":
-#     logger.critical("ENABLE_PRESENCE not set. Presence staying off...")
-#     ENABLE_PRESENCE = False
 
 
 class RichPresence():
@@ -30,7 +20,8 @@ class RichPresence():
             rp_logger.debug("Queue created")
             self.queue = q
 
-    def _thread_run(self, queue):
+    @staticmethod
+    def _thread_run(queue):
         rp_logger.info("RichPresenceThread started")
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
@@ -87,7 +78,7 @@ class RichPresence():
                     queue.task_done()
                 _logger.debug("Cleared queue")
                 # time.sleep(15)
-        except:  # noqa
+        except Exception:  # noqa
             _logger.critical("Exception happened", exc_info=1)
 
     def get_queue(self) -> Queue:

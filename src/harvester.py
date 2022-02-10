@@ -8,6 +8,7 @@ from cfg import QUIET_MODE, IGNORE_GUILD, LAST_SCANNED_INTERVAL
 from src import logutil
 from src.presence import BotStatus, RichPresence
 from src.sqlutil import SQLiteNoSQL
+from src.termtitle import set_title
 RichPresence = RichPresence()
 RichPresence.start_thread()
 logger = logutil.initLogger("harvester")
@@ -28,6 +29,7 @@ class Harvester:
 
     async def thread_start(self, client):
         RichPresence.put(message=["Darvester", "Preparing...", ""])
+        set_title("Darvester - Preparing...")
         logger.info("Logged in as %s", client.user.name if not QUIET_MODE else
                     "user")
         logger.info("Starting guild ID dump...")
@@ -59,8 +61,10 @@ class Harvester:
                     logger.info('Now working in guild: "%s"', guild.name
                                 if not QUIET_MODE else
                                 "(quiet mode enabled)")
+                    set_title(f"Darvester - Harvesting {guild.name}" +
+                              f" with {guild.member_count} members")
                     RichPresence.put(message=[f"Harvesting '{guild.name}'" if not QUIET_MODE else quiet_msg,  # noqa
-                                              f"{len(guild.members)} members",
+                                              f"{guild.member_count} members",
                                               ""])
                     await BotStatus.update(client=client,
                                            state=f'Harvesting "{guild.name}"' if not QUIET_MODE else quiet_msg,  # noqa
@@ -188,6 +192,7 @@ class Harvester:
                             RichPresence.put(message=["Darvester",
                                                       "On cooldown",
                                                       "cooldown"])
+                            set_title("Darvester - On cooldown")
                             self.db.close()
                             logger.info("On request cooldown...")
                             for _ in range(60, 0, -1):
@@ -196,8 +201,9 @@ class Harvester:
                                 sys.stdout.flush()
                                 await asyncio.sleep(1)
                             print("\n")
+                            set_title(f"Darvester - Harvesting {guild.name} with {guild.member_count} members")
                             RichPresence.put(message=[f"Harvesting '{guild.name}'" if not QUIET_MODE else quiet_msg,  # noqa
-                                                      f"{len(guild.members)} members",  # noqa
+                                                      f"{guild.member_count} members",  # noqa
                                                       ""])  # noqa
                             await BotStatus.update(client=client,
                                                    state=f'Harvesting "{guild.name}"' if not QUIET_MODE else quiet_msg,  # noqa
@@ -211,6 +217,7 @@ class Harvester:
                 RichPresence.put(message=["- Discord OSINT harvester",
                                           "- Created by V3ntus",
                                           ""])
+                set_title("Darvester - Created by V3ntus")
                 await asyncio.sleep(1)
                 for _ in range(600, 0, -1):
                     sys.stdout.write("\r")

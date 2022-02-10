@@ -47,11 +47,10 @@ async def _main(message, db):
     await message.channel.send(random.choice(_hello_there))
     if len(message.content) > 7:
         try:
-            data = db.find(
+            if data := db.find(
                 message.content[7:].lstrip().rstrip(),
                 "users",
-            )
-            if data:
+            ):
                 _bio = data["bio"].replace("`", "-")
 
                 _connected_accounts = []

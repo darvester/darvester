@@ -39,6 +39,7 @@ from cfg import DEBUG_DISCORD, ENABLE_PRESENCE, DB_NAME, QUIET_MODE  # noqa: ign
 from src import logutil  # noqa: ignore = E402
 from src.harvester import Harvester  # noqa: ignore = E402
 from src.sqlutil import SQLiteNoSQL  # noqa: ignore = E402
+from src.termtitle import set_title  # noqa: ignore = E402
 
 # Commands go here
 from commands import (  # noqa: ignore = E402
@@ -77,6 +78,7 @@ if QUIET_MODE:
     and sensitive data will be hidden, but this will *not* affect the data \n \
     harvested. Continuing...")
 # Setup bot client
+set_title("Darvester - Connecting")
 logger.info("Connecting to gateway... Be patient")
 client = commands.Bot(
     command_prefix=",",
