@@ -4,7 +4,7 @@ import time
 
 import selfcord as discord
 
-from cfg import QUIET_MODE, IGNORE_GUILD
+from cfg import QUIET_MODE, IGNORE_GUILD, LAST_SCANNED_INTERVAL
 from src import logutil
 from src.presence import BotStatus, RichPresence
 from src.sqlutil import SQLiteNoSQL
@@ -39,11 +39,11 @@ class Harvester:
             while True:
                 self.db.open()
                 _request_number = 0  # For our rate limiting
-                # Store all guilds user is in
+                # Store all guilds bot/user is in
                 _list_of_guilds = [guild.id for guild in client.guilds]
 
                 for guildid in _list_of_guilds:
-                    guild = client.get_guild(guildid)
+                    guild: discord.Guild = client.get_guild(guildid)
                     if guild.unavailable:
                         logger.warning(
                             "Guild '%s' is unavailable. Skipping..."
@@ -76,6 +76,8 @@ class Harvester:
                             "id": guild.owner.id if guild.owner else
                             guild.owner_id
                         },
+                        "splash_url": str(guild.splash_url),
+                        "member_count": guild.member_count,
                         "description": guild.description,
                         "features": guild.features,
                         "premium_tier": guild.premium_tier,
@@ -92,6 +94,7 @@ class Harvester:
                     await guild.ack()
 
                     "Do member/user harvest"
+                    member: discord.Member
                     for member in guild.members:
                         # Filter for bot and Discord system messages
                         if member.bot and member.system:
@@ -121,20 +124,23 @@ class Harvester:
                                 try:
                                     _d1 = _d1["last_scanned"]
                                 except Exception:
-                                    logger.debug(
-                                        "\
-_d1 assigned to None due to last_scanned query error"
-                                    )
                                     _d1 = None  # last_scanned was not appended
 
                             if (
                                 _d1 is not None
-                                and (int(time.time()) - int(_d1)) < 600
+                                and (int(
+                                        time.time()
+                                    ) - int(_d1)) < LAST_SCANNED_INTERVAL
                             ):
                                 logger.info(
-                                    'User "%s" scanned in the last \
-ten minutes. Skipping...',
+                                    'User "%s" scanned in the last ' +
+                                    '%s. Skipping...',
                                     member.name if not QUIET_MODE else None,
+                                    str(int(LAST_SCANNED_INTERVAL / 60)) +
+                                    " minutes" if
+                                    int(LAST_SCANNED_INTERVAL / 60) != 0 else
+                                    str(int(LAST_SCANNED_INTERVAL)) +
+                                    " seconds"
                                 )
                                 continue
 

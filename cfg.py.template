@@ -1,4 +1,7 @@
-TOKEN="Discord *user* token here"
+TOKEN = "discord *user* token here"
+
+# Ignore these guilds
+IGNORE_GUILD = []
 
 # Enable debug messages
 DEBUG = False
@@ -7,17 +10,20 @@ DEBUG = False
 # WARNING: Very spammy
 DEBUG_DISCORD = False
 
-# Update presence for bot and client. In my opinion, it's not really covert but...
+# Use presence for bot and client. In my opinion, it's not really covert but...
 # It's cool :sunglasses:
-ENABLE_PRESENCE = False
+ENABLE_PRESENCE = True
 
 # The name of the database file you want to open and log to
 DB_NAME = "harvested.db"
 
 # Enable quiet mode to suppress some info going into your console
 # Mostly hides sensitive information. This does not affect info being harvested
-QUIET_MODE = True
+QUIET_MODE = False
 
 # Add user IDs here who are allowed to execute your commands to your database
-# If empty, all users will have access
 ID_WHITELIST = []
+
+# The amount of time that must pass before we harvest this user again
+# in seconds
+LAST_SCANNED_INTERVAL = 600
