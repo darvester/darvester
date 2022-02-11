@@ -68,12 +68,15 @@ class Harvester:
                         if not QUIET_MODE
                         else "a guild" + f"with {len(guild.members)} members"
                     )
+
+                    _g_name = guild.name if not QUIET_MODE \
+                        else "\"quiet mode\""
+                    _g_desc = guild.description if not QUIET_MODE \
+                        else "\"quiet mode\""
+
                     guild_status.update(
-                        demo="Name: " + guild.name
-                        if not QUIET_MODE
-                        else '"quiet mode"' + " | Description: " + guild.description  # noqa
-                        if not QUIET_MODE
-                        else '"quiet mode"'  # noqa
+                        demo=f"Name: {_g_name}"
+                        + f" | Description: {_g_desc}"
                     )
                     if guild.unavailable:
                         logger.warning(
@@ -237,17 +240,15 @@ class Harvester:
                             else:
                                 _bio = "None"
 
+                            _name = data["name"] + "#" + data["discriminator"]
+                            if QUIET_MODE:
+                                _name = "\"quiet mode\""
+
                             member_status.update(
-                                demo="Name: " + data["name"]
-                                if not QUIET_MODE
-                                else '"quiet mode"' + "#"
-                                if not QUIET_MODE
-                                else "" + data["discriminator"]
-                                if not QUIET_MODE
-                                else ""
+                                demo=f"Name: {_name}"
                                 + f" | Bio: {_bio}"
                                 + " | Created at: "
-                                + datetime.fromtimestamp(int(data["created_at"]))  # noqa
+                                + str(datetime.fromtimestamp(int(data["created_at"])))  # noqa
                                 if not QUIET_MODE
                                 else '"quiet mode"'
                             )
