@@ -63,16 +63,15 @@ class Harvester:
                         guild_counter.clear()
 
                     guild: discord.Guild = client.get_guild(guildid)
-                    term_status.update(
-                        demo="Harvesting " + guild.name
-                        if not QUIET_MODE
-                        else "a guild" + f"with {len(guild.members)} members"
-                    )
-
                     _g_name = guild.name if not QUIET_MODE \
                         else "\"quiet mode\""
                     _g_desc = guild.description if not QUIET_MODE \
                         else "\"quiet mode\""
+
+                    term_status.update(
+                        demo=f"Harvesting {_g_name}" +
+                        f" with {len(guild.members)} members"
+                    )
 
                     guild_status.update(
                         demo=f"Name: {_g_name}"
@@ -97,8 +96,7 @@ class Harvester:
                         guild.name if not QUIET_MODE else "(quiet mode enabled)",  # noqa
                     )
                     set_title(
-                        "Darvester - Harvesting "
-                        + guild.name if not QUIET_MODE else "a guild"
+                        f"Darvester - Harvesting {_g_name}"
                         + f" with {len(guild.members)} members"
                     )
                     RichPresence.put(
