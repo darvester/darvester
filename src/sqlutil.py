@@ -2,8 +2,8 @@ import json
 import sqlite3
 import time
 import traceback
-from cfg import DB_NAME, QUIET_MODE
 
+from cfg import DB_NAME, QUIET_MODE
 from src import logutil
 
 logger = logutil.initLogger("sqlutil")
@@ -55,10 +55,10 @@ class SQLiteNoSQL:
         dbfile = self.dbfile
         self.cur = self.db.cursor()
         self.cur.executescript(
-            "CREATE TABLE IF NOT EXISTS " +
-            "users(data TEXT UNIQUE, id INTEGER UNIQUE);" +
-            "CREATE TABLE IF NOT EXISTS " +
-            "guilds(data TEXT UNIQUE, id INTEGER UNIQUE);"
+            "CREATE TABLE IF NOT EXISTS "
+            + "users(data TEXT UNIQUE, id INTEGER UNIQUE);"
+            + "CREATE TABLE IF NOT EXISTS "
+            + "guilds(data TEXT UNIQUE, id INTEGER UNIQUE);"
         )
 
     def open(self, f: str = dbfile):
@@ -105,8 +105,10 @@ class SQLiteNoSQL:
             self.open(self.dbfile)
         except sqlite3.IntegrityError:
             # Process an already existent row
-            logger.info(f"Already exists: {id if not QUIET_MODE else None}" +
-                        " -- Updating info...")
+            logger.info(
+                f"Already exists: {id if not QUIET_MODE else None}"
+                + " -- Updating info..."
+            )
 
             # Use the 'data' from our try
             try:
@@ -173,14 +175,9 @@ class SQLiteNoSQL:
                     return _d[query]
                 except KeyError:
                     if query != "last_scanned":
-                        logger.debug(
-                            'Query "%s" failed. May not be harmful',
-                            query
-                        )
+                        logger.debug('Query "%s" failed. May not be harmful', query)  # noqa
                 except TypeError:
-                    logger.debug(
-                            "Query data returned None. Probably first seen?"
-                        )
+                    logger.debug("Query data returned None. Probably first seen?")  # noqa
             # return as json
             return _d
         except sqlite3.ProgrammingError:
@@ -194,63 +191,61 @@ class SQLiteNoSQL:
             self.open(DB_NAME)
             # Drop things if they exist
             self.cur.executescript(
-                f"DROP TABLE IF EXISTS {table}_fts;" +
-                f"DROP TRIGGER IF EXISTS {table}_fts_before_update;" +
-                f"DROP TRIGGER IF EXISTS {table}_fts_before_delete;" +
-                f"DROP TRIGGER IF EXISTS {table}_after_update;" +
-                f"DROP TRIGGER IF EXISTS {table}_after_insert;"
+                f"DROP TABLE IF EXISTS {table}_fts;"
+                + f"DROP TRIGGER IF EXISTS {table}_fts_before_update;"
+                + f"DROP TRIGGER IF EXISTS {table}_fts_before_delete;"
+                + f"DROP TRIGGER IF EXISTS {table}_after_update;"
+                + f"DROP TRIGGER IF EXISTS {table}_after_insert;"
             )
             self.db.commit()
 
             # create inital fts db
             self.cur.execute(
-                f"CREATE VIRTUAL TABLE IF NOT EXISTS {table}_fts " +
-                f"USING fts5(data, id, content='{table}')"
+                f"CREATE VIRTUAL TABLE IF NOT EXISTS {table}_fts "
+                + f"USING fts5(data, id, content='{table}')"
             )
             self.db.commit()
             logger.debug("Created %s_fts" % table)
 
             # Populate the fts table
-            self.cur.execute(
-                f"INSERT INTO {table}_fts SELECT * FROM {table}"
-            )
+            self.cur.execute(f"INSERT INTO {table}_fts SELECT * FROM {table}")
             self.db.commit()
 
             # setup triggers to update the fts db
             self.cur.execute(
-                f"CREATE TRIGGER IF NOT EXISTS {table}_fts_before_update " +
-                f"BEFORE UPDATE ON {table} BEGIN " +
-                f"DELETE FROM {table}_fts WHERE rowid=old.rowid; END"
+                f"CREATE TRIGGER IF NOT EXISTS {table}_fts_before_update "
+                + f"BEFORE UPDATE ON {table} BEGIN "
+                + f"DELETE FROM {table}_fts WHERE rowid=old.rowid; END"
             )
             self.db.commit()
             logger.debug("Created %s_fts_before_update" % table)
 
             self.cur.execute(
-                f"CREATE TRIGGER IF NOT EXISTS {table}_fts_before_delete " +
-                f"BEFORE DELETE ON {table} BEGIN " +
-                f"DELETE FROM {table}_fts WHERE rowid=old.rowid; END"
+                f"CREATE TRIGGER IF NOT EXISTS {table}_fts_before_delete "
+                + f"BEFORE DELETE ON {table} BEGIN "
+                + f"DELETE FROM {table}_fts WHERE rowid=old.rowid; END"
             )
             self.db.commit()
             logger.debug("Created %s_fts_before_delete" % table)
 
             self.cur.execute(
-                f"CREATE TRIGGER IF NOT EXISTS {table}_after_update " +
-                f"AFTER UPDATE ON {table} BEGIN " +
-                f"INSERT INTO {table}_fts(rowid, data, id) " +
-                f"SELECT rowid, data, id FROM {table} WHERE " +
-                f"new.rowid = {table}.rowid; " +
-                "END"
+                f"CREATE TRIGGER IF NOT EXISTS {table}_after_update "
+                + f"AFTER UPDATE ON {table} BEGIN "
+                + f"INSERT INTO {table}_fts(rowid, data, id) "
+                + f"SELECT rowid, data, id FROM {table} WHERE "
+                + f"new.rowid = {table}.rowid; "
+                + "END"
             )
             self.db.commit()
             logger.debug("Created %s_fts_after_update" % table)
 
             self.cur.execute(
-                f"CREATE TRIGGER IF NOT EXISTS {table}_after_insert " +
-                f"AFTER INSERT ON {table} BEGIN " +
-                f"INSERT INTO {table}_fts(rowid, data, id) " +
-                f"SELECT rowid, data, id FROM {table} WHERE " +
-                f"new.rowid = {table}.rowid; " +
-                "END"
+                f"CREATE TRIGGER IF NOT EXISTS {table}_after_insert "
+                + f"AFTER INSERT ON {table} BEGIN "
+                + f"INSERT INTO {table}_fts(rowid, data, id) "
+                + f"SELECT rowid, data, id FROM {table} WHERE "
+                + f"new.rowid = {table}.rowid; "
+                + "END"
             )
             self.db.commit()
             logger.debug("Created %s_fts_after_insert" % table)
@@ -260,27 +255,26 @@ class SQLiteNoSQL:
         except sqlite3.OperationalError:
             logger.critical("An exception occured", exc_info=1)
 
-    def rebuild_fts_table(
-                    self,
-                    table: str = "users"):
+    def rebuild_fts_table(self, table: str = "users"):
         try:
             logger.debug("Rebuilding the fts table for %s" % table)
             self.open(DB_NAME)
             self.cur.execute(
-                F"INSERT INTO {table}_fts({table}_fts) " +
-                "VALUES('rebuild')"
+                f"INSERT INTO {table}_fts({table}_fts) " + "VALUES('rebuild')"
             )
             self.db.commit()
             self.db.close()
         except Exception:
             logger.critical("An exception occured", exc_info=1)
 
-    def find_from_fts(self,
-                      query: str = None,
-                      json_lookup: str = None,
-                      table: str = "users",
-                      query_type: str = "MATCH",
-                      limit: int = 40):
+    def find_from_fts(
+        self,
+        query: str = None,
+        json_lookup: str = None,
+        table: str = "users",
+        query_type: str = "MATCH",
+        limit: int = 40,
+    ):
         try:
             self.open()
 
@@ -304,10 +298,7 @@ FROM {table}_fts"
             _d = []
             try:
                 for _ in range(len(_returned) - 1):
-                    for _item in _returned:
-                        # _item[0] is user ID
-                        # _item[1] is data
-                        _d.append(json.loads(_item[1]))
+                    _d.extend(json.loads(_item[1]) for _item in _returned)
             except json.decoder.JSONDecodeError:
                 for _item in _returned:
                     _d = json.loads(_item)

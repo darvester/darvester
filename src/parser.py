@@ -1,5 +1,7 @@
 import aiohttp
+
 from src import logutil
+
 logger = logutil.initLogger("parser")
 
 
@@ -17,20 +19,18 @@ class ConnectedAccounts:
             return f"https://github.com/{self._name}"
 
     def __init__(self, *args, **kwargs) -> None:
-        self._type = kwargs.pop('type', None)
-        self._id = kwargs.pop('id', None)
-        self._name = kwargs.pop('name', None)
+        self._type = kwargs.pop("type", None)
+        self._id = kwargs.pop("id", None)
+        self._name = kwargs.pop("name", None)
 
     async def parse(self, *args, **kwargs):
-        self._type = kwargs.pop('type', None)
-        self._id = kwargs.pop('id', None)
-        self._name = kwargs.pop('name', None)
+        self._type = kwargs.pop("type", None)
+        self._id = kwargs.pop("id", None)
+        self._name = kwargs.pop("name", None)
 
-        logger.debug("Parsing type: %s, id: %s, name: %s" % (
-            self._type,
-            self._id,
-            self._name
-        ))
+        logger.debug(
+            "Parsing type: %s, id: %s, name: %s" % (self._type, self._id, self._name)  # noqa
+        )
 
         if self._type == "battlenet":
             return self._name  # no api(?)
@@ -49,7 +49,7 @@ class ConnectedAccounts:
         elif self._type == "twitter":
             return f"https://twitter.com/{self._name}"  # avoid api
         elif self._type == "xbox":
-            return self._name   # no api(?)
+            return self._name  # no api(?)
         elif self._type == "youtube":
             return f"https://youtube.com/channel/{self._id}"
         else:

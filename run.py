@@ -1,20 +1,24 @@
 # flake8: ignore = E402
 import os
 import sys
-
 from distutils.util import strtobool
 
 # BEGIN user agreement
 if not os.path.exists(".agreed"):
     try:
-        resp = input("""
+        resp = (
+            input(
+                """
 !! DISCLAIMER: !!
 Using this tool, you agree not to hold the contributors and developers
 accountable for any damages that occur. This tool violates Discord terms of
 service and may result in your access to Discord services terminated.
 Do you agree? [y/N] """
-                     ).strip().lower()
-        if resp == '' or not strtobool(resp):
+            )
+            .strip()
+            .lower()
+        )
+        if resp == "" or not strtobool(resp):
             raise ValueError
     except ValueError:
         print("Invalid input. Exiting")
@@ -35,20 +39,18 @@ from src.argparsing import _parse_args  # noqaL ignore = E402
 args = _parse_args()
 
 from time import sleep  # noqa: ignore = E402
+
 import selfcord as discord  # noqa: ignore = E402
 from selfcord.ext import commands  # noqa: ignore = E402
-from cfg import DEBUG_DISCORD, ENABLE_PRESENCE, DB_NAME, QUIET_MODE  # noqa: ignore = E402
 
+from cfg import (DB_NAME, DEBUG_DISCORD,  # noqa: ignore = E402
+                 ENABLE_PRESENCE, QUIET_MODE)
 from src import logutil, ui  # noqa: ignore = E402
 from src.harvester import Harvester  # noqa: ignore = E402
 from src.sqlutil import SQLiteNoSQL  # noqa: ignore = E402
 from src.ui import set_title  # noqa: ignore = E402
-
 # Commands go here
-from commands import (  # noqa: ignore = E402
-    select_cmd,
-    filter_cmd
-)
+from commands import filter_cmd, select_cmd  # noqa: ignore = E402
 
 harvester = Harvester()
 db = SQLiteNoSQL(DB_NAME)
@@ -72,11 +74,7 @@ guild_status = ui.new_status_bar(
 )
 
 init_counter = ui.new_counter(
-    name="init",
-    total=4,
-    description="Initializing",
-    unit="",
-    leave=False
+    name="init", total=4, description="Initializing", unit="", leave=False
 )
 sleep(1)
 init_counter.update()
@@ -103,9 +101,11 @@ it in cfg.py"
 
 
 if QUIET_MODE:
-    logger.critical("QUIET_MODE enabled. Your console/log output will be suppressed \n \
+    logger.critical(
+        "QUIET_MODE enabled. Your console/log output will be suppressed \n \
     and sensitive data will be hidden, but this will *not* affect the data \n \
-    harvested. Continuing...")
+    harvested. Continuing..."
+    )
 # Setup bot client
 set_title("Darvester - Connecting")
 logger.info("Connecting to gateway... Be patient")
@@ -144,6 +144,7 @@ async def on_message(message: discord.Message):
 
     if message.content.upper().startswith(",FILTER"):
         await filter_cmd._main(message, db)
+
 
 # Login with bot
 client.run(TOKEN)
