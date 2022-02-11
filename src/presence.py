@@ -80,6 +80,9 @@ class RichPresence:
                     queue.task_done()
                 _logger.debug("Cleared queue")
                 # time.sleep(15)
+        except ConnectionRefusedError:
+            _logger.warning("Could not connect to your Discord client " +
+                            "for rich presence. Is it running?")
         except Exception:  # noqa
             _logger.critical("Exception happened", exc_info=1)
 
