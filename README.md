@@ -8,19 +8,33 @@
 </p>
 
 ---
-### PoC Discord user and guild information harvester 
-**Data logged for each user:**
-- Users' profile created date, and first seen date
-- Users' display name and discriminator
-- Users' user ID
-- Users' bio/about me
-- Users' connected accounts (reddit, YouTube, Facebook, etc.)
-- Users' public Discord flags (Discord Staff, Early Bot Developer, Certified Mod, etc.)
-- Users' avatar URL
+### PoC Discord user and guild information harvester  
 
-All as nested JSON in `harvested.db` (SQLite). Select data with `id` as user ID (Snowflake)
-- You can access this data through Discord by using the command `,select [USER ID]` (see screenshots below)
-> Example: `SELECT data FROM users WHERE id = 503791522401381355`
+<p align=center>
+  Darvester aims to provide safe Discord OSINT harvesting, abiding by sane rate limiting and providing automated processing
+ </p>
+
+**Data logged for each user:**
+- Profile created date, and first seen date
+- Username and discriminator
+- User ID (or Snowflake)
+- Bio/about me
+- Connected accounts (reddit, YouTube, Facebook, etc.)
+- Public Discord flags (Discord Staff, Early Bot Developer, Certified Mod, etc.)
+- Avatar URL
+
+**Data logged for each guild:**
+- Name
+- Icon URL
+- Owner name and ID
+- Splash URL
+- Member count
+- Description
+- Features (thread length, community, etc.)
+- Nitro tier
+
+All as nested JSON in `harvested.db` (SQLite). Select data with `id` as user ID (Snowflake).  
+You can access this data through Discord by using the command `,select [USER ID]` (see screenshots below)
 
 <h3 align="center">To start logging, just join a server with your user. No need to verify*</h3>
 <sub>* Unless the server is using a 3rd party verification bot. For example, non-community servers using mee6 or Dyno to verify by role/reaction</sub>
