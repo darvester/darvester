@@ -42,24 +42,18 @@ def new_counter(
 
 def new_status_bar(
         name: str,
-        status_format: str = None,
+        status_format: str = u'Darvester{fill}{demo}{fill}{elapsed}',
         color: str = 'bold_underline_bright_white_on_lightslategray',
         justify=enlighten.Justify.CENTER,
         demo: str = None,
         manager: enlighten.Manager = manager,
 ):
-    if name == "guild":
-        _tag = "Guild"
-    elif name == "member":
-        _tag = "Member"
-
     if name in status_bars:
         status_bars[name].close()
         manager.remove(status_bars[name])
 
     _s = manager.status_bar(
-        status_format=status_format if not None else
-        u'%s{fill}{demo}{fill}{elapsed}' % _tag,
+        status_format=status_format,
         color=color,
         justify=justify,
         demo=demo,
