@@ -38,8 +38,6 @@ from src.argparsing import _parse_args  # noqaL ignore = E402
 
 args = _parse_args()
 
-from time import sleep  # noqa: ignore = E402
-
 import selfcord as discord  # noqa: ignore = E402
 from selfcord.ext import commands  # noqa: ignore = E402
 
@@ -82,7 +80,6 @@ init_counter = ui.new_counter(
     name="init", total=4, description="Initializing", unit="", leave=False
 )
 
-sleep(1)
 init_counter.update()
 
 # Setup logging
