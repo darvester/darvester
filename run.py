@@ -57,10 +57,15 @@ db = SQLiteNoSQL(DB_NAME)
 db.init_fts_table("users")
 db.init_fts_table("guilds")
 
+github_link = ui.manager.term.link(
+    'https://github.com/V3ntus/darvester',
+    'Darvester'
+)
+
 term_status = ui.new_status_bar(
     name="main",
     demo="Preparing",
-    status_format=u"Darvester{fill}{demo}{fill}{elapsed}"
+    status_format=github_link + u"{fill}{demo}{fill}{elapsed}"
 )
 member_status = ui.new_status_bar(
     name="member",
@@ -76,6 +81,7 @@ guild_status = ui.new_status_bar(
 init_counter = ui.new_counter(
     name="init", total=4, description="Initializing", unit="", leave=False
 )
+
 sleep(1)
 init_counter.update()
 
