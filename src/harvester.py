@@ -1,14 +1,16 @@
 import asyncio
+from datetime import datetime
 import sys
 import time
 
+import enlighten
 import selfcord as discord
 
 from cfg import QUIET_MODE, IGNORE_GUILD, LAST_SCANNED_INTERVAL
-from src import logutil
+from src import logutil, ui
 from src.presence import BotStatus, RichPresence
 from src.sqlutil import SQLiteNoSQL
-from src.termtitle import set_title
+from src.ui import set_title
 RichPresence = RichPresence()
 RichPresence.start_thread()
 logger = logutil.initLogger("harvester")
@@ -28,6 +30,11 @@ class Harvester:
         self.cur = self.db.cursor()
 
     async def thread_start(self, client):
+        term_status: enlighten.StatusBar = ui.status_bars["main"]
+        member_status: enlighten.StatusBar = ui.status_bars["member"]
+        guild_status: enlighten.StatusBar = ui.status_bars["guild"]
+        init_counter: enlighten.Counter = ui.counters["init"]
+        init_counter.update()
         RichPresence.put(message=["Darvester", "Preparing...", ""])
         set_title("Darvester - Preparing...")
         logger.info("Logged in as %s", client.user.name if not QUIET_MODE else
@@ -43,9 +50,24 @@ class Harvester:
                 _request_number = 0  # For our rate limiting
                 # Store all guilds bot/user is in
                 _list_of_guilds = [guild.id for guild in client.guilds]
+                guild_counter = ui.new_counter(
+                    name="guild",
+                    total=len(_list_of_guilds),
+                    description="Guilds",
+                    unit='guilds'
+                )
 
-                for guildid in _list_of_guilds:
+                for guildidx, guildid in enumerate(_list_of_guilds, start=1):
+                    # Update counter
+                    guild_counter.update()
+                    if guildidx >= len(_list_of_guilds):
+                        guild_counter.clear()
+
                     guild: discord.Guild = client.get_guild(guildid)
+                    term_status.update(demo=f"Harvesting {guild.name} with " +
+                                       f"{len(guild.members)} members")
+                    guild_status.update(demo=f"Name: {guild.name} | " +
+                                        f"Description: {guild.description}")
                     if guild.unavailable:
                         logger.warning(
                             "Guild '%s' is unavailable. Skipping..."
@@ -62,9 +84,9 @@ class Harvester:
                                 if not QUIET_MODE else
                                 "(quiet mode enabled)")
                     set_title(f"Darvester - Harvesting {guild.name}" +
-                              f" with {guild.member_count} members")
+                              f" with {len(guild.members)} members")
                     RichPresence.put(message=[f"Harvesting '{guild.name}'" if not QUIET_MODE else quiet_msg,  # noqa
-                                              f"{guild.member_count} members",
+                                              f"{len(guild.members)} members",
                                               ""])
                     await BotStatus.update(client=client,
                                            state=f'Harvesting "{guild.name}"' if not QUIET_MODE else quiet_msg,  # noqa
@@ -94,12 +116,25 @@ class Harvester:
 
                     self.db.addrow(guild_data, guild.id, "guilds")
                     _request_number += 1
+
                     # Mark as read, as "done"
                     await guild.ack()
+                    member_counter = ui.new_counter(
+                        name="member",
+                        total=len(guild.members),
+                        description="Members",
+                        unit='members',
+                        leave=False
+                    )
 
                     "Do member/user harvest"
                     member: discord.Member
-                    for member in guild.members:
+                    for memberidx, member in enumerate(guild.members, start=1):
+                        # Update member counter
+                        member_counter.update()
+                        if memberidx >= len(guild.members):
+                            member_counter.clear()
+
                         # Filter for bot and Discord system messages
                         if member.bot and member.system:
                             logger.info('User "%s" is a bot. Skipping...',
@@ -183,6 +218,17 @@ class Harvester:
                             # Insert harvested data
                             self.db.addrow(data, member.id, "users")
 
+                            _bio = data['bio']
+                            if _bio and len(_bio) >= 30:
+                                _bio = _bio[:27].replace("\n", " ") + "..."
+
+                            member_status.update(
+                                demo=f"Name: {data['name']}#" +
+                                     f"{data['discriminator']} | " +
+                                     f"Bio: {_bio}" +
+                                     f" | Created at: {datetime.fromtimestamp(int(data['created_at']))}" # noqa
+                                     )
+
                             # Increment the request counter
                             _request_number += 1
                             await asyncio.sleep(1)
@@ -193,7 +239,11 @@ class Harvester:
                                                       "On cooldown",
                                                       "cooldown"])
                             set_title("Darvester - On cooldown")
+                            term_status.update(demo="On cooldown")
+                            term_status.refresh()
                             self.db.close()
+
+                            await asyncio.sleep(2)
                             logger.info("On request cooldown...")
                             for _ in range(60, 0, -1):
                                 sys.stdout.write("\r")
@@ -201,9 +251,15 @@ class Harvester:
                                 sys.stdout.flush()
                                 await asyncio.sleep(1)
                             print("\n")
-                            set_title(f"Darvester - Harvesting {guild.name} with {guild.member_count} members")
+                            term_status.update(
+                                demo=f"Harvesting {guild.name} " +
+                                     f"with {len(guild.members)} members"
+                                    )
+                            term_status.refresh()
+                            set_title(f"Darvester - Harvesting {guild.name} " +
+                                      f"with {len(guild.members)} members")
                             RichPresence.put(message=[f"Harvesting '{guild.name}'" if not QUIET_MODE else quiet_msg,  # noqa
-                                                      f"{guild.member_count} members",  # noqa
+                                                      f"{len(guild.members)} members",  # noqa
                                                       ""])  # noqa
                             await BotStatus.update(client=client,
                                                    state=f'Harvesting "{guild.name}"' if not QUIET_MODE else quiet_msg,  # noqa
@@ -213,12 +269,14 @@ class Harvester:
                             _request_number = 0
 
                 self.db.close()
+                term_status.update(demo="Reached end of guild list")
                 logger.info("That's all! Sleeping for a bit then looping")
                 RichPresence.put(message=["- Discord OSINT harvester",
                                           "- Created by V3ntus",
                                           ""])
                 set_title("Darvester - Created by V3ntus")
                 await asyncio.sleep(1)
+                term_status.refresh()
                 for _ in range(600, 0, -1):
                     sys.stdout.write("\r")
                     sys.stdout.write("{:2d} remaining".format(_))
