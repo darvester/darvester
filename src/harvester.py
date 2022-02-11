@@ -95,7 +95,7 @@ class Harvester:
                     )
                     set_title(
                         "Darvester - Harvesting "
-                        + {guild.name if not QUIET_MODE else "a guild"}
+                        + guild.name if not QUIET_MODE else "a guild"
                         + f" with {len(guild.members)} members"
                     )
                     RichPresence.put(
