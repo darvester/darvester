@@ -60,9 +60,7 @@ optional arguments:
 ```
 
 ## Screenshots:
-- ![image](https://user-images.githubusercontent.com/29584664/146631888-bc3bd222-6a0e-4543-9977-94e88db96b09.png)
-
-- ![image](https://user-images.githubusercontent.com/29584664/146631952-e14d8afb-ed88-4735-afa6-cce14887cf1f.png)
+- ![image](https://user-images.githubusercontent.com/29584664/153620358-945d0829-64ba-45f8-802f-2f94deecdeef.png)
 
 - ![Screen Shot 2022-01-01 at 16 21 22](https://user-images.githubusercontent.com/29584664/147861381-d5c48a42-3d1b-4d5f-825a-6bda4cc7b012.png)
 
