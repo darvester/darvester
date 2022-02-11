@@ -1,7 +1,9 @@
 import random
-from datetime import datetime
 import traceback
+from datetime import datetime
+
 from src import logutil, parser
+
 parse = parser.ConnectedAccounts()
 
 logger = logutil.initLogger("select_cmd")
@@ -9,8 +11,7 @@ logger = logutil.initLogger("select_cmd")
 
 async def _do_guild_lookup(db, id, ctx):
     try:
-        data = db.find(id, "guilds")
-        if data:
+        if data := db.find(id, "guilds"):
             _features = ", ".join(data["features"])
             _message = f"""
 __Guild Name__: `{data["name"]}`
@@ -30,8 +31,8 @@ __Features__: {_features}"""
         else:
             await ctx.channel.send("Guild not found either")
     except Exception as e:
-        logger.error(",select guild lookup raised exception", exc_info=1)
-        await ctx.channel.send("Something wrong happened: ```\n%s```" % e)
+        logger.error(',select guild lookup raised exception', exc_info=1)
+        await ctx.channel.send('Something wrong happened: ```\n%s```' % e)
 
 
 async def _main(message, db):
@@ -42,7 +43,7 @@ async def _main(message, db):
         "Oh cool. One sec...",
         "Nice I'll check it out...",
         "Hm lemme see if I have that",
-        "Hold on, let me see..."
+        "Hold on, let me see...",
     ]
     await message.channel.send(random.choice(_hello_there))
     if len(message.content) > 7:
@@ -56,9 +57,7 @@ async def _main(message, db):
                 _connected_accounts = []
                 for _i in data["connected_accounts"]:
                     _p = await parse.parse(
-                        type=_i["type"],
-                        name=_i["name"],
-                        id=_i["id"]
+                        type=_i["type"], name=_i["name"], id=_i["id"]
                     )
                     _connected_accounts.append(
                         f"`{_i['type']} - {_i['name']}`\n{_p}\n ---"
@@ -92,8 +91,8 @@ __Mutual Guilds__: ```
 __Connected Accounts__:
 {_connected_accounts}"""
                 logger.info(
-                    'Found "%s" requested by user "%s"' %
-                    (data["name"], message.author.name),
+                    'Found "%s" requested by user "%s"'
+                    % (data["name"], message.author.name),
                 )
                 await message.channel.send(_message)
             else:
@@ -101,9 +100,9 @@ __Connected Accounts__:
                     "Query returned empty. User not \
 found. Trying to find guild..."
                 )
-                await _do_guild_lookup(db,
-                                       message.content[7:].lstrip().rstrip(),
-                                       message)
+                await _do_guild_lookup(
+                    db, message.content[7:].lstrip().rstrip(), message
+                )
         except Exception as e:  # noqa
             logger.warning(",select triggered exception")
             traceback.print_exc()

@@ -1,19 +1,21 @@
 import asyncio
-from queue import Queue
 import threading
 import time
+from queue import Queue
+
 import pypresence
 import selfcord as discord
 
-from src.logutil import initLogger
 from cfg import ENABLE_PRESENCE
+from src.logutil import initLogger
+
 rp_logger = initLogger("RichPresence")
 bs_logger = initLogger("BotStatus")
 # You shouldn't change this, unless you know what you're doing
 APPLICATION_ID = 926180199501025342
 
 
-class RichPresence():
+class RichPresence:
     def __init__(self) -> None:
         if ENABLE_PRESENCE:
             q = Queue()
@@ -29,45 +31,45 @@ class RichPresence():
         try:
             RPC = pypresence.Presence(APPLICATION_ID, pipe=0)
             RPC.connect()
-            RPC.update(state="Idle",
-                       details="Harvesting with Darvester",
-                       start=int(time.time()),
-                       large_image="darvester_1-1",
-                       buttons=[
-                        {
-                            "label": "Get Darvester",
-                            "url":
-                            "https://github.com/V3ntus/darvester"
-                        },
-                        {
-                            "label": "V3ntus' Website",
-                            "url":
-                            "https://v3ntus.github.io"
-                        }
-                        ]
-                       )
+            RPC.update(
+                state="Idle",
+                details="Harvesting with Darvester",
+                start=int(time.time()),
+                large_image="darvester_1-1",
+                buttons=[
+                    {
+                        "label": "Get Darvester",
+                        "url": "https://github.com/V3ntus/darvester",
+                    },
+                    {
+                        "label": "V3ntus' Website",
+                        "url": "https://v3ntus.github.io"
+                    },
+                ],
+            )
             while True:
                 _logger.debug("Waiting for queue presence message...")
                 message = queue.get()
                 _logger.debug("Got " + ", ".join(message))
-                RPC.update(state=message[1],
-                           details=message[0],
-                           start=int(time.time()),
-                           end=int(time.time() + 60) if message[2] == "cooldown" else None,  # noqa
-                           large_image="darvester_1-1",
-                           buttons=[
-                                {
-                                    "label": "Get Darvester",
-                                    "url":
-                                    "https://github.com/V3ntus/darvester"
-                                },
-                                {
-                                    "label": "V3ntus' Website",
-                                    "url":
-                                    "https://v3ntus.github.io"
-                                }
-                            ]
-                           )
+                RPC.update(
+                    state=message[1],
+                    details=message[0],
+                    start=int(time.time()),
+                    end=int(time.time() + 60)
+                    if message[2] == "cooldown"
+                    else None,  # noqa
+                    large_image="darvester_1-1",
+                    buttons=[
+                        {
+                            "label": "Get Darvester",
+                            "url": "https://github.com/V3ntus/darvester",
+                        },
+                        {
+                            "label": "V3ntus' Website",
+                            "url": "https://v3ntus.github.io"
+                        },
+                    ],
+                )
                 _logger.info("Updated presence")
                 queue.task_done()
                 while not queue.empty():
@@ -86,12 +88,10 @@ class RichPresence():
 
     def start_thread(self):
         if ENABLE_PRESENCE:
-            _t = threading.Thread(target=self._thread_run,
-                                  args=(self.queue,))
+            _t = threading.Thread(target=self._thread_run, args=(self.queue,))
             _t.start()
         else:
-            rp_logger.warning(
-                "ENABLE_PRESENCE is False. Not starting a thread")
+            rp_logger.warning("ENABLE_PRESENCE is False. Not starting a thread")  # noqa
 
     def put(self, message):
         if ENABLE_PRESENCE:
@@ -99,17 +99,22 @@ class RichPresence():
             self.queue.put_nowait(message)
 
 
-class BotStatus():
+class BotStatus:
     """Bot custom status class"""
+
     "This is for the bot"
+
     def __init__(self) -> None:
         bs_logger.debug("BotStatus init")
         self._ts_now = int(time.time())
 
-    async def update(self, client,
-                     activity: object = discord.Game,
-                     state: str = None,
-                     status: discord.Status = discord.Status.idle):
+    async def update(
+        self,
+        client,
+        activity: object = discord.Game,
+        state: str = None,
+        status: discord.Status = discord.Status.idle,
+    ):
         """Update status
 
         Args:
@@ -122,15 +127,15 @@ class BotStatus():
         # Change the presence
         if ENABLE_PRESENCE:
             bs_logger.info("Changing presence...")
-            bs_logger.debug("{'activity': %s, 'state': '%s', 'status': %s}" %
-                            (activity, state, status))
-            state = "Darvester - Idle" if state is None else "Darvester - " + state  # noqa
+            bs_logger.debug(
+                "{'activity': %s, 'state': '%s', 'status': %s}"
+                % (activity, state, status)
+            )
+            state = "Darvester - Idle" if state is None else f'Darvester - {state}'  # noqa
 
             await client.change_presence(
-                activity=discord.activity.CustomActivity(
-                    state,
-                    emoji="⛏️"
-                )
+                activity=discord.activity.CustomActivity(state, emoji="⛏️")
             )
-            await client.change_presence(activity=discord.Game("Darvester"),
-                                         status=status)
+            await client.change_presence(
+                activity=discord.Game("Darvester"), status=status
+            )

@@ -3,3 +3,4 @@ discord
 discord.py
 pypresence
 aiohttp[speedups]
+enlighten
