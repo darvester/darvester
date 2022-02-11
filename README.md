@@ -35,6 +35,30 @@ service and may result in your access to Discord services terminated.**
 
 See the wiki page [here](https://github.com/V3ntus/darvester/wiki/Installing)
 
+# Usage
+
+> `$` `python run.py -h`
+```
+usage: run.py [-h] [-ig FILE/GUILD_ID] [-v] [-vv] [-p] [--db harvested.db] [-q] [--whitelist FILE/USER_ID] [--last-scanned LAST_SCANNED]
+
+Darvester - PoC Discord guild and user information harvester
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -ig FILE/GUILD_ID, --ignore-guild FILE/GUILD_ID
+                        Either a comma separated list of guild IDs in a text file, or a single guild ID passed. Darvester will ignore the guild(s) specified here.
+  -v, --debug           Enable verbose debug messages.
+  -vv, --debug-discord  Enable debug messages from Discord.py (can get pretty spammy!).
+  -p, --enable-presence
+                        Enable rich presence for bot and client.
+  --db harvested.db     The database file to log into.
+  -q                    Enable quiet mode to suppress some info going to the console.
+  --whitelist FILE/USER_ID, -w FILE/USER_ID
+                        Either a comma separated list of user IDs in a text file, or a single user ID passed. Darvester will only respond to this userwhen commands are issued.
+  --last-scanned LAST_SCANNED, -ls LAST_SCANNED
+                        The amount of time (in seconds) that must pass before we scan this user again, otherwise we skip when we encounter this user.
+```
+
 ## Screenshots:
 - ![image](https://user-images.githubusercontent.com/29584664/146631888-bc3bd222-6a0e-4543-9977-94e88db96b09.png)
 
