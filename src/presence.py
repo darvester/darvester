@@ -81,8 +81,8 @@ class RichPresence:
                 _logger.debug("Cleared queue")
                 # time.sleep(15)
         except ConnectionRefusedError:
-            _logger.warning("Could not connect to your Discord client " +
-                            "for rich presence. Is it running?")
+            _logger.critical("Could not connect to your Discord client " +
+                             "for rich presence. Is it running?")
         except Exception:  # noqa
             _logger.critical("Exception happened", exc_info=1)
 
@@ -111,8 +111,8 @@ class BotStatus:
         bs_logger.debug("BotStatus init")
         self._ts_now = int(time.time())
 
+    @staticmethod
     async def update(
-        self,
         client,
         activity: object = discord.Game,
         state: str = None,
@@ -129,7 +129,7 @@ class BotStatus:
 
         # Change the presence
         if ENABLE_PRESENCE:
-            bs_logger.info("Changing presence...")
+            bs_logger.debug("Changing presence...")
             bs_logger.debug(
                 "{'activity': %s, 'state': '%s', 'status': %s}"
                 % (activity, state, status)

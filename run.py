@@ -96,8 +96,8 @@ except ImportError:
 
 if (TOKEN and os.getenv("TOKEN")) == "":
     logger.critical(
-        "TOKEN not found. Declare TOKEN in your environment or set \
-it in cfg.py"
+        "TOKEN not found. Declare TOKEN in your environment or set "
+        + "it in cfg.py"
     )
     sys.exit(1)
 # END token import
@@ -105,9 +105,9 @@ it in cfg.py"
 
 if QUIET_MODE:
     logger.critical(
-        "QUIET_MODE enabled. Your console/log output will be suppressed \n \
-    and sensitive data will be hidden, but this will *not* affect the data \n \
-    harvested. Continuing..."
+        "QUIET_MODE enabled. Your console/log output will be suppressed \n"
+        + "and sensitive data will be hidden, but this will *not* affect the data \n"
+        + "harvested. Continuing..."
     )
 # Setup bot client
 set_title("Darvester - Connecting")

@@ -74,7 +74,7 @@ class SQLiteNoSQL:
         try:
             self.db.commit()
             self.db.close()
-            logger.info("Database closed")
+            logger.debug("Database closed")
         except:  # noqa: E722
             logger.error("Something happened trying to close the database")
 
@@ -105,7 +105,7 @@ class SQLiteNoSQL:
             self.open(self.dbfile)
         except sqlite3.IntegrityError:
             # Process an already existent row
-            logger.info(
+            logger.debug(
                 f"Already exists: {id if not QUIET_MODE else None}"
                 + " -- Updating info..."
             )
@@ -128,9 +128,13 @@ class SQLiteNoSQL:
             else:
                 _diff = DictDiffer(diff1, d)
                 logger.info("Info updated --------------")
-                logger.info("Added: " + ", ".join(_diff.added()))
-                logger.info("Removed: " + ", ".join(_diff.removed()))
-                logger.info("Changed: " + str(_diff.changed()))
+                if _diff.added():
+                    logger.info("Added: " + ", ".join(_diff.added()))
+                if _diff.removed():
+                    logger.info("Removed: " + ", ".join(_diff.removed()))
+                if _diff.changed():
+                    logger.info("Changed: " + str(_diff.changed()))
+                logger.info("--------------")
                 self.db.execute(
                     f"""
                 UPDATE {table} SET (data, id) = (?, ?) WHERE id = ?""",
@@ -168,8 +172,6 @@ class SQLiteNoSQL:
                     _d = json.loads(_item)
             except TypeError:
                 logger.debug("json load failed. Probably first seen?")
-            # print(_d1['last_scanned'])
-            # print(int(time.time()))
             if query:
                 try:
                     return _d[query]
@@ -181,7 +183,7 @@ class SQLiteNoSQL:
             # return as json
             return _d
         except sqlite3.ProgrammingError:
-            logger.error("ProgrammingError raised")
+            logger.error("ProgrammingError raised", exc_info=1)
             self.close()
             self.open(self.dbfile)
 
@@ -251,9 +253,9 @@ class SQLiteNoSQL:
             logger.debug("Created %s_fts_after_insert" % table)
             self.db.close()
         except Exception:
-            logger.critical("An exception occured", exc_info=1)
+            logger.critical("An exception occurred", exc_info=1)
         except sqlite3.OperationalError:
-            logger.critical("An exception occured", exc_info=1)
+            logger.critical("An exception occurred", exc_info=1)
 
     def rebuild_fts_table(self, table: str = "users"):
         try:

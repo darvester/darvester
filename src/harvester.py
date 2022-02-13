@@ -39,7 +39,6 @@ class Harvester:
         RichPresence.put(message=["Darvester", "Preparing...", ""])
         set_title("Darvester - Preparing...")
         logger.info("Logged in as %s", client.user.name if not QUIET_MODE else "user")  # noqa
-        logger.info("Starting guild ID dump...")
 
         await BotStatus.update(client=client, state="Preparing")
 
@@ -72,11 +71,11 @@ class Harvester:
                         demo=f"Harvesting {_g_name}" +
                         f" with {len(guild.members)} members"
                     )
-
                     guild_status.update(
                         demo=f"Name: {_g_name}"
                         + f" | Description: {_g_desc}"
                     )
+
                     if guild.unavailable:
                         logger.warning(
                             "Guild '%s' is unavailable. Skipping..." % guild.name  # noqa
@@ -91,10 +90,12 @@ class Harvester:
                             else ""
                         )
                         continue
+
                     logger.info(
                         'Now working in guild: "%s"',
                         guild.name if not QUIET_MODE else "(quiet mode enabled)",  # noqa
                     )
+
                     set_title(
                         f"Darvester - Harvesting {_g_name}"
                         + f" with {len(guild.members)} members"
@@ -123,7 +124,7 @@ class Harvester:
                         "icon": str(guild.icon_url),
                         "owner": {
                             "name": guild.owner.name if guild.owner else None,
-                            "id": guild.owner.id if guild.owner else guild.owner_id,  # noqa
+                            "id": guild.owner.id if guild.owner else guild.owner_id,
                         },
                         "splash_url": str(guild.splash_url),
                         "member_count": guild.member_count,
@@ -131,9 +132,10 @@ class Harvester:
                         "features": guild.features,
                         "premium_tier": guild.premium_tier,
                     }
+
                     logger.info(
-                        'Inserting guild "%s" = "%s"' % (guild.id, guild_data["name"])  # noqa
-                    ) if not QUIET_MODE else logger.info("Inserting a guild...")  # noqa
+                        'GUILD: Inserting guild "%s" = "%s"' % (guild.id, guild_data["name"])
+                    ) if not QUIET_MODE else logger.info("Inserting a guild...")
 
                     self.db.addrow(guild_data, guild.id, "guilds")
                     _request_number += 1
@@ -181,7 +183,7 @@ class Harvester:
                             self._id_array.add(member.id)
 
                             # Check to see if we scanned this user recently
-                            _d1 = self.db.find(member.id, "users", "last_scanned")  # noqa
+                            _d1 = self.db.find(member.id, "users", "last_scanned")
                             if not isinstance(_d1, (str, int, bytes)):
                                 try:
                                     _d1 = _d1["last_scanned"]
@@ -197,14 +199,14 @@ class Harvester:
                                     'User "%s" scanned in the last '
                                     + "%s. Skipping...",
                                     member.name if not QUIET_MODE else None,
-                                    str(int(LAST_SCANNED_INTERVAL / 60)) + " minutes"  # noqa
+                                    str(int(LAST_SCANNED_INTERVAL / 60)) + " minutes"
                                     if int(LAST_SCANNED_INTERVAL / 60) != 0
-                                    else str(int(LAST_SCANNED_INTERVAL)) + " seconds",  # noqa
+                                    else str(int(LAST_SCANNED_INTERVAL)) + " seconds",
                                 )
                                 continue
 
                             # Grab the user profile object of member
-                            _profile_object = await client.fetch_user_profile(member.id)  # noqa
+                            _profile_object = await client.fetch_user_profile(member.id)
 
                             # Append mutual guilds
                             _user_guilds = {"guilds": []}
@@ -219,15 +221,15 @@ class Harvester:
                                 "mutual_guilds": _user_guilds,
                                 "avatar_url": str(member.avatar_url),
                                 "public_flags": member.public_flags.all(),
-                                "created_at": int(member.created_at.timestamp()),  # noqa
-                                "connected_accounts": _profile_object.connected_accounts,  # noqa
+                                "created_at": int(member.created_at.timestamp()),
+                                "connected_accounts": _profile_object.connected_accounts,
                                 "last_scanned": int(time.time()),
                             }
 
                             logger.info(
-                                'Inserting "%s" = %s#%s :'
-                                % (member.id, member.name, member.discriminator)  # noqa
-                            ) if not QUIET_MODE else logger.info("Inserting...")  # noqa
+                                ' USER: Inserting "%s" = %s#%s :'
+                                % (member.id, member.name, member.discriminator)
+                            ) if not QUIET_MODE else logger.info("Inserting...")
 
                             # Insert harvested data
                             self.db.addrow(data, member.id, "users")
@@ -258,7 +260,7 @@ class Harvester:
                         else:  # If request counter goes over 40
                             await BotStatus.update(client=client)
                             RichPresence.put(
-                                message=["Darvester", "On cooldown", "cooldown"]  # noqa
+                                message=["Darvester", "On cooldown", "cooldown"]
                             )
                             set_title("Darvester - On cooldown")
                             term_status.update(demo="On cooldown")
@@ -266,10 +268,10 @@ class Harvester:
                             self.db.close()
 
                             await asyncio.sleep(2)
-                            logger.info("On request cooldown...")
+                            logger.info("COOLDOWN: On request cooldown...")
                             for _ in range(60, 0, -1):
                                 sys.stdout.write("\r")
-                                sys.stdout.write("{:2d} remaining".format(_))
+                                sys.stdout.write("COOLDOWN: {:2d} seconds remaining".format(_))
                                 sys.stdout.flush()
                                 await asyncio.sleep(1)
                             print("\n")
@@ -286,14 +288,14 @@ class Harvester:
                             )
                             RichPresence.put(
                                 message=[
-                                    f"Harvesting '{guild.name if not QUIET_MODE else quiet_msg}'",  # noqa
+                                    f"Harvesting '{guild.name if not QUIET_MODE else quiet_msg}'",
                                     f"{len(guild.members)} members",  # noqa
                                     "",
                                 ]
                             )  # noqa
                             await BotStatus.update(
                                 client=client,
-                                state=f'Harvesting "{guild.name if not QUIET_MODE else quiet_msg}"',  # noqa
+                                state=f'Harvesting "{guild.name if not QUIET_MODE else quiet_msg}"',
                                 status=discord.Status.online,
                             )  # noqa
 
@@ -302,9 +304,9 @@ class Harvester:
 
                 self.db.close()
                 term_status.update(demo="Reached end of guild list")
-                logger.info("That's all! Sleeping for a bit then looping")
+                logger.info("That's all the guilds! Sleeping for a bit then looping")
                 RichPresence.put(
-                    message=["- Discord OSINT harvester", "- Created by V3ntus", ""]  # noqa
+                    message=["- Discord OSINT harvester", "- Created by V3ntus", ""]
                 )
                 set_title("Darvester - Created by V3ntus")
                 await asyncio.sleep(1)
@@ -321,7 +323,8 @@ class Harvester:
         except discord.errors.HTTPException:
             logger.critical(
                 "HTTP 429 returned. You may have been temp banned! \
-Try again later (may take a couple hours or as long as a day)"
+Try again later (may take a couple hours or as long as a day)",
+                exc_info=1
             )
             sys.exit()
 
