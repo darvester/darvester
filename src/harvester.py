@@ -289,7 +289,7 @@ class Harvester:
                             RichPresence.put(
                                 message=[
                                     f"Harvesting '{guild.name if not QUIET_MODE else quiet_msg}'",
-                                    f"{len(guild.members)} members",  # noqa
+                                    f"{memberidx} of {len(guild.members)} members",
                                     "",
                                 ]
                             )  # noqa
