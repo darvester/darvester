@@ -33,16 +33,10 @@ class DictDiffer(object):
         return self.set_past - self.intersect
 
     def changed(self):
-        return {
-            o for o in self.intersect
-            if self.past_dict[o] != self.current_dict[o]
-        }  # noqa
+        return {o for o in self.intersect if self.past_dict[o] != self.current_dict[o]}
 
     def unchanged(self):
-        return {
-            o for o in self.intersect
-            if self.past_dict[o] == self.current_dict[o]
-        }  # noqa
+        return {o for o in self.intersect if self.past_dict[o] == self.current_dict[o]}
 
 
 class SQLiteNoSQL:
@@ -74,20 +68,20 @@ class SQLiteNoSQL:
         try:
             self.db.commit()
             self.db.close()
-            logger.info("Database closed")
-        except:  # noqa: E722
-            logger.error("Something happened trying to close the database")
+            logger.debug("Database closed")
+        except Exception:  # noqa: E722
+            logger.error("Something happened trying to close the database", exc_info=1)
 
-    def addrow(self, d, id, table):
+    def addrow(self, d, user_id, table):
         """Add row to database"""
         # Check if row already exists for user_id
         try:
-            self.cur.execute(f"SELECT data FROM {table} WHERE id = ?", (id,))
+            self.cur.execute(f"SELECT data FROM {table} WHERE id = ?", (user_id,))
             data = self.cur.fetchone()
 
             # If data returned is none, try to append a first_seen
             if data is None:
-                logger.info("User is first_seen " + str(int(time.time())))
+                logger.debug("User is first_seen " + str(int(time.time())))
                 d["first_seen"] = int(time.time())
 
             # Else, this code will throw IntegrityError and continue flow below
@@ -95,18 +89,18 @@ class SQLiteNoSQL:
                 f"INSERT INTO {table} VALUES (?, ?);",
                 (
                     json.dumps(d),
-                    id,
+                    user_id,
                 ),
             )
         except sqlite3.ProgrammingError:
             # Sometimes, the database closes prematurely
             # My code sucks
-            logger.warning("Reopenning database...")
+            logger.warning("Reopening database...")
             self.open(self.dbfile)
         except sqlite3.IntegrityError:
             # Process an already existent row
-            logger.info(
-                f"Already exists: {id if not QUIET_MODE else None}"
+            logger.debug(
+                f"Already exists: {user_id if not QUIET_MODE else None}"
                 + " -- Updating info..."
             )
 
@@ -124,28 +118,32 @@ class SQLiteNoSQL:
             # Update row
             # Check for changes
             if diff1 == d:
-                logger.info("Nothing changed. Not updating data")
+                logger.debug("Nothing changed. Not updating data")
             else:
                 _diff = DictDiffer(diff1, d)
-                logger.info("Info updated --------------")
-                logger.info("Added: " + ", ".join(_diff.added()))
-                logger.info("Removed: " + ", ".join(_diff.removed()))
-                logger.info("Changed: " + str(_diff.changed()))
+                logger.debug("Info updated --------------")
+                if _diff.added():
+                    logger.debug("Added: " + ", ".join(_diff.added()))
+                if _diff.removed():
+                    logger.debug("Removed: " + ", ".join(_diff.removed()))
+                if _diff.changed():
+                    logger.debug("Changed: " + str(_diff.changed()))
+                logger.debug("--------------")
                 self.db.execute(
                     f"""
                 UPDATE {table} SET (data, id) = (?, ?) WHERE id = ?""",
                     (
                         json.dumps(d),
-                        id,
-                        id,
+                        user_id,
+                        user_id,
                     ),
                 )
         finally:
             self.db.commit()
 
-    def find(self, id, table, query: str = None):
+    def find(self, user_id, table, query: str = None):
         """
-        id: Discord user or guild ID
+        user_id: Discord user or guild ID
         table: Table to look in
         query: optional - Extract data from specified key in query
         """
@@ -155,7 +153,7 @@ class SQLiteNoSQL:
             # execute SELECT to grab data
             self.cur.execute(
                 f"SELECT data FROM {table} WHERE id = ?",
-                (id,),
+                (user_id,),
             )
             data = self.cur.fetchone()
             _d = None
@@ -168,20 +166,18 @@ class SQLiteNoSQL:
                     _d = json.loads(_item)
             except TypeError:
                 logger.debug("json load failed. Probably first seen?")
-            # print(_d1['last_scanned'])
-            # print(int(time.time()))
             if query:
                 try:
                     return _d[query]
                 except KeyError:
                     if query != "last_scanned":
-                        logger.debug('Query "%s" failed. May not be harmful', query)  # noqa
+                        logger.debug('Query "%s" failed. May not be harmful', query)
                 except TypeError:
-                    logger.debug("Query data returned None. Probably first seen?")  # noqa
+                    logger.debug("Query data returned None. Probably first seen?")
             # return as json
             return _d
         except sqlite3.ProgrammingError:
-            logger.error("ProgrammingError raised")
+            logger.error("ProgrammingError raised", exc_info=1)
             self.close()
             self.open(self.dbfile)
 
@@ -199,7 +195,7 @@ class SQLiteNoSQL:
             )
             self.db.commit()
 
-            # create inital fts db
+            # create initial fts db
             self.cur.execute(
                 f"CREATE VIRTUAL TABLE IF NOT EXISTS {table}_fts "
                 + f"USING fts5(data, id, content='{table}')"
@@ -251,9 +247,7 @@ class SQLiteNoSQL:
             logger.debug("Created %s_fts_after_insert" % table)
             self.db.close()
         except Exception:
-            logger.critical("An exception occured", exc_info=1)
-        except sqlite3.OperationalError:
-            logger.critical("An exception occured", exc_info=1)
+            logger.critical("An exception occurred", exc_info=1)
 
     def rebuild_fts_table(self, table: str = "users"):
         try:
@@ -265,7 +259,7 @@ class SQLiteNoSQL:
             self.db.commit()
             self.db.close()
         except Exception:
-            logger.critical("An exception occured", exc_info=1)
+            logger.critical("An exception occurred", exc_info=1)
 
     def find_from_fts(
         self,

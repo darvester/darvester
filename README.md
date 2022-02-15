@@ -74,7 +74,8 @@ optional arguments:
 ```
 
 ## Screenshots:
-- ![image](https://user-images.githubusercontent.com/29584664/153620358-945d0829-64ba-45f8-802f-2f94deecdeef.png)
+
+- ![Screen Shot 2022-02-15 at 15 46 07](https://user-images.githubusercontent.com/29584664/154154796-0f6f41fd-540e-419a-8dc2-730d9dda7e16.png)
 
 - ![Screen Shot 2022-01-01 at 16 21 22](https://user-images.githubusercontent.com/29584664/147861381-d5c48a42-3d1b-4d5f-825a-6bda4cc7b012.png)
 

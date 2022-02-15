@@ -31,8 +31,8 @@ __Features__: {_features}"""
         else:
             await ctx.channel.send("Guild not found either")
     except Exception as e:
-        logger.error(',select guild lookup raised exception', exc_info=1)
-        await ctx.channel.send('Something wrong happened: ```\n%s```' % e)
+        logger.error(",select guild lookup raised exception", exc_info=1)
+        await ctx.channel.send("Something wrong happened: ```\n%s```" % e)
 
 
 async def _main(message, db):

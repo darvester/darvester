@@ -7,10 +7,9 @@ class FileReadError(Exception):
     pass
 
 
-def _parse_args(*args, **kwargs):
+def _parse_args(*kargs, **kwargs):
     argparser = argparse.ArgumentParser(
-        description="Darvester - PoC Discord guild and user information " +
-        "harvester"
+        description="Darvester - PoC Discord guild and user information " + "harvester"
     )
     argparser.add_argument(
         "-ig",
@@ -21,8 +20,7 @@ def _parse_args(*args, **kwargs):
         + "specified here.",
     )
     argparser.add_argument(
-        "-v", "--debug", help="Enable verbose debug messages.",
-        action="store_true"
+        "-v", "--debug", help="Enable verbose debug messages.", action="store_true"
     )
     argparser.add_argument(
         "-vv",
@@ -69,13 +67,11 @@ def _parse_args(*args, **kwargs):
         except ValueError or TypeError:
             try:
                 with open(str(args.ignore_guild)) as _f:
-                    cfg.IGNORE_GUILD = [int(_ig) for _ig in _f.read().split(",")]  # noqa
+                    cfg.IGNORE_GUILD = [int(_ig) for _ig in _f.read().split(",")]
                     _f.close()
             except OSError as e:
                 raise FileReadError(
-                    "Could not read from the file: {}".format(
-                            args.ignore_guild
-                        )
+                    "Could not read from the file: {}".format(args.ignore_guild)
                 ) from e
 
     if args.debug:
@@ -91,10 +87,10 @@ def _parse_args(*args, **kwargs):
     if args.whitelist:
         try:
             cfg.ID_WHITELIST = [int(args.whitelist)]
-        except ValueError or TypeError:
+        except (ValueError, TypeError):
             try:
                 with open(str(args.whitelist)) as _f:
-                    cfg.ID_WHITELIST = [int(_ig) for _ig in _f.read().split(",")]  # noqa
+                    cfg.ID_WHITELIST = [int(_ig) for _ig in _f.read().split(",")]
             except OSError as e:
                 raise FileReadError(
                     "Could not read from the file: {}".format(args.whitelist)

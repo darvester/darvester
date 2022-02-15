@@ -7,7 +7,7 @@ https://github.com/V3ntus/repo-finder-bot/blob/main/utils/logutil.py
 
 import logging
 
-from cfg import DEBUG, DEBUG_DISCORD
+from cfg import DEBUG, DEBUG_DISCORD, LOG_LEVEL
 
 
 def getLogger(name):
@@ -16,7 +16,7 @@ def getLogger(name):
     such as discord.py
     """
     __logger = logging.getLogger(name)
-    __logger.setLevel(logging.DEBUG if DEBUG_DISCORD else logging.INFO)
+    __logger.setLevel(logging.DEBUG if DEBUG_DISCORD else LOG_LEVEL)
     __ch = logging.StreamHandler()
     __ch.setFormatter(CustomFormatter())
     __logger.addHandler(__ch)
@@ -43,7 +43,7 @@ class CustomFormatter(logging.Formatter):
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
 
-    format = "[%(asctime)s][%(levelname)-7s][%(name)-14s] \
+    format = "[%(levelname)-7s][%(name)-14s] \
 [%(lineno)4s] %(message)s"
     FORMATS = (
         {
@@ -71,14 +71,10 @@ class CustomFormatter(logging.Formatter):
         if DEBUG
         else {
             logging.DEBUG: reset,
-            logging.INFO: grey + "[%(asctime)s][%(levelname)7s] %(message)s" + reset,  # noqa
-            logging.WARNING: yellow
-            + "[%(asctime)s][%(levelname)7s] %(message)s"
-            + reset,
-            logging.ERROR: red + "[%(asctime)s][%(levelname)7s] %(message)s" + reset,  # noqa
-            logging.CRITICAL: bold_red
-            + "[%(asctime)s][%(levelname)7s] %(message)s"
-            + reset,
+            logging.INFO: grey + "[%(levelname)7s] %(message)s" + reset,
+            logging.WARNING: yellow + "[%(levelname)7s] %(message)s" + reset,
+            logging.ERROR: red + "[%(levelname)7s] %(message)s" + reset,
+            logging.CRITICAL: bold_red + "[%(levelname)7s] %(message)s" + reset,
         }
     )
     # Documenting my dwindling sanity here
@@ -87,22 +83,3 @@ class CustomFormatter(logging.Formatter):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt, datefmt="%I:%M.%S%p")
         return formatter.format(record)
-
-
-class CursesHandler(logging.Handler):
-    def __init__(self, screen):
-        logging.Handler.__init__(self)
-        self.screen = screen
-
-    def emit(self, record):
-        try:
-            msg = self.format(record)
-            screen = self.screen
-            fs = "\n%s"
-            screen.addstr(fs % msg)
-            screen.box()
-            screen.refresh()
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except:  # noqa
-            raise
