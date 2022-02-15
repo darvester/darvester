@@ -268,14 +268,20 @@ class Harvester:
                             term_status.refresh()
                             self.db.close()
 
-                            await asyncio.sleep(2)
-                            logger.info("COOLDOWN: On request cooldown...")
+                            cooldown_counter = ui.new_counter(
+                                name="cooldown",
+                                total=60,
+                                description="Cooldown",
+                                unit="s",
+                                leave=False,
+                                counter_format='{desc}{desc_pad} {elapsed}'
+                            )
+
+                            logger.debug("COOLDOWN: On request cooldown...")
                             for _ in range(60, 0, -1):
-                                sys.stdout.write("\r")
-                                sys.stdout.write("COOLDOWN: {:2d} seconds remaining".format(_))
-                                sys.stdout.flush()
+                                cooldown_counter.update()
                                 await asyncio.sleep(1)
-                            print("\n")
+                            cooldown_counter.close(clear=True)
                             term_status.update(
                                 demo="Harvesting " + guild.name
                                 if not QUIET_MODE
@@ -312,13 +318,21 @@ class Harvester:
                 set_title("Darvester - Created by V3ntus")
                 await asyncio.sleep(1)
                 term_status.refresh()
+
+                cooldown_counter = ui.new_counter(
+                    name="cooldown",
+                    total=600,
+                    description="Cooldown",
+                    unit="s",
+                    leave=False,
+                    counter_format='{desc}{desc_pad} {elapsed}'
+                )
+
                 for _ in range(600, 0, -1):
-                    sys.stdout.write("\r")
-                    sys.stdout.write("{:2d} remaining".format(_))
-                    sys.stdout.flush()
+                    cooldown_counter.update()
                     await asyncio.sleep(1)
+                cooldown_counter.close(clear=True)
                 # Clear the id array so we can recheck everything
-                print("\n")
                 self._id_array = set()
 
         except discord.errors.HTTPException:
