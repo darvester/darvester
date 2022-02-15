@@ -43,7 +43,7 @@ class CustomFormatter(logging.Formatter):
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
 
-    format = "[%(asctime)s][%(levelname)-7s][%(name)-14s] \
+    format = "[%(levelname)-7s][%(name)-14s] \
 [%(lineno)4s] %(message)s"
     FORMATS = (
         {
@@ -71,13 +71,13 @@ class CustomFormatter(logging.Formatter):
         if DEBUG
         else {
             logging.DEBUG: reset,
-            logging.INFO: grey + "[%(asctime)s][%(levelname)7s] %(message)s" + reset,  # noqa
+            logging.INFO: grey + "[%(levelname)7s] %(message)s" + reset,  # noqa
             logging.WARNING: yellow
-            + "[%(asctime)s][%(levelname)7s] %(message)s"
+            + "[%(levelname)7s] %(message)s"
             + reset,
-            logging.ERROR: red + "[%(asctime)s][%(levelname)7s] %(message)s" + reset,  # noqa
+            logging.ERROR: red + "[%(levelname)7s] %(message)s" + reset,  # noqa
             logging.CRITICAL: bold_red
-            + "[%(asctime)s][%(levelname)7s] %(message)s"
+            + "[%(levelname)7s] %(message)s"
             + reset,
         }
     )

@@ -87,7 +87,7 @@ class SQLiteNoSQL:
 
             # If data returned is none, try to append a first_seen
             if data is None:
-                logger.info("User is first_seen " + str(int(time.time())))
+                logger.debug("User is first_seen " + str(int(time.time())))
                 d["first_seen"] = int(time.time())
 
             # Else, this code will throw IntegrityError and continue flow below
@@ -124,17 +124,17 @@ class SQLiteNoSQL:
             # Update row
             # Check for changes
             if diff1 == d:
-                logger.info("Nothing changed. Not updating data")
+                logger.debug("Nothing changed. Not updating data")
             else:
                 _diff = DictDiffer(diff1, d)
-                logger.info("Info updated --------------")
+                logger.debug("Info updated --------------")
                 if _diff.added():
-                    logger.info("Added: " + ", ".join(_diff.added()))
+                    logger.debug("Added: " + ", ".join(_diff.added()))
                 if _diff.removed():
-                    logger.info("Removed: " + ", ".join(_diff.removed()))
+                    logger.debug("Removed: " + ", ".join(_diff.removed()))
                 if _diff.changed():
-                    logger.info("Changed: " + str(_diff.changed()))
-                logger.info("--------------")
+                    logger.debug("Changed: " + str(_diff.changed()))
+                logger.debug("--------------")
                 self.db.execute(
                     f"""
                 UPDATE {table} SET (data, id) = (?, ?) WHERE id = ?""",

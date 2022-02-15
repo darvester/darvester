@@ -134,7 +134,7 @@ class Harvester:
                         "premium_tier": guild.premium_tier,
                     }
 
-                    logger.info(
+                    logger.debug(
                         'GUILD: Inserting guild "%s" = "%s"' % (guild.id, guild_data["name"])
                     ) if not QUIET_MODE else logger.info("Inserting a guild...")
 
@@ -169,7 +169,7 @@ class Harvester:
 
                         # Check if we already harvested this user
                         if member.id in self._id_array:
-                            logger.info(
+                            logger.debug(
                                 'Already checked "%s"',
                                 member.name if not QUIET_MODE else None,
                             )
@@ -196,7 +196,7 @@ class Harvester:
                                 and (int(time.time()) - int(_d1))
                                 < LAST_SCANNED_INTERVAL
                             ):
-                                logger.info(
+                                logger.debug(
                                     'User "%s" scanned in the last '
                                     + "%s. Skipping...",
                                     member.name if not QUIET_MODE else None,
@@ -227,7 +227,7 @@ class Harvester:
                                 "last_scanned": int(time.time()),
                             }
 
-                            logger.info(
+                            logger.debug(
                                 ' USER: Inserting "%s" = %s#%s :'
                                 % (member.id, member.name, member.discriminator)
                             ) if not QUIET_MODE else logger.info("Inserting...")

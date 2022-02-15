@@ -70,7 +70,7 @@ class RichPresence:
                         },
                     ],
                 )
-                _logger.info("Updated presence")
+                _logger.debug("Updated presence: {}".format(message))
                 queue.task_done()
                 while not queue.empty():
                     try:
