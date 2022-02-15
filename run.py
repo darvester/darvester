@@ -47,8 +47,8 @@ import selfcord as discord  # noqa: ignore = E402
 from selfcord.ext import commands  # noqa: ignore = E402
 
 from cfg import DEBUG_DISCORD  # noqa: ignore = E402
-from cfg import (DB_NAME, DEBUG, ENABLE_PRESENCE,  # noqa: ignore = E402
-                 QUIET_MODE)
+from cfg import DB_NAME, DEBUG, ENABLE_PRESENCE, QUIET_MODE  # noqa: ignore = E402
+
 # Commands go here
 from commands import filter_cmd, select_cmd  # noqa: ignore = E402
 from src import logutil, ui  # noqa: ignore = E402
