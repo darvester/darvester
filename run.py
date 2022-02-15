@@ -42,7 +42,7 @@ import selfcord as discord  # noqa: ignore = E402
 from selfcord.ext import commands  # noqa: ignore = E402
 
 from cfg import (DB_NAME, DEBUG_DISCORD,  # noqa: ignore = E402
-                 ENABLE_PRESENCE, QUIET_MODE)
+                 ENABLE_PRESENCE, QUIET_MODE, DEBUG)
 from src import logutil, ui  # noqa: ignore = E402
 from src.harvester import Harvester  # noqa: ignore = E402
 from src.sqlutil import SQLiteNoSQL  # noqa: ignore = E402
@@ -150,4 +150,7 @@ async def on_message(message: discord.Message):
 
 
 # Login with bot
-client.run(TOKEN)
+try:
+    client.run(TOKEN)
+except Exception:
+    logger.critical("Could not connect to the Discord gateway", exc_info=DEBUG)

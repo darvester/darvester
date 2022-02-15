@@ -7,7 +7,7 @@ class FileReadError(Exception):
     pass
 
 
-def _parse_args(*args, **kwargs):
+def _parse_args(*kargs, **kwargs):
     argparser = argparse.ArgumentParser(
         description="Darvester - PoC Discord guild and user information " +
         "harvester"
@@ -91,7 +91,7 @@ def _parse_args(*args, **kwargs):
     if args.whitelist:
         try:
             cfg.ID_WHITELIST = [int(args.whitelist)]
-        except ValueError or TypeError:
+        except (ValueError, TypeError):
             try:
                 with open(str(args.whitelist)) as _f:
                     cfg.ID_WHITELIST = [int(_ig) for _ig in _f.read().split(",")]  # noqa

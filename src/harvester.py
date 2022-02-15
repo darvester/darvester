@@ -36,6 +36,7 @@ class Harvester:
         guild_status: enlighten.StatusBar = ui.status_bars["guild"]
         init_counter: enlighten.Counter = ui.counters["init"]
         init_counter.update()
+
         RichPresence.put(message=["Darvester", "Preparing...", ""])
         set_title("Darvester - Preparing...")
         logger.info("Logged in as %s", client.user.name if not QUIET_MODE else "user")  # noqa
@@ -78,14 +79,14 @@ class Harvester:
 
                     if guild.unavailable:
                         logger.warning(
-                            "Guild '%s' is unavailable. Skipping..." % guild.name  # noqa
+                            "Guild '%s' is unavailable. Skipping...", guild.name  # noqa
                             if not QUIET_MODE
                             else ""
                         )
                         continue
                     if guild.id in IGNORE_GUILD:
                         logger.warning(
-                            "Guild %s ignored. Skipping..." % guild.name
+                            "Guild %s ignored. Skipping...", guild.name
                             if not QUIET_MODE
                             else ""
                         )

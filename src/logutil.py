@@ -7,7 +7,7 @@ https://github.com/V3ntus/repo-finder-bot/blob/main/utils/logutil.py
 
 import logging
 
-from cfg import DEBUG, DEBUG_DISCORD
+from cfg import DEBUG, DEBUG_DISCORD, LOG_LEVEL
 
 
 def getLogger(name):
@@ -16,7 +16,7 @@ def getLogger(name):
     such as discord.py
     """
     __logger = logging.getLogger(name)
-    __logger.setLevel(logging.DEBUG if DEBUG_DISCORD else logging.INFO)
+    __logger.setLevel(logging.DEBUG if DEBUG_DISCORD else LOG_LEVEL)
     __ch = logging.StreamHandler()
     __ch.setFormatter(CustomFormatter())
     __logger.addHandler(__ch)
