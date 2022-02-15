@@ -23,15 +23,23 @@ def new_counter(
     description: str,
     unit: str,
     leave: bool = None,
+    counter_format: str = '{desc}{desc_pad}{count:d} {unit}{unit_pad}{elapsed}, \
+{rate:.2f}{unit_pad}{unit}/s]{fill}',
     manager: enlighten.Manager = manager,
     autorefresh: bool = True,
 ):
     if name in counters:
-        counters[name].close()
+        if isinstance(counters[name], enlighten.Counter):
+            counters[name].close()
         manager.remove(counters[name])
 
     _c = manager.counter(
-        total=total, desc=description, unit=unit, leave=leave, autorefresh=autorefresh  # noqa
+        total=total,
+        desc=description,
+        unit=unit,
+        leave=leave,
+        autorefresh=autorefresh,
+        counter_format=counter_format
     )
     counters.update({name: _c})
     return _c
@@ -46,7 +54,8 @@ def new_status_bar(
     manager: enlighten.Manager = manager,
 ):
     if name in status_bars:
-        status_bars[name].close()
+        if isinstance(status_bars[name], enlighten.StatusBar):
+            status_bars[name].close()
         manager.remove(status_bars[name])
 
     _s = manager.status_bar(
