@@ -71,14 +71,10 @@ class CustomFormatter(logging.Formatter):
         if DEBUG
         else {
             logging.DEBUG: reset,
-            logging.INFO: grey + "[%(levelname)7s] %(message)s" + reset,  # noqa
-            logging.WARNING: yellow
-            + "[%(levelname)7s] %(message)s"
-            + reset,
-            logging.ERROR: red + "[%(levelname)7s] %(message)s" + reset,  # noqa
-            logging.CRITICAL: bold_red
-            + "[%(levelname)7s] %(message)s"
-            + reset,
+            logging.INFO: grey + "[%(levelname)7s] %(message)s" + reset,
+            logging.WARNING: yellow + "[%(levelname)7s] %(message)s" + reset,
+            logging.ERROR: red + "[%(levelname)7s] %(message)s" + reset,
+            logging.CRITICAL: bold_red + "[%(levelname)7s] %(message)s" + reset,
         }
     )
     # Documenting my dwindling sanity here

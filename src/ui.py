@@ -23,8 +23,8 @@ def new_counter(
     description: str,
     unit: str,
     leave: bool = None,
-    counter_format: str = '{desc}{desc_pad}{count:d} {unit}{unit_pad}{elapsed}, \
-{rate:.2f}{unit_pad}{unit}/s]{fill}',
+    counter_format: str = "{desc}{desc_pad}{count:d} {unit}{unit_pad}{elapsed}, \
+{rate:.2f}{unit_pad}{unit}/s]{fill}",
     manager: enlighten.Manager = manager,
     autorefresh: bool = True,
 ):
@@ -39,7 +39,7 @@ def new_counter(
         unit=unit,
         leave=leave,
         autorefresh=autorefresh,
-        counter_format=counter_format
+        counter_format=counter_format,
     )
     counters.update({name: _c})
     return _c

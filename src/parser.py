@@ -29,7 +29,7 @@ class ConnectedAccounts:
         self._name = kwargs.pop("name", None)
 
         logger.debug(
-            "Parsing type: %s, id: %s, name: %s" % (self._type, self._id, self._name)  # noqa
+            "Parsing type: %s, id: %s, name: %s" % (self._type, self._id, self._name)
         )
 
         if self._type == "battlenet":

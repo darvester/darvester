@@ -6,7 +6,7 @@ from queue import Queue
 import pypresence
 import selfcord as discord
 
-from cfg import ENABLE_PRESENCE, DEBUG
+from cfg import DEBUG, ENABLE_PRESENCE
 from src.logutil import initLogger
 
 rp_logger = initLogger("RichPresence")
@@ -81,10 +81,14 @@ class RichPresence:
                 _logger.debug("Cleared queue")
                 # time.sleep(15)
         except ConnectionRefusedError:
-            _logger.critical("Could not connect to your Discord client " +
-                             "for rich presence. Is it running?")
+            _logger.critical(
+                "Could not connect to your Discord client "
+                + "for rich presence. Is it running?"
+            )
         except pypresence.exceptions.DiscordError:
-            _logger.critical("A Discord error occurred while connecting to RPC", exc_info=DEBUG)
+            _logger.critical(
+                "A Discord error occurred while connecting to RPC", exc_info=DEBUG
+            )
         except Exception:  # noqa
             _logger.critical("Exception happened", exc_info=1)
 
@@ -136,7 +140,7 @@ class BotStatus:
                 "{'activity': %s, 'state': '%s', 'status': %s}"
                 % (activity, state, status)
             )
-            state = "Darvester - Idle" if state is None else f'Darvester - {state}'
+            state = "Darvester - Idle" if state is None else f"Darvester - {state}"
 
             await client.change_presence(
                 activity=discord.activity.CustomActivity(state, emoji="⛏️")

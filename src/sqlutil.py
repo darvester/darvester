@@ -33,16 +33,10 @@ class DictDiffer(object):
         return self.set_past - self.intersect
 
     def changed(self):
-        return {
-            o for o in self.intersect
-            if self.past_dict[o] != self.current_dict[o]
-        }  # noqa
+        return {o for o in self.intersect if self.past_dict[o] != self.current_dict[o]}
 
     def unchanged(self):
-        return {
-            o for o in self.intersect
-            if self.past_dict[o] == self.current_dict[o]
-        }  # noqa
+        return {o for o in self.intersect if self.past_dict[o] == self.current_dict[o]}
 
 
 class SQLiteNoSQL:
@@ -177,9 +171,9 @@ class SQLiteNoSQL:
                     return _d[query]
                 except KeyError:
                     if query != "last_scanned":
-                        logger.debug('Query "%s" failed. May not be harmful', query)  # noqa
+                        logger.debug('Query "%s" failed. May not be harmful', query)
                 except TypeError:
-                    logger.debug("Query data returned None. Probably first seen?")  # noqa
+                    logger.debug("Query data returned None. Probably first seen?")
             # return as json
             return _d
         except sqlite3.ProgrammingError:

@@ -39,7 +39,7 @@ class Harvester:
 
         RichPresence.put(message=["Darvester", "Preparing...", ""])
         set_title("Darvester - Preparing...")
-        logger.info("Logged in as %s", client.user.name if not QUIET_MODE else "user")  # noqa
+        logger.info("Logged in as %s", client.user.name if not QUIET_MODE else "user")
 
         await BotStatus.update(client=client, state="Preparing")
 
@@ -63,38 +63,39 @@ class Harvester:
                         guild_counter.clear()
 
                     guild: discord.Guild = client.get_guild(guildid)
-                    _g_name = guild.name if not QUIET_MODE \
-                        else "\"quiet mode\""
-                    _g_desc = guild.description if not QUIET_MODE \
-                        else "\"quiet mode\""
+                    _g_name = guild.name if not QUIET_MODE else '"quiet mode"'
+                    _g_desc = guild.description if not QUIET_MODE else '"quiet mode"'
 
                     term_status.update(
-                        demo=f"Harvesting {_g_name}" +
-                        f" with {len(guild.members)} members"
+                        demo=f"Harvesting {_g_name}"
+                        + f" with {len(guild.members)} members"
                     )
                     guild_status.update(
-                        demo=f"Name: {_g_name}"
-                        + f" | Description: {_g_desc}"
+                        demo=f"Name: {_g_name}" + f" | Description: {_g_desc}"
                     )
 
                     if guild.unavailable:
                         logger.warning(
-                            "Guild '%s' is unavailable. Skipping...", guild.name  # noqa
+                            "Guild '%s' is unavailable. Skipping...",
+                            guild.name
                             if not QUIET_MODE
-                            else ""
+                            else "Guild unavailable. Skipping...",
                         )
                         continue
                     if guild.id in IGNORE_GUILD:
                         logger.warning(
-                            "Guild %s ignored. Skipping...", guild.name
+                            "Guild %s ignored. Skipping...",
+                            guild.name
                             if not QUIET_MODE
-                            else ""
+                            else "Guild ignored. Skipping...",
                         )
                         continue
 
                     logger.info(
                         'Now working in guild: "%s"',
-                        guild.name if not QUIET_MODE else "(quiet mode enabled)",  # noqa
+                        guild.name
+                        if not QUIET_MODE
+                        else "Now working in guild: (quiet mode enabled)",
                     )
 
                     set_title(
@@ -135,7 +136,8 @@ class Harvester:
                     }
 
                     logger.debug(
-                        'GUILD: Inserting guild "%s" = "%s"' % (guild.id, guild_data["name"])
+                        'GUILD: Inserting guild "%s" = "%s"'
+                        % (guild.id, guild_data["name"])
                     ) if not QUIET_MODE else logger.info("Inserting a guild...")
 
                     self.db.addrow(guild_data, guild.id, "guilds")
@@ -243,13 +245,13 @@ class Harvester:
 
                             _name = data["name"] + "#" + data["discriminator"]
                             if QUIET_MODE:
-                                _name = "\"quiet mode\""
+                                _name = '"quiet mode"'
 
                             member_status.update(
                                 demo=f"Name: {_name}"
                                 + f" | Bio: {_bio}"
                                 + " | Created at: "
-                                + str(datetime.fromtimestamp(int(data["created_at"])))  # noqa
+                                + str(datetime.fromtimestamp(int(data["created_at"])))
                                 if not QUIET_MODE
                                 else '"quiet mode"'
                             )
@@ -274,7 +276,7 @@ class Harvester:
                                 description="Cooldown",
                                 unit="s",
                                 leave=False,
-                                counter_format='{desc}{desc_pad} {elapsed}'
+                                counter_format="{desc}{desc_pad} {elapsed}",
                             )
 
                             logger.debug("COOLDOWN: On request cooldown...")
@@ -285,8 +287,7 @@ class Harvester:
                             term_status.update(
                                 demo="Harvesting " + guild.name
                                 if not QUIET_MODE
-                                else "a guild"
-                                + f" with {len(guild.members)} members"
+                                else "a guild" + f" with {len(guild.members)} members"
                             )
                             term_status.refresh()
                             set_title(
@@ -325,7 +326,7 @@ class Harvester:
                     description="Cooldown",
                     unit="s",
                     leave=False,
-                    counter_format='{desc}{desc_pad} {elapsed}'
+                    counter_format="{desc}{desc_pad} {elapsed}",
                 )
 
                 for _ in range(600, 0, -1):
@@ -339,7 +340,7 @@ class Harvester:
             logger.critical(
                 "HTTP 429 returned. You may have been temp banned! \
 Try again later (may take a couple hours or as long as a day)",
-                exc_info=1
+                exc_info=1,
             )
             sys.exit()
 
