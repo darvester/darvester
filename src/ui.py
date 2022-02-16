@@ -30,7 +30,10 @@ def new_counter(
 ):
     if name in counters:
         if isinstance(counters[name], enlighten.Counter):
-            counters[name].close()
+            try:
+                counters[name].close()
+            except KeyError:
+                pass
         manager.remove(counters[name])
 
     _c = manager.counter(
@@ -55,7 +58,10 @@ def new_status_bar(
 ):
     if name in status_bars:
         if isinstance(status_bars[name], enlighten.StatusBar):
-            status_bars[name].close()
+            try:
+                status_bars[name].close()
+            except KeyError:
+                pass
         manager.remove(status_bars[name])
 
     _s = manager.status_bar(
