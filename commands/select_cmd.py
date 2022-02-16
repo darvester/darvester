@@ -56,12 +56,8 @@ async def _main(message, db):
 
                 _connected_accounts = []
                 for _i in data["connected_accounts"]:
-                    _p = await parse.parse(
-                        type=_i["type"], name=_i["name"], id=_i["id"]
-                    )
-                    _connected_accounts.append(
-                        f"`{_i['type']} - {_i['name']}`\n{_p}\n ---"
-                    )
+                    _p = await parse.parse(type=_i["type"], name=_i["name"], id=_i["id"])
+                    _connected_accounts.append(f"`{_i['type']} - {_i['name']}`\n{_p}\n ---")
 
                 _connected_accounts = "\n".join(_connected_accounts)
 
@@ -91,8 +87,7 @@ __Mutual Guilds__: ```
 __Connected Accounts__:
 {_connected_accounts}"""
                 logger.info(
-                    'Found "%s" requested by user "%s"'
-                    % (data["name"], message.author.name),
+                    'Found "%s" requested by user "%s"' % (data["name"], message.author.name),
                 )
                 await message.channel.send(_message)
             else:
@@ -100,9 +95,7 @@ __Connected Accounts__:
                     "Query returned empty. User not \
 found. Trying to find guild..."
                 )
-                await _do_guild_lookup(
-                    db, message.content[7:].lstrip().rstrip(), message
-                )
+                await _do_guild_lookup(db, message.content[7:].lstrip().rstrip(), message)
         except Exception as e:  # noqa
             logger.warning(",select triggered exception")
             traceback.print_exc()

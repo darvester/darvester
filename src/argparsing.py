@@ -34,9 +34,7 @@ def _parse_args(*kargs, **kwargs):
         help="Enable rich presence for bot and client.",
         action="store_true",
     )
-    argparser.add_argument(
-        "--db", metavar="harvested.db", help="The database file to log into."
-    )
+    argparser.add_argument("--db", metavar="harvested.db", help="The database file to log into.")
     argparser.add_argument(
         "-q",
         help="Enable quiet mode to suppress some info going to the console.",

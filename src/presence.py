@@ -41,10 +41,7 @@ class RichPresence:
                         "label": "Get Darvester",
                         "url": "https://github.com/V3ntus/darvester",
                     },
-                    {
-                        "label": "V3ntus' Website",
-                        "url": "https://v3ntus.github.io"
-                    },
+                    {"label": "V3ntus' Website", "url": "https://v3ntus.github.io"},
                 ],
             )
             while True:
@@ -55,19 +52,14 @@ class RichPresence:
                     state=message[1],
                     details=message[0],
                     start=int(time.time()),
-                    end=int(time.time() + 60)
-                    if message[2] == "cooldown"
-                    else None,  # noqa
+                    end=int(time.time() + 60) if message[2] == "cooldown" else None,
                     large_image="darvester_1-1",
                     buttons=[
                         {
                             "label": "Get Darvester",
                             "url": "https://github.com/V3ntus/darvester",
                         },
-                        {
-                            "label": "V3ntus' Website",
-                            "url": "https://v3ntus.github.io"
-                        },
+                        {"label": "V3ntus' Website", "url": "https://v3ntus.github.io"},
                     ],
                 )
                 _logger.debug("Updated presence: {}".format(message))
@@ -82,13 +74,10 @@ class RichPresence:
                 # time.sleep(15)
         except ConnectionRefusedError:
             _logger.critical(
-                "Could not connect to your Discord client "
-                + "for rich presence. Is it running?"
+                "Could not connect to your Discord client " + "for rich presence. Is it running?"
             )
         except pypresence.exceptions.DiscordError:
-            _logger.critical(
-                "A Discord error occurred while connecting to RPC", exc_info=DEBUG
-            )
+            _logger.critical("A Discord error occurred while connecting to RPC", exc_info=DEBUG)
         except Exception:  # noqa
             _logger.critical("Exception happened", exc_info=1)
 
@@ -137,14 +126,11 @@ class BotStatus:
         if ENABLE_PRESENCE:
             bs_logger.debug("Changing presence...")
             bs_logger.debug(
-                "{'activity': %s, 'state': '%s', 'status': %s}"
-                % (activity, state, status)
+                "{'activity': %s, 'state': '%s', 'status': %s}" % (activity, state, status)
             )
             state = "Darvester - Idle" if state is None else f"Darvester - {state}"
 
             await client.change_presence(
                 activity=discord.activity.CustomActivity(state, emoji="⛏️")
             )
-            await client.change_presence(
-                activity=discord.Game("Darvester"), status=status
-            )
+            await client.change_presence(activity=discord.Game("Darvester"), status=status)

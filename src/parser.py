@@ -28,9 +28,7 @@ class ConnectedAccounts:
         self._id = kwargs.pop("id", None)
         self._name = kwargs.pop("name", None)
 
-        logger.debug(
-            "Parsing type: %s, id: %s, name: %s" % (self._type, self._id, self._name)
-        )
+        logger.debug("Parsing type: %s, id: %s, name: %s" % (self._type, self._id, self._name))
 
         if self._type == "battlenet":
             return self._name  # no api(?)

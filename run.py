@@ -47,8 +47,8 @@ import selfcord as discord  # noqa: ignore = E402
 from selfcord.ext import commands  # noqa: ignore = E402
 
 from cfg import DEBUG_DISCORD  # noqa: ignore = E402
-from cfg import DB_NAME, DEBUG, ENABLE_PRESENCE, QUIET_MODE  # noqa: ignore = E402
-
+from cfg import (DB_NAME, DEBUG, ENABLE_PRESENCE,  # noqa: ignore = E402
+                 QUIET_MODE)
 # Commands go here
 from commands import filter_cmd, select_cmd  # noqa: ignore = E402
 from src import logutil, ui  # noqa: ignore = E402
@@ -94,9 +94,7 @@ except ImportError:
     TOKEN = os.getenv("TOKEN")
 
 if (TOKEN and os.getenv("TOKEN")) == "":
-    logger.critical(
-        "TOKEN not found. Declare TOKEN in your environment or set it in cfg.py"
-    )
+    logger.critical("TOKEN not found. Declare TOKEN in your environment or set it in cfg.py")
     sys.exit(1)
 # END token import
 

@@ -1,6 +1,6 @@
-git+https://github.com/dolfies/discord.py-self.git@renamed
+aiohttp[speedups]
 discord
 discord.py
-pypresence
-aiohttp[speedups]
 enlighten
+git+https://github.com/dolfies/discord.py-self.git@renamed
+pypresence

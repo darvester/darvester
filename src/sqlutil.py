@@ -21,9 +21,7 @@ class DictDiffer(object):
 
     def __init__(self, current_dict, past_dict):
         self.current_dict, self.past_dict = current_dict, past_dict
-        self.set_current, self.set_past = set(current_dict.keys()), set(
-            past_dict.keys()
-        )  # noqa
+        self.set_current, self.set_past = set(current_dict.keys()), set(past_dict.keys())
         self.intersect = self.set_current.intersection(self.set_past)
 
     def added(self):
@@ -100,8 +98,7 @@ class SQLiteNoSQL:
         except sqlite3.IntegrityError:
             # Process an already existent row
             logger.debug(
-                f"Already exists: {user_id if not QUIET_MODE else None}"
-                + " -- Updating info..."
+                f"Already exists: {user_id if not QUIET_MODE else None}" + " -- Updating info..."
             )
 
             # Use the 'data' from our try
@@ -253,9 +250,7 @@ class SQLiteNoSQL:
         try:
             logger.debug("Rebuilding the fts table for %s" % table)
             self.open(DB_NAME)
-            self.cur.execute(
-                f"INSERT INTO {table}_fts({table}_fts) " + "VALUES('rebuild')"
-            )
+            self.cur.execute(f"INSERT INTO {table}_fts({table}_fts) " + "VALUES('rebuild')")
             self.db.commit()
             self.db.close()
         except Exception:

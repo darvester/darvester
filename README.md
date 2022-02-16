@@ -8,7 +8,7 @@
 </p>
 
 ---
-### PoC Discord user and guild information harvester  
+### PoC Discord user and guild information harvester
 
 <p align=center>
   Darvester aims to provide safe Discord OSINT harvesting, abiding by sane rate limiting and providing automated processing
@@ -33,7 +33,7 @@
 - Features (thread length, community, etc.)
 - Nitro tier
 
-All as nested JSON in `harvested.db` (SQLite). Select data with `id` as user ID (Snowflake).  
+All as nested JSON in `harvested.db` (SQLite). Select data with `id` as user ID (Snowflake).
 You can access this data through Discord by using the command `,select [USER ID]` (see screenshots below)
 
 <h3 align="center">To start logging, just join a server with your user. No need to verify*</h3>
