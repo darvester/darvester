@@ -4,9 +4,9 @@ import pathlib
 import sqlite3
 import time
 import traceback
-
-from sqlite3 import Connection, Cursor
 from os.path import dirname as dn
+from sqlite3 import Connection, Cursor
+
 from cfg import DB_NAME, QUIET_MODE, VCS_REPO_PATH
 from src import logutil
 from src.gitutil import GitUtil
@@ -196,9 +196,7 @@ class SQLiteNoSQL:
             self.git.init_repo(path)
         try:
             self.open(DB_NAME)
-            self.cur.execute(
-                f"SELECT id, data FROM {table}"
-            )
+            self.cur.execute(f"SELECT id, data FROM {table}")
             data = self.cur.fetchall()
 
             pathlib.Path(f"{path}/{table}").mkdir(parents=True, exist_ok=True)
@@ -213,7 +211,13 @@ class SQLiteNoSQL:
                         mode = "x"
 
                     with open(f"{path}/{table}/{str(piece[0])}", mode) as f:
-                        logger.debug("DUMP: Writing to %s/%s..." % (path, str(piece[0]),))
+                        logger.debug(
+                            "DUMP: Writing to %s/%s..."
+                            % (
+                                path,
+                                str(piece[0]),
+                            )
+                        )
                         f.write(piece[1])
                         f.close()
                 except:  # noqa
