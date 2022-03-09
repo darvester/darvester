@@ -1,10 +1,15 @@
 import json
+import os
+import pathlib
 import sqlite3
 import time
 import traceback
 
-from cfg import DB_NAME, QUIET_MODE
+from sqlite3 import Connection, Cursor
+from os.path import dirname as dn
+from cfg import DB_NAME, QUIET_MODE, VCS_REPO_PATH
 from src import logutil
+from src.gitutil import GitUtil
 
 logger = logutil.initLogger("sqlutil")
 dbfile = DB_NAME
@@ -52,13 +57,19 @@ class SQLiteNoSQL:
             + "CREATE TABLE IF NOT EXISTS "
             + "guilds(data TEXT UNIQUE, id INTEGER UNIQUE);"
         )
+        self.git = GitUtil()
 
     def open(self, f: str = dbfile):
         """Open connection"""
         self.db = sqlite3.connect(f)
         self.cur = self.db.cursor()
 
-    def cursor(self):
+    @property
+    def conn(self) -> Connection:
+        return self.db
+
+    @property
+    def cursor(self) -> Cursor:
         return self.db.cursor()
 
     def close(self):
@@ -177,6 +188,42 @@ class SQLiteNoSQL:
             logger.error("ProgrammingError raised", exc_info=1)
             self.close()
             self.open(self.dbfile)
+
+    def dump_table_to_files(self, table: str, path: str = VCS_REPO_PATH):
+        if not path:
+            path = dn(os.path.dirname(__file__)) + "/.darvester"
+        if not os.path.exists(path) and not os.path.isdir(path):
+            self.git.init_repo(path)
+        try:
+            self.open(DB_NAME)
+            self.cur.execute(
+                f"SELECT id, data FROM {table}"
+            )
+            data = self.cur.fetchall()
+
+            pathlib.Path(f"{path}/{table}").mkdir(parents=True, exist_ok=True)
+
+            __iter = 0
+            for piece in data:
+                __iter += 1
+                try:
+                    if os.path.exists(f"{path}/{table}/{str(piece[0])}"):
+                        mode = "w"
+                    else:
+                        mode = "x"
+
+                    with open(f"{path}/{table}/{str(piece[0])}", mode) as f:
+                        logger.debug("DUMP: Writing to %s/%s..." % (path, str(piece[0]),))
+                        f.write(piece[1])
+                        f.close()
+                except:  # noqa
+                    logger.critical("DUMP: Error occurred writing data", exc_info=True)
+            logger.debug("Finished dumping %s items to commit to VCS" % (__iter,))
+        except Exception as error:
+            logger.critical("DUMP: Error occurred")
+            raise error from error
+        finally:
+            self.close()
 
     def init_fts_table(self, table: str = "users"):
         try:
