@@ -1,9 +1,12 @@
-TOKEN = "discord *user* token here"
+from logging import CRITICAL, INFO, WARNING
+
+TOKEN = "*discord user token here*"
 
 # Ignore these guilds
 IGNORE_GUILD = []
 
 # Enable debug messages
+# Also functions as `logging.DEBUG` for LOG_LEVEL
 DEBUG = False
 
 # Enable debug messages for Discord/Selfcord
@@ -27,3 +30,10 @@ ID_WHITELIST = []
 # The amount of time that must pass before we harvest this user again
 # in seconds
 LAST_SCANNED_INTERVAL = 600
+
+# Default log level. Debug options override this
+LOG_LEVEL = WARNING
+
+# The path where the database will be dumped for the VCS
+# None defaults to $(pwd)/.darvester
+VCS_REPO_PATH = None
