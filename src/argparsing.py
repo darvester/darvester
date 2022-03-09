@@ -62,7 +62,7 @@ def _parse_args(*kargs, **kwargs):
     if args.ignore_guild:
         try:
             cfg.IGNORE_GUILD = [int(args.ignore_guild)]
-        except ValueError or TypeError:
+        except (ValueError, TypeError):
             try:
                 with open(str(args.ignore_guild)) as _f:
                     cfg.IGNORE_GUILD = [int(_ig) for _ig in _f.read().split(",")]
