@@ -6,7 +6,7 @@ from datetime import datetime
 import enlighten
 import selfcord as discord
 
-from cfg import IGNORE_GUILD, LAST_SCANNED_INTERVAL, QUIET_MODE
+from cfg import DISABLE_VCS, IGNORE_GUILD, LAST_SCANNED_INTERVAL, QUIET_MODE
 from src import logutil, ui
 from src.gitutil import GitUtil
 from src.presence import BotStatus, RichPresence
@@ -16,7 +16,8 @@ from src.ui import set_title
 RichPresence = RichPresence()
 RichPresence.start_thread()
 BotStatus = BotStatus()
-git = GitUtil()
+if not DISABLE_VCS:
+    git = GitUtil()
 
 logger = logutil.initLogger("harvester")
 quiet_msg = "(quiet mode enabled)"
@@ -31,7 +32,8 @@ class Harvester:
         # Setup database
         self.db = SQLiteNoSQL("harvested.db")
         self.cur = self.db.cursor
-        self._repo = git.init_repo()
+        if not DISABLE_VCS:
+            self._repo = git.init_repo()
 
     async def thread_start(self, client):
         term_status: enlighten.StatusBar = ui.status_bars["main"]
@@ -297,9 +299,10 @@ class Harvester:
                             _request_number = 0
 
                 self.db.close()
-                for table in ["users", "guilds"]:
-                    self.db.dump_table_to_files(table=table)
-                git.commit()
+                if not DISABLE_VCS:
+                    for table in ["users", "guilds"]:
+                        self.db.dump_table_to_files(table=table)
+                    git.commit()
                 term_status.update(demo="Reached end of guild list")
                 logger.info("That's all the guilds! Sleeping for a bit then looping")
                 RichPresence.put(message=["- Discord OSINT harvester", "- Created by V3ntus", ""])
@@ -333,6 +336,7 @@ Try again later (may take a couple hours or as long as a day)",
 
     async def close(self):
         await self.db.close()
-        for table in ["users", "guilds"]:
-            self.db.dump_table_to_files(table=table)
-        git.commit()
+        if not DISABLE_VCS:
+            for table in ["users", "guilds"]:
+                self.db.dump_table_to_files(table=table)
+            git.commit()

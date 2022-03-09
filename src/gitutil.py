@@ -9,7 +9,7 @@ from git import Repo
 from git.config import GitConfigParser
 from git.exc import InvalidGitRepositoryError, NoSuchPathError
 
-from cfg import VCS_REPO_PATH
+from cfg import DISABLE_VCS, VCS_REPO_PATH
 from src.logutil import initLogger
 
 logger = initLogger("gitutil")
@@ -23,19 +23,28 @@ class GitUtil:
         cwd: Union[str, Path] = None,
         path: Union[str, Path] = VCS_REPO_PATH or _default_path,
     ):
-        self._cwd = cwd or Path().parent.resolve()
-        self._path = path
-        try:
-            self._repo = repo or Repo(self._path)
-        except (NoSuchPathError, InvalidGitRepositoryError):
-            self._repo = self.init_repo(self._path)
-        self._gitconfig: GitConfigParser
+        if not DISABLE_VCS:
+            self._cwd = cwd or Path().parent.resolve()
+            self._path = path
+            try:
+                self._repo = repo or Repo(self._path)
+            except (NoSuchPathError, InvalidGitRepositoryError):
+                self._repo = self.init_repo(self._path)
+            self._gitconfig: GitConfigParser
 
-    def open_repo(self, path: Union[str, Path] = VCS_REPO_PATH or _default_path) -> Repo:
+    def open_repo(
+        self, path: Union[str, Path] = VCS_REPO_PATH or _default_path
+    ) -> Union[Repo, None]:
+        if DISABLE_VCS:
+            return None
         self._repo = Repo(path)
         return self._repo
 
-    def init_repo(self, path: Union[str, Path] = VCS_REPO_PATH or _default_path) -> Repo:
+    def init_repo(
+        self, path: Union[str, Path] = VCS_REPO_PATH or _default_path
+    ) -> Union[Repo, None]:
+        if DISABLE_VCS:
+            return None
         logger.debug("Creating a repo at: %s" % (path,))
         self._repo = Repo.init(_default_path, bare=False)
         assert not self._repo.bare
@@ -47,6 +56,8 @@ class GitUtil:
         Args:
             path: the path where the database was dumped
         """
+        if DISABLE_VCS:
+            return None
         os.chdir(path)
         __iter = len(os.listdir(path + "/users/")) + len(os.listdir(path + "/guilds/"))
         message = datetime.now().strftime(f"%m-%d-%Y_%H.%M.%S_{__iter}")
