@@ -1,8 +1,11 @@
 harvested.db
+.darvestertmp/
+*/.darvestertmp/
 .agreed
 cfg.py
 .vscode/
 test*.py
+.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

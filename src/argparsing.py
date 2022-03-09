@@ -56,6 +56,12 @@ def _parse_args(*kargs, **kwargs):
         + "this user.",
         type=int,
     )
+    argparser.add_argument(
+        "--disable-vcs",
+        "-dv",
+        help="Disable the VCS tracking system",
+        action="store_true",
+    )
 
     args = argparser.parse_args()
 
@@ -95,5 +101,7 @@ def _parse_args(*kargs, **kwargs):
                 ) from e
     if args.last_scanned:
         cfg.LAST_SCANNED_INTERVAL = args.last_scanned
+    if args.disable_vcs:
+        cfg.DISABLE_VCS = True
 
     return args
