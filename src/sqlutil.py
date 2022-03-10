@@ -323,11 +323,6 @@ FROM {table}_fts"
 
             self.cur.execute(_sql_query, (query,) if query else None)
 
-            # self.cur.execute(
-            #     "SELECT id, data " +
-            #     f"FROM {table}_fts " +
-            #     f"WHERE data {query_type} ? ", (query,) if query else None
-            # )
             _returned = self.cur.fetchall()
 
             _d = []
