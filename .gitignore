@@ -1,6 +1,6 @@
 harvested.db
-.darvestertmp/
-*/.darvestertmp/
+.darvester/
+*/.darvester/
 .agreed
 cfg.py
 .vscode/
