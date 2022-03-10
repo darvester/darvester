@@ -212,17 +212,12 @@ class SQLiteNoSQL:
 
                     with open(f"{path}/{table}/{str(piece[0])}", mode) as f:
                         logger.debug(
-                            "DUMP: Writing to %s/%s..."
-                            % (
-                                path,
-                                str(piece[0]),
-                            )
-                        )
+                            "DUMP: Writing to %s/%s...", path, str(piece[0]))
                         f.write(piece[1])
                         f.close()
                 except:  # noqa
                     logger.critical("DUMP: Error occurred writing data", exc_info=True)
-            logger.debug("Finished dumping %s items to commit to VCS" % (__iter,))
+            logger.debug("Finished dumping %s items to commit to VCS", __iter)
         except Exception as error:
             logger.critical("DUMP: Error occurred")
             raise error from error
@@ -231,7 +226,7 @@ class SQLiteNoSQL:
 
     def init_fts_table(self, table: str = "users"):
         try:
-            logger.debug("Initializing fts table for %s" % table)
+            logger.debug("Initializing fts table for %s", table)
             self.open(DB_NAME)
             # Drop things if they exist
             self.cur.executescript(
@@ -249,7 +244,7 @@ class SQLiteNoSQL:
                 + f"USING fts5(data, id, content='{table}')"
             )
             self.db.commit()
-            logger.debug("Created %s_fts" % table)
+            logger.debug("Created %s_fts", table)
 
             # Populate the fts table
             self.cur.execute(f"INSERT INTO {table}_fts SELECT * FROM {table}")
@@ -262,7 +257,7 @@ class SQLiteNoSQL:
                 + f"DELETE FROM {table}_fts WHERE rowid=old.rowid; END"
             )
             self.db.commit()
-            logger.debug("Created %s_fts_before_update" % table)
+            logger.debug("Created %s_fts_before_update", table)
 
             self.cur.execute(
                 f"CREATE TRIGGER IF NOT EXISTS {table}_fts_before_delete "
@@ -270,7 +265,7 @@ class SQLiteNoSQL:
                 + f"DELETE FROM {table}_fts WHERE rowid=old.rowid; END"
             )
             self.db.commit()
-            logger.debug("Created %s_fts_before_delete" % table)
+            logger.debug("Created %s_fts_before_delete", table)
 
             self.cur.execute(
                 f"CREATE TRIGGER IF NOT EXISTS {table}_after_update "
@@ -281,7 +276,7 @@ class SQLiteNoSQL:
                 + "END"
             )
             self.db.commit()
-            logger.debug("Created %s_fts_after_update" % table)
+            logger.debug("Created %s_fts_after_update", table)
 
             self.cur.execute(
                 f"CREATE TRIGGER IF NOT EXISTS {table}_after_insert "
@@ -292,14 +287,14 @@ class SQLiteNoSQL:
                 + "END"
             )
             self.db.commit()
-            logger.debug("Created %s_fts_after_insert" % table)
+            logger.debug("Created %s_fts_after_insert", table)
             self.db.close()
         except Exception:
             logger.critical("An exception occurred", exc_info=1)
 
     def rebuild_fts_table(self, table: str = "users"):
         try:
-            logger.debug("Rebuilding the fts table for %s" % table)
+            logger.debug("Rebuilding the fts table for %s", table)
             self.open(DB_NAME)
             self.cur.execute(f"INSERT INTO {table}_fts({table}_fts) " + "VALUES('rebuild')")
             self.db.commit()
@@ -349,7 +344,7 @@ FROM {table}_fts"
                 try:
                     return [_d[_][json_lookup] for _ in range(len(_d))]
                 except KeyError:
-                    logger.critical("Key not found %s" % json_lookup)
+                    logger.critical("Key not found %s", json_lookup)
                 except TypeError:
                     logger.critical("Query returned none", exc_info=1)
             return _d

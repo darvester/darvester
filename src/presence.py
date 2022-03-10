@@ -126,8 +126,7 @@ class BotStatus:
         if ENABLE_PRESENCE:
             bs_logger.debug("Changing presence...")
             bs_logger.debug(
-                "{'activity': %s, 'state': '%s', 'status': %s}" % (activity, state, status)
-            )
+                "{'activity': %s, 'state': '%s', 'status': %s}", activity, state, status)
             state = "Darvester - Idle" if state is None else f"Darvester - {state}"
 
             await client.change_presence(

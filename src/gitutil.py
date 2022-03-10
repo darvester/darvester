@@ -45,7 +45,7 @@ class GitUtil:
     ) -> Union[Repo, None]:
         if DISABLE_VCS:
             return None
-        logger.debug("Creating a repo at: %s" % (path,))
+        logger.debug("Creating a repo at: %s", path)
         self._repo = Repo.init(_default_path, bare=False)
         assert not self._repo.bare
         self._gitconfig = self._repo.config_reader()
