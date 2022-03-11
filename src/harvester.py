@@ -205,6 +205,55 @@ class Harvester:
                             for _ in _profile_object.mutual_guilds:
                                 _user_guilds["guilds"].append(_.id)
 
+                            _activities_modeled = []
+                            for _ in member.activities:
+                                if _.type == discord.ActivityType.unknown:
+                                    _type = "unknown"
+                                elif _.type == discord.ActivityType.playing:
+                                    _type = "playing"
+                                elif _.type == discord.ActivityType.streaming:
+                                    _type = "streaming"
+                                elif _.type == discord.ActivityType.listening:
+                                    _type = "listening"
+                                elif _.type == discord.ActivityType.watching:
+                                    _type = "watching"
+                                elif _.type == discord.ActivityType.custom:
+                                    _type = "custom"
+                                else:
+                                    _type = "unknown"
+
+                                _e: discord.PartialEmoji
+                                if _e := getattr(_, "emoji", None):
+                                    _emoji = {
+                                        "name": _e.name,
+                                        "id": _e.id,
+                                        "url": str(_e.url),
+                                    }
+                                else:
+                                    _emoji = None
+
+                                def _timestamp(_entry: str):
+                                    _dt: datetime
+                                    if type(_dt := getattr(_, _entry, None)) == datetime:
+                                        return _dt.timestamp()
+                                    else:
+                                        return None
+
+                                _activities_modeled.append(
+                                    {
+                                        "type": _type,
+                                        "name": getattr(_, "name", None),
+                                        "details": getattr(_, "details", None),
+                                        "url": getattr(_, "url", None),
+                                        "application_id": getattr(_, "application_id", None),
+                                        "emoji": _emoji,
+                                        "start": _timestamp("start"),
+                                        "end": _timestamp("end"),
+                                        "game": getattr(_, "game", None),
+                                        "twitch_name": getattr(_, "twitch_name", None)
+                                    }
+                                )
+
                             # Build harvested data structure
                             data = {
                                 "name": member.name,
@@ -216,10 +265,13 @@ class Harvester:
                                 "created_at": int(member.created_at.timestamp()),
                                 "connected_accounts": _profile_object.connected_accounts,
                                 "last_scanned": int(time.time()),
+                                "activities": _activities_modeled,
+                                "status": str(member.status),
                             }
 
                             logger.debug(
-                                ' USER: Inserting "%s" = %s#%s :', member.id, member.name, member.discriminator) if not QUIET_MODE else logger.info("Inserting...")
+                                'USER: Inserting "%s" = %s#%s :', member.id, member.name, member.discriminator) if not \
+                                QUIET_MODE else logger.info("Inserting...")
 
                             # Insert harvested data
                             self.db.addrow(data, member.id, "users")
@@ -316,7 +368,7 @@ class Harvester:
                     counter_format="{desc}{desc_pad} {elapsed}",
                 )
 
-                for _ in range(600, 0, -1):
+                for _ in range(180, 0, -1):
                     cooldown_counter.update()
                     await asyncio.sleep(1)
                 cooldown_counter.close(clear=True)
