@@ -13,6 +13,16 @@
 <p align=center>
   Darvester aims to provide safe Discord OSINT harvesting, abiding by sane rate limiting and providing automated processing
  </p>
+ 
+ ### Features:
+ - **Rate-limit/soft ban avoidance**
+ - **Automated processing**
+ - **Flexible configuration**
+ - **Utilization of the Git version control system to provide chronological data**
+ - **Detailed logging**
+ - **and more**
+
+---
 
 **Data logged for each user:**
 - Profile created date, and first seen date
