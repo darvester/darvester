@@ -71,6 +71,7 @@ optional arguments:
                         Either a comma separated list of user IDs in a text file, or a single user ID passed. Darvester will only respond to this userwhen commands are issued.
   --last-scanned LAST_SCANNED, -ls LAST_SCANNED
                         The amount of time (in seconds) that must pass before we scan this user again, otherwise we skip when we encounter this user.
+  --disable-vcs, -dv    Disable the VCS data tracking system
 ```
 
 ## Screenshots:
