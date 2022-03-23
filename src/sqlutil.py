@@ -52,10 +52,19 @@ class SQLiteNoSQL:
         dbfile = self.dbfile
         self.cur = self.db.cursor()
         self.cur.executescript(
+            # users
             "CREATE TABLE IF NOT EXISTS "
-            + "users(data TEXT UNIQUE, id INTEGER UNIQUE);"
+            + "users(data TEXT UNIQUE, id INTEGER UNIQUE, "
+            + "name TEXT, discriminator TEXT, bio TEXT, "
+            + "mutual_guilds TEXT, avatar_url TEXT, "
+            + "public_flags TEXT, created_at TEXT, "
+            + "connected_accounts TEXT, first_seen TEXT); "
+            # guilds
             + "CREATE TABLE IF NOT EXISTS "
-            + "guilds(data TEXT UNIQUE, id INTEGER UNIQUE);"
+            + "guilds(data TEXT UNIQUE, id INTEGER UNIQUE, "
+            + "name TEXT, icon TEXT, owner TEXT splash_url TEXT, "
+            + "member_count TEXT, description TEXT, "
+            + "features TEXT, premium_tier TEXT);"
         )
         self.git = GitUtil()
 
@@ -101,6 +110,41 @@ class SQLiteNoSQL:
                     user_id,
                 ),
             )
+
+            __user_slots = (
+                "name",
+                "discriminator",
+                "bio",
+                "mutual_guilds",
+                "avatar_url",
+                "public_flags",
+                "created_at",
+                "connected_accounts",
+                "first_seen"
+            )
+            __guild_slots = (
+                "name",
+                "icon",
+                "owner",
+                "splash_url",
+                "member_count",
+                "description",
+                "features",
+                "premium_tier"
+            )
+
+            for _key in d:
+                if _key in __user_slots and table == "users":
+                    self.db.execute(
+                        f"INSERT INTO users ({_key}) VALUES (?)",
+                        (d[_key])
+                    )
+                elif _key in __guild_slots and table == "guilds":
+                    # TODO: We can reduce this
+                    self.db.execute(
+                        f"INSERT INTO guilds ({_key}) VALUES (?)",
+                        (d[_key])
+                    )
         except sqlite3.ProgrammingError:
             # Sometimes, the database closes prematurely
             # My code sucks
