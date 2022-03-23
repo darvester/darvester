@@ -13,6 +13,16 @@
 <p align=center>
   Darvester aims to provide safe Discord OSINT harvesting, abiding by sane rate limiting and providing automated processing
  </p>
+ 
+ ### Features:
+ - **Rate-limit/soft ban avoidance**
+ - **Automated processing**
+ - **Flexible configuration**
+ - **Utilization of the Git version control system to provide chronological data**
+ - **Detailed logging**
+ - **and more**
+
+---
 
 **Data logged for each user:**
 - Profile created date, and first seen date
@@ -71,6 +81,7 @@ optional arguments:
                         Either a comma separated list of user IDs in a text file, or a single user ID passed. Darvester will only respond to this userwhen commands are issued.
   --last-scanned LAST_SCANNED, -ls LAST_SCANNED
                         The amount of time (in seconds) that must pass before we scan this user again, otherwise we skip when we encounter this user.
+  --disable-vcs, -dv    Disable the VCS data tracking system
 ```
 
 ## Screenshots:
