@@ -181,7 +181,7 @@ class Harvester:
                             if not isinstance(_d1, (str, int, bytes)):
                                 try:
                                     _d1 = _d1["last_scanned"]
-                                except Exception:
+                                except (KeyError, TypeError):
                                     _d1 = None  # last_scanned was not appended
 
                             if (
