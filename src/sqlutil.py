@@ -51,6 +51,28 @@ class SQLiteNoSQL:
         global dbfile
         dbfile = self.dbfile
         self.cur = self.db.cursor()
+        self._users_cols = [
+            "name",
+            "discriminator",
+            "bio",
+            "mutual_guilds",
+            "avatar_url",
+            "public_flags",
+            "created_at",
+            "connected_accounts",
+            "first_seen",
+            "last_scanned",
+        ]
+        self._guilds_cols = [
+            "name",
+            "icon",
+            "owner",
+            "splash_url",
+            "member_count",
+            "description",
+            "features",
+            "premium_tier",
+        ]
         self.cur.executescript(
             # users
             "CREATE TABLE IF NOT EXISTS "
@@ -58,7 +80,7 @@ class SQLiteNoSQL:
             + "name TEXT, discriminator TEXT, bio TEXT, "
             + "mutual_guilds TEXT, avatar_url TEXT, "
             + "public_flags TEXT, created_at TEXT, "
-            + "connected_accounts TEXT, first_seen TEXT); "
+            + "connected_accounts TEXT, first_seen TEXT, last_scanned TEXT); "
             # guilds
             + "CREATE TABLE IF NOT EXISTS "
             + "guilds(data TEXT UNIQUE, id INTEGER UNIQUE, "
@@ -66,6 +88,27 @@ class SQLiteNoSQL:
             + "member_count TEXT, description TEXT, "
             + "features TEXT, premium_tier TEXT);"
         )
+        self.cur.execute("PRAGMA table_info(users)")
+        _pragma_users = self.cur.fetchall()
+        self.cur.execute("PRAGMA table_info(guilds)")
+        _pragma_guilds = self.cur.fetchall()
+        if not (
+            any(word in _pragma_users for word in self._users_cols)
+            and any(word in _pragma_guilds for word in self._guilds_cols)
+        ):
+            logger.debug("Missing columns detected. Altering table...")
+            for _col in self._users_cols:
+                try:
+                    self.cur.executescript(f"ALTER TABLE users ADD {_col} TEXT")
+                    logger.debug(f'Adding: "{_col} TEXT" to users...')
+                except sqlite3.OperationalError:
+                    pass
+            for _col in self._guilds_cols:
+                try:
+                    self.cur.execute(f"ALTER TABLE guilds ADD {_col} TEXT")
+                    logger.debug(f'Adding: "{_col} TEXT" to guilds...')
+                except sqlite3.OperationalError:
+                    pass
         self.git = GitUtil()
 
     def open(self, f: str = dbfile):
@@ -90,7 +133,8 @@ class SQLiteNoSQL:
         except Exception:  # noqa: E722
             logger.error("Something happened trying to close the database", exc_info=1)
 
-    def addrow(self, d, user_id, table):
+    # TODO: rename `user_id` to a proper name now that we log guilds
+    def addrow(self, d: dict, user_id, table):
         """Add row to database"""
         # Check if row already exists for user_id
         try:
@@ -103,48 +147,26 @@ class SQLiteNoSQL:
                 d["first_seen"] = int(time.time())
 
             # Else, this code will throw IntegrityError and continue flow below
-            self.db.execute(
-                f"INSERT INTO {table} VALUES (?, ?);",
-                (
-                    json.dumps(d),
-                    user_id,
+            _query = "INSERT INTO {} ({}) VALUES ({})".format(
+                table,
+                ", ".join(
+                    [
+                        str(_k).replace('"', "'").replace("\\", "\\\\")
+                        for _k in d
+                        if _k in self._users_cols + self._guilds_cols
+                    ]
+                ),
+                ", ".join(
+                    [
+                        '"' + str(d[_k]).replace('"', "'").replace("\\", "\\\\") + '"'
+                        for _k in d
+                        if _k in self._users_cols + self._guilds_cols
+                    ]
                 ),
             )
 
-            __user_slots = (
-                "name",
-                "discriminator",
-                "bio",
-                "mutual_guilds",
-                "avatar_url",
-                "public_flags",
-                "created_at",
-                "connected_accounts",
-                "first_seen"
-            )
-            __guild_slots = (
-                "name",
-                "icon",
-                "owner",
-                "splash_url",
-                "member_count",
-                "description",
-                "features",
-                "premium_tier"
-            )
-
-            for _key in d:
-                if _key in __user_slots and table == "users":
-                    self.db.execute(
-                        f"INSERT INTO users ({_key}) VALUES (?)",
-                        (d[_key])
-                    )
-                elif _key in __guild_slots and table == "guilds":
-                    # TODO: We can reduce this
-                    self.db.execute(
-                        f"INSERT INTO guilds ({_key}) VALUES (?)",
-                        (d[_key])
-                    )
+            logger.debug(_query)
+            self.db.execute(_query)
         except sqlite3.ProgrammingError:
             # Sometimes, the database closes prematurely
             # My code sucks
@@ -255,8 +277,7 @@ class SQLiteNoSQL:
                         mode = "x"
 
                     with open(f"{path}/{table}/{str(piece[0])}", mode) as f:
-                        logger.debug(
-                            "DUMP: Writing to %s/%s...", path, str(piece[0]))
+                        logger.debug("DUMP: Writing to %s/%s...", path, str(piece[0]))
                         f.write(piece[1])
                         f.close()
                 except:  # noqa
@@ -285,7 +306,9 @@ class SQLiteNoSQL:
             # create initial fts db
             self.cur.execute(
                 f"CREATE VIRTUAL TABLE IF NOT EXISTS {table}_fts "
-                + f"USING fts5(data, id, content='{table}')"
+                + "USING fts5(id, data, {}, content='{}')".format(
+                    ", ".join(getattr(self, f"_{table}_cols")), table
+                )
             )
             self.db.commit()
             logger.debug("Created %s_fts", table)

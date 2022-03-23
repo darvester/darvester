@@ -86,8 +86,7 @@ __Mutual Guilds__: ```
                     _message += f"""
 __Connected Accounts__:
 {_connected_accounts}"""
-                logger.info(
-                    'Found "%s" requested by user "%s"', data["name"], message.author.name)
+                logger.info('Found "%s" requested by user "%s"', data["name"], message.author.name)
                 await message.channel.send(_message)
             else:
                 await message.channel.send(

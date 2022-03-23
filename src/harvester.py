@@ -129,7 +129,8 @@ class Harvester:
                     }
 
                     logger.debug(
-                        'GUILD: Inserting guild "%s" = "%s"', guild.id, guild_data["name"]) if not QUIET_MODE else logger.info("Inserting a guild...")
+                        'GUILD: Inserting guild "%s" = "%s"', guild.id, guild_data["name"]
+                    ) if not QUIET_MODE else logger.info("Inserting a guild...")
 
                     self.db.addrow(guild_data, guild.id, "guilds")
                     _request_number += 1
@@ -250,7 +251,7 @@ class Harvester:
                                         "start": _timestamp("start"),
                                         "end": _timestamp("end"),
                                         "game": getattr(_, "game", None),
-                                        "twitch_name": getattr(_, "twitch_name", None)
+                                        "twitch_name": getattr(_, "twitch_name", None),
                                     }
                                 )
 
@@ -270,8 +271,11 @@ class Harvester:
                             }
 
                             logger.debug(
-                                'USER: Inserting "%s" = %s#%s :', member.id, member.name, member.discriminator) if not \
-                                QUIET_MODE else logger.info("Inserting...")
+                                'USER: Inserting "%s" = %s#%s :',
+                                member.id,
+                                member.name,
+                                member.discriminator,
+                            ) if not QUIET_MODE else logger.info("Inserting...")
 
                             # Insert harvested data
                             self.db.addrow(data, member.id, "users")
