@@ -2,6 +2,7 @@ import asyncio
 import sys
 import time
 from datetime import datetime
+from sqlite3 import ProgrammingError
 
 import enlighten
 import selfcord as discord
@@ -14,7 +15,7 @@ from src.sqlutil import SQLiteNoSQL
 from src.ui import set_title
 
 RichPresence = RichPresence()
-RichPresence.start_thread()
+_rp_thread = RichPresence.start_thread()
 BotStatus = BotStatus()
 if not DISABLE_VCS:
     git = GitUtil()
@@ -387,9 +388,15 @@ Try again later (may take a couple hours or as long as a day)",
             )
             sys.exit()
 
-    async def close(self):
-        await self.db.close()
+    def close(self):
+        logger.info("Caught a closing signal. Cleaning up...")
+        try:
+            self.db.close()
+        except ProgrammingError:
+            pass
+        RichPresence.queue.put("RP_QUIT")
         if not DISABLE_VCS:
             for table in ["users", "guilds"]:
                 self.db.dump_table_to_files(table=table)
             git.commit()
+        logger.info("Bye!")

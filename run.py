@@ -46,8 +46,8 @@ args = _parse_args()
 import selfcord as discord  # noqa: ignore = E402
 from selfcord.ext import commands  # noqa: ignore = E402
 
-from cfg import (DB_NAME, DEBUG, DEBUG_DISCORD,  # noqa: ignore = E402
-                 DISABLE_VCS, ENABLE_PRESENCE, QUIET_MODE)
+from cfg import DEBUG_DISCORD  # noqa: ignore = E402
+from cfg import DB_NAME, DEBUG, DISABLE_VCS, ENABLE_PRESENCE, QUIET_MODE
 # Commands go here
 from commands import filter_cmd, select_cmd  # noqa: ignore = E402
 from src import logutil, ui  # noqa: ignore = E402
@@ -110,12 +110,23 @@ if DISABLE_VCS:
         "VCS system is disabled. Changes will not be logged in a git repository. Continuing..."
     )
 
+
+class Bot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # what am i doing with my life
+
+    async def close(self):
+        harvester.close()
+        await super().close()
+
+
 # Setup bot client
 set_title("Darvester - Connecting")
 logger.info("Connecting to gateway... Be patient")
 init_counter.update()
 term_status.update(demo="Connecting")
-client = commands.Bot(
+client = Bot(
     command_prefix=",",
     case_insensitive=True,
     activity=None if not ENABLE_PRESENCE else discord.Game("Darvester"),

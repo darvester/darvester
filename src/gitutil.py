@@ -48,7 +48,6 @@ class GitUtil:
         logger.debug("Creating a repo at: %s", path)
         self._repo = Repo.init(_default_path, bare=False)
         assert not self._repo.bare
-        self._gitconfig = self._repo.config_reader()
         return self._repo
 
     def commit(self, path: Union[str, Path] = VCS_REPO_PATH or _default_path):
@@ -62,14 +61,15 @@ class GitUtil:
         __iter = len(os.listdir(path + "/users/")) + len(os.listdir(path + "/guilds/"))
         message = datetime.now().strftime(f"%m-%d-%Y_%H.%M.%S_{__iter}")
         logger.info(f"Committing {__iter} entries to the VCS: {message}...")
-        with open(os.devnull, "wb") as _devnull:
-            subprocess.check_call(
-                ["git", "add", "--all"], stdout=_devnull, stderr=subprocess.STDOUT
-            )
-            subprocess.check_call(
-                ["git", "commit", "-m", message],
-                stdout=_devnull,
-                stderr=subprocess.STDOUT,
-            )
+        _add_result = subprocess.run(
+            ["git", "add", "--all"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        logger.debug((_add_result.returncode, _add_result.stdout, _add_result.stderr,))
+        _commit_result = subprocess.run(
+            ["git", "commit", "-m", message],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        logger.debug((_commit_result.returncode, _commit_result.stdout, _commit_result.stderr,))
 
         os.chdir(self._cwd)

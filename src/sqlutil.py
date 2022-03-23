@@ -269,6 +269,9 @@ class SQLiteNoSQL:
 
             __iter = 0
             for piece in data:
+                # logger.debug(data) # bad idea
+                if not piece[0]:  # why does this return None sometimes
+                    continue  # TODO: fix this >:(
                 __iter += 1
                 try:
                     if os.path.exists(f"{path}/{table}/{str(piece[0])}"):
@@ -278,7 +281,8 @@ class SQLiteNoSQL:
 
                     with open(f"{path}/{table}/{str(piece[0])}", mode) as f:
                         logger.debug("DUMP: Writing to %s/%s...", path, str(piece[0]))
-                        f.write(piece[1])
+                        if piece[1]:
+                            f.write(piece[1])
                         f.close()
                 except:  # noqa
                     logger.critical("DUMP: Error occurred writing data", exc_info=True)

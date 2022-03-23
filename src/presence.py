@@ -47,6 +47,9 @@ class RichPresence:
             while True:
                 _logger.debug("Waiting for queue presence message...")
                 message = queue.get()
+                if message == "RP_QUIT":
+                    _logger.info("Got stop command. Breaking the rich presence loop...")
+                    break
                 _logger.debug("Got " + ", ".join(message))
                 RPC.update(
                     state=message[1],
@@ -83,10 +86,11 @@ class RichPresence:
     def get_queue(self) -> Queue:
         return self.queue if ENABLE_PRESENCE else None
 
-    def start_thread(self):
+    def start_thread(self) -> threading.Thread:
         if ENABLE_PRESENCE:
             _t = threading.Thread(target=self._thread_run, args=(self.queue,))
             _t.start()
+            return _t
         else:
             rp_logger.warning("ENABLE_PRESENCE is False. Not starting a thread")
 
