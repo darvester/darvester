@@ -203,15 +203,27 @@ class SQLiteNoSQL:
                 if _diff.changed():
                     logger.debug("Changed: " + str(_diff.changed()))
                 logger.debug("--------------")
-                self.db.execute(
-                    f"""
-                UPDATE {table} SET (data, id) = (?, ?) WHERE id = ?""",
-                    (
-                        json.dumps(d),
-                        user_id,
-                        user_id,
+
+                query = "UPDATE {} SET ({}) = ({}) WHERE id = {}".format(
+                    table,
+                    ", ".join(
+                        [
+                            str(_k).replace('"', "'").replace("\\", "\\\\")
+                            for _k in d
+                            if _k in self._users_cols + self._guilds_cols
+                        ]
                     ),
+                    ", ".join(
+                        [
+                            '"' + str(d[_k]).replace('"', "'").replace("\\", "\\\\") + '"'
+                            for _k in d
+                            if _k in self._users_cols + self._guilds_cols
+                        ]
+                    ),
+                    user_id
                 )
+
+                self.db.execute(query)
         finally:
             self.db.commit()
 
