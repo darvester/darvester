@@ -294,7 +294,7 @@ class SQLiteNoSQL:
                     with open(f"{path}/{table}/{str(piece[0])}", mode) as f:
                         logger.debug("DUMP: Writing to %s/%s...", path, str(piece[0]))
                         if piece[1]:
-                            f.write(piece[1])
+                            f.write(piece[1].strip() + "\n")
                         f.close()
                 except:  # noqa
                     logger.critical("DUMP: Error occurred writing data", exc_info=True)
