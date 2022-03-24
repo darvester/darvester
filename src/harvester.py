@@ -393,7 +393,8 @@ Try again later (may take a couple hours or as long as a day)",
         try:
             self.db.close()
         except ProgrammingError:
-            pass
+            # The database may already be closed
+            logger.debug(exc_info=True)
         RichPresence.queue.put("RP_QUIT")
         if not DISABLE_VCS:
             for table in ["users", "guilds"]:
