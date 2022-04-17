@@ -3,7 +3,7 @@ import sys
 
 import enlighten
 
-manager = enlighten.get_manager()
+_manager = enlighten.get_manager()
 counters = {}
 status_bars = {}
 
@@ -31,7 +31,7 @@ def new_counter(
     leave: bool = None,
     counter_format: str = "{desc}{desc_pad}{count:d} {unit}{unit_pad}{elapsed}, \
 {rate:.2f}{unit_pad}{unit}/s]{fill}",
-    manager: enlighten.Manager = manager,
+    manager: enlighten.Manager = _manager,
     autorefresh: bool = True,
 ):
     """
@@ -82,7 +82,7 @@ def new_status_bar(
     color: str = "bold_underline_bright_white_on_lightslategray",
     justify=enlighten.Justify.CENTER,
     demo: str = None,
-    manager: enlighten.Manager = manager,
+    manager: enlighten.Manager = _manager,
 ):
     """
     Create a new status bar.
