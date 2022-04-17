@@ -45,7 +45,7 @@ __Features__: {_features}"""
         await ctx.channel.send("Something wrong happened: ```\n%s```" % e)
 
 
-async def _main(message, db):
+async def main(message, db):
     """
     Main function
 

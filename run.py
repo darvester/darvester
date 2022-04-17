@@ -162,10 +162,10 @@ async def on_message(message: discord.Message):
         await message.channel.send(help_message)
 
     if message.content.upper().startswith(",SELECT"):
-        await select_cmd._main(message, db)
+        await select_cmd.main(message, db)
 
     if message.content.upper().startswith(",FILTER"):
-        await filter_cmd._main(message, db)
+        await filter_cmd.main(message, db)
 
 
 # Login with bot

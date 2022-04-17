@@ -1,4 +1,4 @@
-async def _main(message, db):
+async def main(message, db):
     """
     Filter command.
     :param message:
