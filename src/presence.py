@@ -16,6 +16,7 @@ APPLICATION_ID = 926180199501025342
 
 
 class RichPresence:
+    """RichPresence class"""
     def __init__(self) -> None:
         if ENABLE_PRESENCE:
             q = Queue()

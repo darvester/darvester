@@ -4,6 +4,7 @@ import cfg
 
 
 class FileReadError(Exception):
+    """Custom exception to handle file read errors."""
     pass
 
 
