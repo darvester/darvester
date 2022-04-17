@@ -43,7 +43,7 @@ class CustomFormatter(logging.Formatter):
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
 
-    format = "[%(levelname)-7s][%(name)-14s] \
+    _format = "[%(levelname)-7s][%(name)-14s] \
 [%(lineno)4s] %(message)s"
     FORMATS = (
         {

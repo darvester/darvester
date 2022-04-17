@@ -312,7 +312,6 @@ class SQLiteNoSQL:
 
             __iter = 0
             for piece in data:
-                # logger.debug(data) # bad idea
                 if not piece[0]:  # why does this return None sometimes
                     continue  # TODO: fix this >:(
                 __iter += 1

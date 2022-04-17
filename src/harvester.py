@@ -237,7 +237,7 @@ class Harvester:
 
                                 def _timestamp(_entry: str):
                                     _dt: datetime
-                                    if type(_dt := getattr(_, _entry, None)) == datetime:
+                                    if type(_dt := getattr(_, _entry, None)) is datetime:
                                         return _dt.timestamp()
                                     else:
                                         return None
