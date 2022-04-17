@@ -8,13 +8,10 @@ class FileReadError(Exception):
     pass
 
 
-def _parse_args(*kargs, **kwargs):
+def _parse_args():
     """
     Parse arguments from command line.
-    :param kargs:
-    :type kargs:
-    :param kwargs:
-    :type kwargs:
+
     :return: Parsed arguments
     :rtype:
     """
