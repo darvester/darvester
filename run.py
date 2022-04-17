@@ -113,6 +113,7 @@ if DISABLE_VCS:
 
 class Bot(commands.Bot):
     """Inherits the commands.Bot class and adds a close method"""
+
     def __init__(self, *kargs, **kwargs):
         super().__init__(*kargs, **kwargs)
         # what am i doing with my life

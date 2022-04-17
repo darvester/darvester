@@ -17,6 +17,7 @@ APPLICATION_ID = 926180199501025342
 
 class RichPresence:
     """RichPresence class"""
+
     def __init__(self) -> None:
         if ENABLE_PRESENCE:
             q = Queue()
@@ -124,6 +125,7 @@ class RichPresence:
 
 class BotStatus:
     """Bot custom status class"""
+
     def __init__(self) -> None:
         bs_logger.debug("BotStatus init")
         self._ts_now = int(time.time())

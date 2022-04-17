@@ -7,6 +7,7 @@ logger = logutil.initLogger("parser")
 
 class ConnectedAccounts:
     """ConnectedAccounts class"""
+
     async def _parse_github(self):
         """
         https://developer.github.com/v3/users/#get-a-single-user

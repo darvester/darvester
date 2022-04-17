@@ -18,6 +18,7 @@ _default_path = dn(os.path.dirname(__file__)) + "/.darvester"
 
 class GitUtil:
     """Git utility class"""
+
     def __init__(
         self,
         repo: Repo = None,
