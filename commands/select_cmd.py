@@ -10,6 +10,16 @@ logger = logutil.initLogger("select_cmd")
 
 
 async def _do_guild_lookup(db, id, ctx):
+    """
+    Lookup guild by id
+
+    :param db: database object
+    :type db:
+    :param id: guild id
+    :type id: str
+    :param ctx: Discord context object
+    :type ctx: discord.ext.commands.Context
+    """
     try:
         if data := db.find(id, "guilds"):
             _features = ", ".join(data["features"])
@@ -36,6 +46,14 @@ __Features__: {_features}"""
 
 
 async def _main(message, db):
+    """
+    Main function
+
+    :param message: Discord message object
+    :type message: discord.Message
+    :param db: database object
+    :type db:
+    """
     logger.info('"%s" - initiated a select command', message.author.name)
     _hello_there = [
         "Oh hey there. I'll get that right out for you...",
@@ -101,5 +119,5 @@ found. Trying to find guild..."
                 "Something wrong happened:```py\n \
 %s \
 ```"
-                % (e)
+                % e
             )

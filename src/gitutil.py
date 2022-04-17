@@ -35,6 +35,14 @@ class GitUtil:
     def open_repo(
         self, path: Union[str, Path] = VCS_REPO_PATH or _default_path
     ) -> Union[Repo, None]:
+        """
+        Opens a repo at the path specified
+
+        :param path: the path to the repo
+        :type path: Union[str, Path]
+        :return: The Repo if it exists, None otherwise
+        :rtype: Union[Repo, None]
+        """
         if DISABLE_VCS:
             return None
         self._repo = Repo(path)
@@ -43,6 +51,14 @@ class GitUtil:
     def init_repo(
         self, path: Union[str, Path] = VCS_REPO_PATH or _default_path
     ) -> Union[Repo, None]:
+        """
+        Initializes a Git repo at the path specified
+
+        :param path: the path to the repo
+        :type path: Union[str, Path]
+        :return: The repo,
+        :rtype: Union[Repo, None]
+        """
         if DISABLE_VCS:
             return None
         logger.debug("Creating a repo at: %s", path)
@@ -52,8 +68,12 @@ class GitUtil:
 
     def commit(self, path: Union[str, Path] = VCS_REPO_PATH or _default_path):
         """
-        Args:
-            path: the path where the database was dumped
+        Commits the repo at the path specified
+
+        :param path: the path to the repo
+        :type path: Union[str, Path]
+        :return: None if the VCS is disabled
+        :rtype: None
         """
         if DISABLE_VCS:
             return None

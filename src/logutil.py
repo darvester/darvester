@@ -80,6 +80,7 @@ class CustomFormatter(logging.Formatter):
     # Documenting my dwindling sanity here
 
     def format(self, record):
+        """Format the log message"""
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt, datefmt="%I:%M.%S%p")
         return formatter.format(record)

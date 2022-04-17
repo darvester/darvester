@@ -7,6 +7,11 @@ logger = logutil.initLogger("parser")
 
 class ConnectedAccounts:
     async def _parse_github(self):
+        """
+        https://developer.github.com/v3/users/#get-a-single-user
+        :return: The formatted GitHub profile url
+        :rtype: str
+        """
         logger.debug("Attempting to parse github...")
         try:
             _url = f"https://api.github.com/user/{self._id}"
@@ -18,12 +23,20 @@ class ConnectedAccounts:
             logger.warning("Falling back to inaccurate Github URL", exc_info=1)
             return f"https://github.com/{self._name}"
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, **kwargs) -> None:
         self._type = kwargs.pop("type", None)
         self._id = kwargs.pop("id", None)
         self._name = kwargs.pop("name", None)
 
-    async def parse(self, *args, **kwargs):
+    async def parse(self, **kwargs):
+        """
+        Parse connected account data
+
+        :param kwargs:
+        :type kwargs:
+        :return: The formatted URL or name of the connected account
+        :rtype: str
+        """
         self._type = kwargs.pop("type", None)
         self._id = kwargs.pop("id", None)
         self._name = kwargs.pop("name", None)

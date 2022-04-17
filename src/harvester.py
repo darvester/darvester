@@ -37,6 +37,7 @@ class Harvester:
             self._repo = git.init_repo()
 
     async def thread_start(self, client):
+        """The main entry method for the harvester"""
         term_status: enlighten.StatusBar = ui.status_bars["main"]
         member_status: enlighten.StatusBar = ui.status_bars["member"]
         guild_status: enlighten.StatusBar = ui.status_bars["guild"]
@@ -389,6 +390,7 @@ Try again later (may take a couple hours or as long as a day)",
             sys.exit()
 
     def close(self):
+        """Gracefully close and clean up the harvester thread"""
         logger.info("Caught a closing signal. Cleaning up...")
         try:
             self.db.close()

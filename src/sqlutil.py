@@ -30,15 +30,39 @@ class DictDiffer(object):
         self.intersect = self.set_current.intersection(self.set_past)
 
     def added(self):
+        """
+        Return list of added items in current_dict
+
+        :return: list of added items
+        :rtype: dict
+        """
         return self.set_current - self.intersect
 
     def removed(self):
+        """
+        Return list of removed items in current_dict
+
+        :return: list of removed items
+        :rtype: dict
+        """
         return self.set_past - self.intersect
 
     def changed(self):
+        """
+        Return list of items in current_dict that have changed values
+
+        :return: list of changed items
+        :rtype: dict
+        """
         return {o for o in self.intersect if self.past_dict[o] != self.current_dict[o]}
 
     def unchanged(self):
+        """
+        Return list of items in current_dict that have unchanged values
+
+        :return: list of unchanged items
+        :rtype: dict
+        """
         return {o for o in self.intersect if self.past_dict[o] == self.current_dict[o]}
 
 
@@ -268,6 +292,13 @@ class SQLiteNoSQL:
             self.open(self.dbfile)
 
     def dump_table_to_files(self, table: str, path: str = VCS_REPO_PATH):
+        """
+
+        :param table: Table to dump
+        :type table: str
+        :param path: Path to dump to
+        :type path: str
+        """
         if not path:
             path = dn(os.path.dirname(__file__)) + "/.darvester"
         if not os.path.exists(path) and not os.path.isdir(path):
@@ -306,6 +337,11 @@ class SQLiteNoSQL:
             self.close()
 
     def init_fts_table(self, table: str = "users"):
+        """
+        Initialize a table for full-text search
+        :param table: Table to initialize from
+        :type table: str
+        """
         try:
             logger.debug("Initializing fts table for %s", table)
             self.open(DB_NAME)
@@ -376,6 +412,12 @@ class SQLiteNoSQL:
             logger.critical("An exception occurred", exc_info=1)
 
     def rebuild_fts_table(self, table: str = "users"):
+        """
+        Rebuilds the fts table for a given table
+
+        :param table: The fts table to rebuild
+        :type table: str
+        """
         try:
             logger.debug("Rebuilding the fts table for %s", table)
             self.open(DB_NAME)
@@ -393,6 +435,21 @@ class SQLiteNoSQL:
         query_type: str = "MATCH",
         limit: int = 40,
     ):
+        """
+        Finds data from the fts table
+        :param query: The query to search for
+        :type query: str
+        :param json_lookup: The key to return (if exists)
+        :type json_lookup: str
+        :param table: The table to search in (defaults to users)
+        :type table: str
+        :param query_type: The query type (defaults to MATCH)
+        :type query_type: str
+        :param limit: The limit of results to return (defaults to 40)
+        :type limit: int
+        :return: The results in a list
+        :rtype: list
+        """
         try:
             self.open()
 

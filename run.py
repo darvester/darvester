@@ -117,6 +117,9 @@ class Bot(commands.Bot):
         # what am i doing with my life
 
     async def close(self):
+        """
+        Overrides the default close method to allow for graceful shutdown
+        """
         harvester.close()
         await super().close()
 
@@ -138,6 +141,9 @@ client = Bot(
 # on_ready event
 @client.event
 async def on_ready():
+    """
+    Event handler for when the bot is ready
+    """
     init_counter.update()
     term_status.update(demo="Starting")
     logger.info("Attempting to start Harvester thread...")

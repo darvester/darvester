@@ -24,6 +24,11 @@ class RichPresence:
 
     @staticmethod
     def _thread_run(queue):
+        """
+        Method to start the presence thread.
+        :param queue: The queue used by the thread.
+        :type queue: Queue
+        """
         rp_logger.info("RichPresenceThread started")
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
@@ -83,10 +88,21 @@ class RichPresence:
         except Exception:  # noqa
             _logger.critical("Exception happened", exc_info=1)
 
+    @property
     def get_queue(self) -> Queue:
+        """
+        Returns the queue used by the rich presence thread.
+        :return: The queue used by the rich presence thread.
+        :rtype: Queue
+        """
         return self.queue if ENABLE_PRESENCE else None
 
     def start_thread(self) -> threading.Thread:
+        """
+        Starts the rich presence thread.
+        :return: The thread object if presence is enabled.
+        :rtype: threading.Thread
+        """
         if ENABLE_PRESENCE:
             _t = threading.Thread(target=self._thread_run, args=(self.queue,))
             _t.start()
@@ -95,6 +111,11 @@ class RichPresence:
             rp_logger.warning("ENABLE_PRESENCE is False. Not starting a thread")
 
     def put(self, message):
+        """
+        Put a message in the presence thread queue.
+        :param message:
+        :type message:
+        """
         if ENABLE_PRESENCE:
             rp_logger.debug("Put " + ", ".join(message))
             self.queue.put_nowait(message)
@@ -116,15 +137,18 @@ class BotStatus:
         state: str = None,
         status: discord.Status = discord.Status.idle,
     ):
-        """Update status
-
-        Args:
-            client (discord.Client): the client instance
-            activity (object, optional): Defaults to discord.Game.
-            state (str, optional): Defaults to "Idle".
-            status (discord.Status, optional): Defaults to discord.Status.idle.
         """
+        Update the bot's status
 
+        :param client: discord.Client
+        :type client: discord.Client
+        :param activity: discord.Game
+        :type activity: discord.Game
+        :param state: The state to change to
+        :type state: str
+        :param status: The status to change to
+        :type status: discord.Status
+        """
         # Change the presence
         if ENABLE_PRESENCE:
             bs_logger.debug("Changing presence...")
