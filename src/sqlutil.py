@@ -253,11 +253,16 @@ class SQLiteNoSQL:
 
     def find(self, user_id, table, query: str = None):
         """
-        user_id: Discord user or guild ID
-        table: Table to look in
-        query: optional - Extract data from specified key in query
+        Find a row in the database
+        :param user_id: The user id to search for
+        :type user_id: int
+        :param table: The table to search in
+        :type table: str
+        :param query: The query to use
+        :type query: str
+        :return: The row
+        :rtype: dict
         """
-
         try:
             self.open(DB_NAME)
             # execute SELECT to grab data
