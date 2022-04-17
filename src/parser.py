@@ -16,10 +16,9 @@ class ConnectedAccounts:
         logger.debug("Attempting to parse github...")
         try:
             _url = f"https://api.github.com/user/{self._id}"
-            async with aiohttp.ClientSession() as _session:
-                async with _session.get(_url) as _resp:
-                    _resp = await _resp.json()
-                    return _resp["html_url"]
+            async with aiohttp.ClientSession() as _session, _session.get(_url) as _resp:
+                _resp = await _resp.json()
+                return _resp["html_url"]
         except Exception:  # noqa
             logger.warning("Falling back to inaccurate Github URL", exc_info=1)
             return f"https://github.com/{self._name}"
