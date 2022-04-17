@@ -153,6 +153,11 @@ async def on_ready():
 # A simple command to respond to self
 @client.event
 async def on_message(message: discord.Message):
+    """
+    Event handler for when a message is received.
+    :param message: discord.Message
+    :type message: discord.Message
+    """
     if message.content.upper() == ",HELP":
         await message.channel.send(help_message)
 
