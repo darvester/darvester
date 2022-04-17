@@ -244,7 +244,7 @@ class SQLiteNoSQL:
                             if _k in self._users_cols + self._guilds_cols
                         ]
                     ),
-                    user_id
+                    user_id,
                 )
 
                 self.db.execute(query)
