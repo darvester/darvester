@@ -47,8 +47,6 @@ class GitUtil:
             return None
         logger.debug("Creating a repo at: %s", path)
         self._repo = Repo.init(_default_path, bare=False)
-        # if self._repo.bare:
-        #     raise Exception("Repo not bare")
         return self._repo
 
     def commit(self, path: Union[str, Path] = VCS_REPO_PATH or _default_path):
