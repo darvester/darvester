@@ -72,7 +72,6 @@ class SQLiteNoSQL:
     def __init__(self, f: str = DB_NAME):
         self.dbfile = f
         self.db = sqlite3.connect(f)
-        global dbfile
         dbfile = self.dbfile
         self.cur = self.db.cursor()
         self._users_cols = [
