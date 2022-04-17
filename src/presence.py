@@ -124,9 +124,6 @@ class RichPresence:
 
 class BotStatus:
     """Bot custom status class"""
-
-    "This is for the bot"
-
     def __init__(self) -> None:
         bs_logger.debug("BotStatus init")
         self._ts_now = int(time.time())

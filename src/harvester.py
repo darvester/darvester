@@ -114,7 +114,7 @@ class Harvester:
                         status=discord.Status.online,
                     )
 
-                    "Do guild harvest"
+                    # Do guild harvest
                     # Define the data
                     guild_data = {
                         "name": guild.name,
@@ -147,7 +147,7 @@ class Harvester:
                         leave=False,
                     )
 
-                    "Do member/user harvest"
+                    # Do member/user harvest
                     member: discord.Member
                     for memberidx, member in enumerate(guild.members, start=1):
                         # Update member counter
@@ -174,7 +174,7 @@ class Harvester:
                         # Check if we've reached our request limit
                         if _request_number <= 40:
                             # If not...
-                            "Harvest info"
+                            # Harvest info
 
                             # Add member.id to the array to check against later
                             self._id_array.add(member.id)
