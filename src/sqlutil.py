@@ -4,12 +4,11 @@ import pathlib
 import sqlite3
 import time
 import traceback
-from os.path import dirname as dn
 from sqlite3 import Connection, Cursor
 
 from cfg import DB_NAME, QUIET_MODE, VCS_REPO_PATH
 from src import logutil
-from src.gitutil import GitUtil
+from src.gitutil import GitUtil, _default_path
 
 logger = logutil.initLogger("sqlutil")
 dbfile = DB_NAME
@@ -82,8 +81,10 @@ class SQLiteNoSQL:
             "public_flags",
             "created_at",
             "connected_accounts",
-            "first_seen",
+            "activities",
+            "status",
             "last_scanned",
+            "first_seen",
         ]
         self._guilds_cols = [
             "name",
@@ -94,6 +95,7 @@ class SQLiteNoSQL:
             "description",
             "features",
             "premium_tier",
+            "first_seen"
         ]
         self.cur.executescript(
             # users
@@ -102,41 +104,54 @@ class SQLiteNoSQL:
             + "name TEXT, discriminator TEXT, bio TEXT, "
             + "mutual_guilds TEXT, avatar_url TEXT, "
             + "public_flags TEXT, created_at TEXT, "
-            + "connected_accounts TEXT, first_seen TEXT, last_scanned TEXT); "
+            + "connected_accounts TEXT, activities TEXT, status TEXT, last_scanned TEXT, "
+            + "first_seen TEXT); "
             # guilds
             + "CREATE TABLE IF NOT EXISTS "
             + "guilds(data TEXT UNIQUE, id INTEGER UNIQUE, "
-            + "name TEXT, icon TEXT, owner TEXT splash_url TEXT, "
+            + "name TEXT, icon TEXT, owner TEXT, splash_url TEXT, "
             + "member_count TEXT, description TEXT, "
-            + "features TEXT, premium_tier TEXT);"
+            + "features TEXT, premium_tier TEXT, first_seen TEXT);"
         )
-        self.cur.execute("PRAGMA table_info(users)")
-        _pragma_users = self.cur.fetchall()
-        self.cur.execute("PRAGMA table_info(guilds)")
-        _pragma_guilds = self.cur.fetchall()
-        if not (
-            any(word in _pragma_users for word in self._users_cols)
-            and any(word in _pragma_guilds for word in self._guilds_cols)
-        ):
-            logger.debug("Missing columns detected. Altering table...")
-            for _col in self._users_cols:
-                try:
-                    self.cur.executescript(f"ALTER TABLE users ADD {_col} TEXT")
-                    logger.debug(f'Adding: "{_col} TEXT" to users...')
-                except sqlite3.OperationalError:
-                    pass
-            for _col in self._guilds_cols:
-                try:
-                    self.cur.execute(f"ALTER TABLE guilds ADD {_col} TEXT")
-                    logger.debug(f'Adding: "{_col} TEXT" to guilds...')
-                except sqlite3.OperationalError:
-                    pass
+        # self.cur.execute("PRAGMA table_info(users)")
+        # _pragma_users = self.cur.fetchall()
+        # self.cur.execute("PRAGMA table_info(guilds)")
+        # _pragma_guilds = self.cur.fetchall()
+        # if not (
+        #         any(word in _pragma_users for word in self._users_cols)
+        #         and any(word in _pragma_guilds for word in self._guilds_cols)
+        # ):
+        #     logger.debug("Missing columns detected. Altering table...")
+        #     for _col in self._users_cols:
+        #         try:
+        #             self.cur.executescript(f"ALTER TABLE users ADD {_col} TEXT")
+        #             logger.debug(f'Adding: "{_col} TEXT" to users...')
+        #         except sqlite3.OperationalError:
+        #             # logger.debug("OperationalError: " + _col, exc_info=1)
+        #             pass
+        #     for _col in self._guilds_cols:
+        #         try:
+        #             self.cur.execute(f"ALTER TABLE guilds ADD {_col} TEXT")
+        #             logger.debug(f'Adding: "{_col} TEXT" to guilds...')
+        #         except sqlite3.OperationalError:
+        #             # logger.debug("OperationalError: " + _col, exc_info=1)
+        #             pass
+        self.db.commit()
         self.git = GitUtil()
 
     def open(self, f: str = dbfile):
         """Open connection"""
-        self.db = sqlite3.connect(f)
-        self.cur = self.db.cursor()
+        try:
+            self.db.cursor()
+        except Exception as _:  # pylint: disable=broad-except
+            self.db = sqlite3.connect(f)
+            self.cur = self.db.cursor()
+
+    @property
+    def users_count(self):
+        """Return number of users in database"""
+        self.cur.execute("SELECT COUNT(*) FROM users")
+        return self.cur.fetchone()[0]
 
     @property
     def conn(self) -> Connection:
@@ -146,6 +161,13 @@ class SQLiteNoSQL:
     def cursor(self) -> Cursor:
         return self.db.cursor()
 
+    def commit(self):
+        try:
+            self.db.commit()
+            logger.debug("Commit successful")
+        except (sqlite3.OperationalError, sqlite3.ProgrammingError):
+            logger.debug("Commit failed", exc_info=1)
+
     def close(self):
         """Close connection"""
         try:
@@ -153,38 +175,43 @@ class SQLiteNoSQL:
             self.db.close()
             logger.debug("Database closed")
         except Exception:  # noqa: E722
-            logger.error("Something happened trying to close the database", exc_info=1)
+            logger.info("Something happened trying to close the database", exc_info=0)
+            logger.debug("Database close error", exc_info=1)
 
     # TODO: rename `user_id` to a proper name now that we log guilds
     def addrow(self, d: dict, user_id, table):
         """Add row to database"""
+        self.open(self.dbfile)
         # Check if row already exists for user_id
         try:
             self.cur.execute(f"SELECT data FROM {table} WHERE id = ?", (user_id,))
-            data = self.cur.fetchone()
+            data: tuple = self.cur.fetchone()
 
             # If data returned is none, try to append a first_seen
-            if data is None:
+            if data is None or (data[1:2] or ('default',))[0] is None:
                 logger.debug("User is first_seen " + str(int(time.time())))
                 d["first_seen"] = int(time.time())
+            else:
+                try:
+                    d["first_seen"] = data[1]["first_seen"]
+                except (IndexError, KeyError):
+                    d["first_seen"] = int(time.time())
+
+            _values = ['"' + str(d[key]).replace('"', "'").replace("\\", "\\\\").replace(";", "").replace(
+                "--", ""
+            ).replace("#", "").replace(
+                "\n", "\\n"
+            ) + '"' if d[key] != "" else "\"None\"" for key in d if key
+                       in self._users_cols + self._guilds_cols and key not in ["id", "data"]
+                       ]
 
             # Else, this code will throw IntegrityError and continue flow below
-            _query = "INSERT INTO {} ({}) VALUES ({})".format(
+            _query = "INSERT INTO {} (id, data, {}) VALUES ({}, '{}', {})".format(
                 table,
-                ", ".join(
-                    [
-                        str(_k).replace('"', "'").replace("\\", "\\\\")
-                        for _k in d
-                        if _k in self._users_cols + self._guilds_cols
-                    ]
-                ),
-                ", ".join(
-                    [
-                        '"' + str(d[_k]).replace('"', "'").replace("\\", "\\\\") + '"'
-                        for _k in d
-                        if _k in self._users_cols + self._guilds_cols
-                    ]
-                ),
+                ", ".join(d.keys()),
+                user_id,
+                json.dumps(d).replace("'", "").replace("\\", "\\\\"),
+                ", ".join(_values)
             )
 
             logger.debug(_query)
@@ -226,25 +253,15 @@ class SQLiteNoSQL:
                     logger.debug("Changed: " + str(_diff.changed()))
                 logger.debug("--------------")
 
-                query = "UPDATE {} SET ({}) = ({}) WHERE id = {}".format(
+                query = "UPDATE {} SET (data, {}) = ('{}', {}) WHERE id = {}".format(
                     table,
-                    ", ".join(
-                        [
-                            str(_k).replace('"', "'").replace("\\", "\\\\")
-                            for _k in d
-                            if _k in self._users_cols + self._guilds_cols
-                        ]
-                    ),
-                    ", ".join(
-                        [
-                            '"' + str(d[_k]).replace('"', "'").replace("\\", "\\\\") + '"'
-                            for _k in d
-                            if _k in self._users_cols + self._guilds_cols
-                        ]
-                    ),
-                    user_id,
+                    ", ".join(d.keys()),
+                    json.dumps(d).replace("'", "").replace("\\", "\\\\"),
+                    ", ".join(_values),
+                    user_id
                 )
 
+                logger.debug(query)
                 self.db.execute(query)
         finally:
             self.db.commit()
@@ -291,10 +308,10 @@ class SQLiteNoSQL:
             return _d
         except sqlite3.ProgrammingError:
             logger.error("ProgrammingError raised", exc_info=1)
-            self.close()
-            self.open(self.dbfile)
+        # finally:
+        #     self.close()
 
-    def dump_table_to_files(self, table: str, path: str = VCS_REPO_PATH):
+    def dump_table_to_files(self, table: str, path: str = VCS_REPO_PATH or _default_path):
         """
 
         :param table: Table to dump
@@ -302,19 +319,21 @@ class SQLiteNoSQL:
         :param path: Path to dump to
         :type path: str
         """
-        if not path:
-            path = dn(os.path.dirname(__file__)) + "/.darvester"
+        self.open(DB_NAME)
         if not os.path.exists(path) and not os.path.isdir(path):
             self.git.init_repo(path)
         try:
-            self.open(DB_NAME)
             self.cur.execute(f"SELECT id, data FROM {table}")
             data = self.cur.fetchall()
 
             pathlib.Path(f"{path}/{table}").mkdir(parents=True, exist_ok=True)
 
-            __iter = 0
+            __iter, __error_iter = 0, 0
+            logger.debug(f"Dumping to PATH: {path}/{table}")
             for piece in data:
+                if __error_iter > 5:
+                    logger.error("Too many errors trying to dump database. Aborting")
+                    break
                 if not piece[0]:  # why does this return None sometimes
                     continue  # TODO: fix this >:(
                 __iter += 1
@@ -325,12 +344,16 @@ class SQLiteNoSQL:
                         mode = "x"
 
                     with open(f"{path}/{table}/{str(piece[0])}", mode) as f:
-                        logger.debug("DUMP: Writing to %s/%s...", path, str(piece[0]))
+                        # logger.debug("DUMP: Writing to %s/%s...", path, str(piece[0]))  # heavens, no
                         if piece[1]:
-                            f.write(piece[1].strip() + "\n")
+                            _piece1 = json.loads(piece[1])
+                            #logger.debug("DUMP: Writing to %s/%s...", path, str(piece[0]))
+                            f.write(json.dumps(_piece1, indent=2))
                         f.close()
                 except:  # noqa
-                    logger.critical("DUMP: Error occurred writing data", exc_info=True)
+                    logger.critical("DUMP: Error occurred writing data: {}".format(path + "/" + table +
+                                                                                   "/" + str(piece[0])), exc_info=True)
+                    __error_iter += 1
             logger.debug("Finished dumping %s items to commit to VCS", __iter)
         except Exception as error:
             logger.critical("DUMP: Error occurred")
@@ -430,12 +453,12 @@ class SQLiteNoSQL:
             logger.critical("An exception occurred", exc_info=1)
 
     def find_from_fts(
-        self,
-        query: str = None,
-        json_lookup: str = None,
-        table: str = "users",
-        query_type: str = "MATCH",
-        limit: int = 40,
+            self,
+            query: str = None,
+            json_lookup: str = None,
+            table: str = "users",
+            query_type: str = "MATCH",
+            limit: int = 40,
     ):
         """
         Finds data from the fts table
@@ -454,7 +477,6 @@ class SQLiteNoSQL:
         """
         try:
             self.open()
-
             _sql_query = f"SELECT DISTINCT id, data \
 FROM {table}_fts"
 
