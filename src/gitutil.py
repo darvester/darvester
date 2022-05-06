@@ -83,27 +83,30 @@ class GitUtil:
         message = datetime.now().strftime(f"%m-%d-%Y_%H.%M.%S_{__iter}")
         logger.info(f"Committing {__iter} entries to the VCS: {message}...")
         _add_result = subprocess.run(
-            ["git", "add", "--all"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
+            ["git", "add", "--all"],
+            cwd=path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
         )
         logger.debug(
-            (
-                _add_result.returncode,
-                _add_result.stdout,
-                _add_result.stderr,
-            )
+            "Code: %s\nstdout: %s\nstderr: %s",
+            _add_result.returncode,
+            _add_result.stdout.decode("utf-8"),
+            _add_result.stderr.decode("utf-8"),
         )
         _commit_result = subprocess.run(
             ["git", "commit", "-m", message],
+            cwd=path,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            check=True,
+            check=False,
         )
         logger.debug(
-            (
-                _commit_result.returncode,
-                _commit_result.stdout,
-                _commit_result.stderr,
-            )
+            "Code: %s\nstdout: %s\nstderr: %s",
+            _commit_result.returncode,
+            _commit_result.stdout.decode("utf-8"),
+            _commit_result.stderr.decode("utf-8"),
         )
 
         os.chdir(self._cwd)

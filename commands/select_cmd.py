@@ -94,6 +94,7 @@ __Name__: `{data["name"]}#{data["discriminator"]}`
 __Bio__: ```{_bio}```
 __Avatar__: {data["avatar_url"]}
 __Account Created At__: `{datetime.fromtimestamp(data["created_at"])}`
+__Flags__: `{str(data.get("public_flags", "None"))}`
 """  # TODO print name of guild (log guild to database)
                 if _mutual_guilds != "\n":
                     _message += f"""

@@ -2,6 +2,7 @@ aiohttp[speedups]
 discord
 discord.py
 enlighten
-git+https://github.com/dolfies/discord.py-self.git@renamed
+# git+https://github.com/dolfies/discord.py-self.git@renamed
+git+https://github.com/dolfies/discord.py-self
 GitPython
 pypresence
