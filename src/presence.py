@@ -3,8 +3,9 @@ import threading
 import time
 from queue import Queue
 
+import discord
 import pypresence
-import selfcord as discord
+from pypresence.exceptions import PyPresenceException
 
 from cfg import DEBUG, ENABLE_PRESENCE
 from src.logutil import initLogger
@@ -44,11 +45,12 @@ class RichPresence:
                 start=int(time.time()),
                 large_image="darvester_1-1",
                 buttons=[
-                    {
-                        "label": "Get Darvester",
-                        "url": "https://github.com/V3ntus/darvester",
-                    },
-                    {"label": "V3ntus' Website", "url": "https://v3ntus.github.io"},
+                    # {
+                    #     "label": "Get Darvester",
+                    #     "url": "https://github.com/V3ntus/darvester",
+                    # },
+                    {"label": "Darvester by V3ntus", "url": "https://github.com/V3ntus"},
+                    {"label": "V3ntus' Website", "url": "https://gladiusso.com"},
                 ],
             )
             while True:
@@ -65,11 +67,11 @@ class RichPresence:
                     end=int(time.time() + 60) if message[2] == "cooldown" else None,
                     large_image="darvester_1-1",
                     buttons=[
-                        {
-                            "label": "Get Darvester",
-                            "url": "https://github.com/V3ntus/darvester",
-                        },
-                        {"label": "V3ntus' Website", "url": "https://v3ntus.github.io"},
+                        # {
+                        #     "label": "Get Darvester",
+                        #     "url": "https://github.com/V3ntus/darvester",
+                        # },
+                        {"label": "V3ntus' Website", "url": "https://gladiusso.com"},
                     ],
                 )
                 _logger.debug("Updated presence: {}".format(message))
@@ -81,12 +83,11 @@ class RichPresence:
                         continue
                     queue.task_done()
                 _logger.debug("Cleared queue")
-        except ConnectionRefusedError:
+        except (ConnectionRefusedError, PyPresenceException):
             _logger.critical(
-                "Could not connect to your Discord client " + "for rich presence. Is it running?"
+                "Could not connect to your Discord client for rich presence. Is it running?",
+                exc_info=DEBUG,
             )
-        except pypresence.exceptions.DiscordError:
-            _logger.critical("A Discord error occurred while connecting to RPC", exc_info=DEBUG)
         except Exception:  # noqa
             _logger.critical("Exception happened", exc_info=1)
 
@@ -106,7 +107,7 @@ class RichPresence:
         :rtype: threading.Thread
         """
         if ENABLE_PRESENCE:
-            _t = threading.Thread(target=self._thread_run, args=(self.queue,))
+            _t = threading.Thread(name="presence", target=self._thread_run, args=(self.queue,))
             _t.start()
             return _t
         else:

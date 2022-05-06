@@ -2,10 +2,10 @@ import asyncio
 import sys
 import time
 from datetime import datetime
-from sqlite3 import ProgrammingError
 
+import discord
 import enlighten
-import selfcord as discord
+from discord.ext.commands import Bot
 
 from cfg import DISABLE_VCS, IGNORE_GUILD, LAST_SCANNED_INTERVAL, QUIET_MODE
 from src import logutil, ui
@@ -36,7 +36,7 @@ class Harvester:
         if not DISABLE_VCS:
             self._repo = git.init_repo()
 
-    async def thread_start(self, client):
+    async def thread_start(self, client: Bot):
         """The main entry method for the harvester"""
         term_status: enlighten.StatusBar = ui.status_bars["main"]
         member_status: enlighten.StatusBar = ui.status_bars["member"]
@@ -117,15 +117,15 @@ class Harvester:
                     # Do guild harvest
                     # Define the data
                     guild_data = {
-                        "name": guild.name,
-                        "icon": str(guild.icon_url),
+                        "name": str(guild.name),
+                        "icon": str(guild.icon),
                         "owner": {
-                            "name": guild.owner.name if guild.owner else None,
+                            "name": str(guild.owner.name) if guild.owner else None,
                             "id": guild.owner.id if guild.owner else guild.owner_id,
                         },
-                        "splash_url": str(guild.splash_url),
+                        "splash_url": str(guild.splash),
                         "member_count": guild.member_count,
-                        "description": guild.description,
+                        "description": str(guild.description),
                         "features": guild.features,
                         "premium_tier": guild.premium_tier,
                     }
@@ -201,7 +201,9 @@ class Harvester:
                                 continue
 
                             # Grab the user profile object of member
-                            _profile_object = await client.fetch_user_profile(member.id)
+                            _profile_object: discord.UserProfile = await client.fetch_user_profile(
+                                member.id
+                            )
 
                             # Append mutual guilds
                             _user_guilds = {"guilds": []}
@@ -245,28 +247,36 @@ class Harvester:
                                 _activities_modeled.append(
                                     {
                                         "type": _type,
-                                        "name": getattr(_, "name", None),
-                                        "details": getattr(_, "details", None),
+                                        "name": str(getattr(_, "name", None)),
+                                        "details": str(getattr(_, "details", None)),
                                         "url": getattr(_, "url", None),
                                         "application_id": getattr(_, "application_id", None),
                                         "emoji": _emoji,
                                         "start": _timestamp("start"),
                                         "end": _timestamp("end"),
-                                        "game": getattr(_, "game", None),
-                                        "twitch_name": getattr(_, "twitch_name", None),
+                                        "game": str(getattr(_, "game", None)),
+                                        "twitch_name": str(getattr(_, "twitch_name", None)),
                                     }
                                 )
 
                             # Build harvested data structure
                             data = {
-                                "name": member.name,
+                                "name": str(member.name),
                                 "discriminator": member.discriminator,
-                                "bio": _profile_object.bio,
+                                "bio": str(_profile_object.bio),
                                 "mutual_guilds": _user_guilds,
-                                "avatar_url": str(member.avatar_url),
+                                "avatar_url": str(member.avatar),
                                 "public_flags": member.public_flags.all(),
                                 "created_at": int(member.created_at.timestamp()),
-                                "connected_accounts": _profile_object.connected_accounts,
+                                "connected_accounts": [
+                                    {
+                                        "type": connection.type,
+                                        "id": connection.id,
+                                        "name": connection.name,
+                                        "verified": connection.verified,
+                                    }
+                                    for connection in _profile_object.connections
+                                ],
                                 "last_scanned": int(time.time()),
                                 "activities": _activities_modeled,
                                 "status": str(member.status),
@@ -307,7 +317,13 @@ class Harvester:
 
                         else:  # If request counter goes over 40
                             await BotStatus.update(client=client)
-                            RichPresence.put(message=["Darvester", "On cooldown", "cooldown"])
+                            RichPresence.put(
+                                message=[
+                                    "{:,} users in database".format(self.db.users_count),
+                                    "On cooldown",
+                                    "cooldown",
+                                ]
+                            )
                             set_title("Darvester - On cooldown")
                             term_status.update(demo="On cooldown")
                             term_status.refresh()
@@ -392,14 +408,12 @@ Try again later (may take a couple hours or as long as a day)",
     def close(self):
         """Gracefully close and clean up the harvester thread"""
         logger.info("Caught a closing signal. Cleaning up...")
-        try:
-            self.db.close()
-        except ProgrammingError:
-            # The database may already be closed
-            logger.debug("Database may already be closed:", exc_info=True)
+        self.db.commit()
         RichPresence.queue.put("RP_QUIT")
         if not DISABLE_VCS:
             for table in ["users", "guilds"]:
                 self.db.dump_table_to_files(table=table)
             git.commit()
+        else:
+            self.db.close()
         logger.info("Bye!")

@@ -43,13 +43,13 @@ from src.argparsing import _parse_args  # noqaL ignore = E402
 
 args = _parse_args()
 
-import selfcord as discord  # noqa: ignore = E402
-from selfcord.ext import commands  # noqa: ignore = E402
+import discord  # noqa: ignore = E402
+from discord.ext import commands  # noqa: ignore = E402
 
 from cfg import DEBUG_DISCORD  # noqa: ignore = E402
 from cfg import DB_NAME, DEBUG, DISABLE_VCS, ENABLE_PRESENCE, QUIET_MODE
 # Commands go here
-from commands import filter_cmd, select_cmd  # noqa: ignore = E402
+from commands import filter_cmd, join_cmd, select_cmd  # noqa: ignore = E402
 from src import logutil, ui  # noqa: ignore = E402
 from src.harvester import Harvester  # noqa: ignore = E402
 from src.sqlutil import SQLiteNoSQL  # noqa: ignore = E402
@@ -134,7 +134,7 @@ client = Bot(
     case_insensitive=True,
     activity=None if not ENABLE_PRESENCE else discord.Game("Darvester"),
     user_bot=True,
-    guild_subscription_options=discord.GuildSubscriptionOptions.default(),
+    # guild_subscription_options=discord.GuildSubscriptionOptions.default(),
 )  # noqa: E501
 
 
@@ -168,6 +168,9 @@ async def on_message(message: discord.Message):
 
     if message.content.upper().startswith(",FILTER"):
         await filter_cmd.main(message, db)
+
+    if message.content.upper().startswith(",JOIN"):
+        await join_cmd.main(message, client)
 
 
 # Login with bot
