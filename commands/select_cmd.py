@@ -1,3 +1,4 @@
+import asyncio
 import random
 import traceback
 from datetime import datetime
@@ -36,12 +37,17 @@ __Boosts__: `{data["premium_tier"]}`
             if data["features"] != []:
                 _message += f"""
 __Features__: {_features}"""
-
+            async with ctx.channel.typing():
+                await asyncio.sleep(2)
             await ctx.channel.send(_message)
         else:
+            async with ctx.channel.typing():
+                await asyncio.sleep(1)
             await ctx.channel.send("Guild not found either")
     except Exception as e:
         logger.error(",select guild lookup raised exception", exc_info=1)
+        async with ctx.channel.typing():
+            await asyncio.sleep(2)
         await ctx.channel.send("Something wrong happened: ```\n%s```" % e)
 
 
@@ -63,6 +69,8 @@ async def main(message, db):
         "Hm lemme see if I have that",
         "Hold on, let me see...",
     ]
+    async with message.channel.typing():
+        await asyncio.sleep(1)
     await message.channel.send(random.choice(_hello_there))
     if len(message.content) > 7:
         try:
@@ -95,7 +103,10 @@ __Bio__: ```{_bio}```
 __Avatar__: {data["avatar_url"]}
 __Account Created At__: `{datetime.fromtimestamp(data["created_at"])}`
 __Flags__: `{str(data.get("public_flags", "None"))}`
+__Nitro__: `{str(data.get("premium", "None"))}`
 """  # TODO print name of guild (log guild to database)
+                if data.get("premium", "False") == "True":
+                    _message += f'__Nitro Since__: `<t:{data.get("premium_since", "None")}:R>`\n'
                 if _mutual_guilds != "\n":
                     _message += f"""
 __Mutual Guilds__: ```
@@ -106,8 +117,12 @@ __Mutual Guilds__: ```
 __Connected Accounts__:
 {_connected_accounts}"""
                 logger.info('Found "%s" requested by user "%s"', data["name"], message.author.name)
+                async with message.channel.typing():
+                    await asyncio.sleep(3)
                 await message.channel.send(_message)
             else:
+                async with message.channel.typing():
+                    await asyncio.sleep(2)
                 await message.channel.send(
                     "Query returned empty. User not \
 found. Trying to find guild..."
@@ -116,6 +131,8 @@ found. Trying to find guild..."
         except Exception as e:  # noqa
             logger.warning(",select triggered exception")
             traceback.print_exc()
+            async with message.channel.typing():
+                await asyncio.sleep(2)
             await message.channel.send(
                 "Something wrong happened:```py\n \
 %s \

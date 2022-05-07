@@ -45,11 +45,12 @@ args = _parse_args()
 
 import discord  # noqa: ignore = E402
 from discord.ext import commands  # noqa: ignore = E402
+import asyncio # noqa: ignore = E402
 
 from cfg import DEBUG_DISCORD  # noqa: ignore = E402
 from cfg import DB_NAME, DEBUG, DISABLE_VCS, ENABLE_PRESENCE, QUIET_MODE
 # Commands go here
-from commands import filter_cmd, join_cmd, select_cmd  # noqa: ignore = E402
+from commands import filter_cmd, join_cmd, select_cmd, info_cmd  # noqa: ignore = E402
 from src import logutil, ui  # noqa: ignore = E402
 from src.harvester import Harvester  # noqa: ignore = E402
 from src.sqlutil import SQLiteNoSQL  # noqa: ignore = E402
@@ -149,7 +150,14 @@ async def on_ready():
         await harvester.thread_start(client)
     except KeyboardInterrupt:
         logger.warning("KeyboardInterrupt caught. Closing...")
-        await harvester.close()
+        harvester.close()
+    except discord.errors.HTTPException:
+        logger.critical(
+            "HTTP 429 returned. You may have been temp banned! \
+Try again later (may take a couple hours or as long as a day)",
+            exc_info=DEBUG,
+        )
+        harvester.close()
 
 
 # A simple command to respond to self
@@ -160,17 +168,36 @@ async def on_message(message: discord.Message):
     :param message: discord.Message
     :type message: discord.Message
     """
+
     if message.content.upper() == ",HELP":
+        await asyncio.sleep(1)
+        async with message.channel.typing():
+            await asyncio.sleep(2)
         await message.channel.send(help_message)
 
     if message.content.upper().startswith(",SELECT"):
+        await asyncio.sleep(1)
+        async with message.channel.typing():
+            await asyncio.sleep(2)
         await select_cmd.main(message, db)
 
     if message.content.upper().startswith(",FILTER"):
+        await asyncio.sleep(1)
+        async with message.channel.typing():
+            await asyncio.sleep(2)
         await filter_cmd.main(message, db)
 
     if message.content.upper().startswith(",JOIN"):
+        await asyncio.sleep(1)
+        async with message.channel.typing():
+            await asyncio.sleep(2)
         await join_cmd.main(message, client)
+
+    if message.content.upper().startswith(",INFO"):
+        await asyncio.sleep(1)
+        async with message.channel.typing():
+            await asyncio.sleep(2)
+        await info_cmd.main(message, client, harvester.db)
 
 
 # Login with bot
