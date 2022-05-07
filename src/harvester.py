@@ -2,6 +2,7 @@ import asyncio
 import sys
 import time
 from datetime import datetime
+from itertools import islice
 
 import discord
 import enlighten
@@ -69,7 +70,50 @@ class Harvester:
                     if guildidx >= len(_list_of_guilds):
                         guild_counter.clear()
 
+                    if guildid in IGNORE_GUILD:
+                        logger.warning(
+                            "Guild %s ignored. Skipping...",
+                            guildid if not QUIET_MODE else "Guild ignored. Skipping...",
+                        )
+                        continue
+
                     guild: discord.Guild = client.get_guild(guildid)
+
+                    if len(guild.members) != guild.member_count:
+                        # This code should get the top five channels that contain a good amount of members
+                        if guild.member_count < 100:
+                            _limit = 10
+                        else:
+                            _limit = 100
+                        _good_channels = [
+                            channel
+                            for channel in guild.channels
+                            if channel.type == discord.ChannelType.text
+                            and len(channel.members) > _limit
+                        ]
+                        _good_channels = sorted(
+                            list(islice(_good_channels, 5)),
+                            key=lambda x: len(x.members),
+                            reverse=True,
+                        )
+                        if guild.member_count >= 1000:
+                            logger.warning(
+                                'Delay incoming! Fetching members for guild "%s"...', guild.name
+                            )
+                            await guild.fetch_members(channels=_good_channels)
+                        elif guild.member_count < 1000:
+                            logger.warning(
+                                'Delay incoming! Chunking members for guild "%s"...', guild.name
+                            )
+                            await guild.chunk(
+                                discord.Object(
+                                    _good_channels[0].id
+                                    if _good_channels
+                                    else sorted(
+                                        guild.channels, key=lambda x: len(x.members), reverse=True
+                                    )[0].id
+                                )
+                            )
                     _g_name = guild.name if not QUIET_MODE else '"quiet mode"'
                     _g_desc = guild.description if not QUIET_MODE else '"quiet mode"'
 
@@ -82,12 +126,6 @@ class Harvester:
                         logger.warning(
                             "Guild '%s' is unavailable. Skipping...",
                             guild.name if not QUIET_MODE else "Guild unavailable. Skipping...",
-                        )
-                        continue
-                    if guild.id in IGNORE_GUILD:
-                        logger.warning(
-                            "Guild %s ignored. Skipping...",
-                            guild.name if not QUIET_MODE else "Guild ignored. Skipping...",
                         )
                         continue
 

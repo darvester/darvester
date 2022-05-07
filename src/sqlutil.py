@@ -183,7 +183,7 @@ class SQLiteNoSQL:
 
             _values = _generate_values(data)
 
-            _query = "INSERT INTO {} (id, data, {}) VALUES ({}, ?, {})".format(
+            _query = "INSERT or REPLACE INTO {} (id, data, {}) VALUES ({}, ?, {})".format(
                 table,
                 ", ".join(
                     [key for key in data.keys() if key in self._users_cols + self._guilds_cols]
@@ -195,6 +195,8 @@ class SQLiteNoSQL:
             logger.debug("%s, %s", _query, (json.dumps(data),) + tuple(_values))
             self.db.execute(_query, (json.dumps(data),) + tuple(_values))
         except sqlite3.IntegrityError:
+            # No longer needed, but kept for future use.
+            self.open(self.dbfile)
             logger.debug("Updating row in table %s with id %s", table, item_id)
             diff1: dict = {}
             try:
@@ -220,7 +222,7 @@ class SQLiteNoSQL:
 
                 _values = _generate_values(data)
 
-                _query = "UPDATE {} SET (data, {}) = (?, {}) WHERE id = {}".format(
+                _query = "UPDATE {} SET (data, id, {}) = (?, ?, {}) WHERE id = {}".format(
                     table,
                     ", ".join(
                         [key for key in data.keys() if key in self._users_cols + self._guilds_cols]
@@ -230,7 +232,7 @@ class SQLiteNoSQL:
                 )
 
                 logger.debug("%s, %s", _query, (json.dumps(data),) + tuple(_values))
-                self.db.execute(_query, (json.dumps(data),) + tuple(_values))
+                self.db.execute(_query, (json.dumps(data),) + (item_id,) + tuple(_values))
         finally:
             self.db.commit()
 
