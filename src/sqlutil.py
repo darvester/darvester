@@ -103,7 +103,17 @@ class SQLiteNoSQL:
         :return: The number of users in the database.
         :rtype: int
         """
-        return self.cur.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        return self.cur.execute("SELECT COUNT(*) FROM users").fetchone()[0]\
+
+    @property
+    def guilds_count(self) -> int:
+        """
+        Return the number of guilds in the database.
+
+        :return: The number of guilds in the database.
+        :rtype: int
+        """
+        return self.cur.execute("SELECT COUNT(*) FROM guilds").fetchone()[0]
 
     def open(self, f: str = dbfile):
         """
