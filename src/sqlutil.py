@@ -143,16 +143,10 @@ class SQLiteNoSQL:
     def addrow(self, data: dict, item_id: int, table: str):
         def _generate_values(_data: dict):
             return [
-                '"'
-                + str(_data[key])
+                str(_data[key])
                 .replace('"', "'")
-                .replace("\\", "\\\\")
-                .replace(";", "\\;")
-                .replace("--", "\\-\\-")
-                .replace("#", "\\#")
                 .replace("\n", "\\n")
                 .replace("\r", "\\r")
-                + '"'
                 if _data[key] is not None or _data[key] != ""
                 else '"None"'
                 for key in _data
