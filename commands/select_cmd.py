@@ -1,7 +1,6 @@
 import asyncio
 import random
 import traceback
-from datetime import datetime
 
 from src import logutil, parser
 
