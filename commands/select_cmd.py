@@ -101,12 +101,12 @@ async def main(message, db):
 __Name__: `{data["name"]}#{data["discriminator"]}`
 __Bio__: ```{_bio}```
 __Avatar__: {data["avatar_url"]}
-__Account Created At__: `{datetime.fromtimestamp(data["created_at"])}`
+__Account Created At__: <t:{data["created_at"]}>
 __Flags__: `{str(data.get("public_flags", "None"))}`
 __Nitro__: `{str(data.get("premium", "None"))}`
 """  # TODO print name of guild (log guild to database)
                 if data.get("premium", "False") == "True":
-                    _message += f'__Nitro Since__: `<t:{data.get("premium_since", "None")}:R>`\n'
+                    _message += f'__Nitro Since__: <t:{data.get("premium_since", "None")}:R>\n'
                 if _mutual_guilds != "\n":
                     _message += f"""
 __Mutual Guilds__: ```
