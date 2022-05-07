@@ -37,6 +37,8 @@ class SQLiteNoSQL:
             "status",
             "last_scanned",
             "first_seen",
+            "premium",
+            "premium_since",
         ]
         self._guilds_cols = [
             "name",

@@ -318,6 +318,9 @@ class Harvester:
                                 "last_scanned": int(time.time()),
                                 "activities": _activities_modeled,
                                 "status": str(member.status),
+                                "premium": str("True" if _profile_object.premium else "False"),
+                                "premium_since": str(int(_profile_object.premium_since.timestamp())
+                                                     if _profile_object.premium_since else None),
                             }
 
                             logger.debug(
