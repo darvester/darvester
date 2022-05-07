@@ -8,7 +8,7 @@ import discord
 import enlighten
 from discord.ext.commands import Bot
 
-from cfg import DISABLE_VCS, IGNORE_GUILD, LAST_SCANNED_INTERVAL, QUIET_MODE
+from cfg import DISABLE_VCS, IGNORE_GUILD, LAST_SCANNED_INTERVAL, QUIET_MODE, DEBUG
 from src import logutil, ui
 from src.gitutil import GitUtil
 from src.presence import BotStatus, RichPresence
@@ -439,9 +439,9 @@ class Harvester:
             logger.critical(
                 "HTTP 429 returned. You may have been temp banned! \
 Try again later (may take a couple hours or as long as a day)",
-                exc_info=1,
+                exc_info=DEBUG,
             )
-            sys.exit()
+            self.close()
 
     def close(self):
         """Gracefully close and clean up the harvester thread"""
