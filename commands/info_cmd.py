@@ -9,6 +9,18 @@ logger = logutil.initLogger(__name__)
 
 
 async def main(message: Message, client: Bot, db: SQLiteNoSQL):
+    """
+    Main function for the info command.
+
+    :param message: The message that triggered the command.
+    :type message:  discord.Message
+    :param client: The discord client.
+    :type client: discord.ext.commands.Bot
+    :param db: The database.
+    :type db: src.sqlutil.SQLiteNoSQL
+    :return: None
+    :rtype: None
+    """
     if message.author.id == client.user.id:
         return
 

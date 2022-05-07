@@ -17,8 +17,8 @@ async def _do_guild_lookup(db, id, ctx):
     :type db:
     :param id: guild id
     :type id: str
-    :param ctx: Discord context object
-    :type ctx: discord.ext.commands.Context
+    :param ctx: Discord Message context object
+    :type ctx: discord.Message
     """
     try:
         if data := db.find(id, "guilds"):
@@ -33,7 +33,7 @@ __Description__:
 ```
 __Boosts__: `{data["premium_tier"]}`
 """
-            if data["features"] != []:
+            if data["features"]:
                 _message += f"""
 __Features__: {_features}"""
             async with ctx.channel.typing():
@@ -103,7 +103,7 @@ __Avatar__: {data["avatar_url"]}
 __Account Created At__: <t:{data["created_at"]}>
 __Flags__: `{str(data.get("public_flags", "None"))}`
 __Nitro__: `{str(data.get("premium", "None"))}`
-"""  # TODO print name of guild (log guild to database)
+"""
                 if data.get("premium", "False") == "True":
                     _message += f'__Nitro Since__: <t:{data.get("premium_since", "None")}:R>\n'
                 if _mutual_guilds != "\n":

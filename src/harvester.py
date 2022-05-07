@@ -169,7 +169,7 @@ class Harvester:
 
                     logger.debug(
                         'GUILD: Inserting guild "%s" = "%s"', guild.id, guild_data["name"]
-                    ) if not QUIET_MODE else logger.info("Inserting a guild...")
+                    )
 
                     self.db.addrow(guild_data, guild.id, "guilds")
                     _request_number += 1
@@ -193,7 +193,7 @@ class Harvester:
                             member_counter.clear()
 
                         # Filter for bot and Discord system messages
-                        if member.bot and member.system:
+                        if member.bot or member.system:
                             logger.info(
                                 'User "%s" is a bot. Skipping...',
                                 member.name if not QUIET_MODE else None,
@@ -204,7 +204,7 @@ class Harvester:
                         if member.id in self._id_array:
                             logger.debug(
                                 'Already checked "%s"',
-                                member.name if not QUIET_MODE else None,
+                                member.name,
                             )
                             continue
 
@@ -327,7 +327,7 @@ class Harvester:
                                 member.id,
                                 member.name,
                                 member.discriminator,
-                            ) if not QUIET_MODE else logger.info("Inserting...")
+                            )
 
                             # Insert harvested data
                             self.db.addrow(data, member.id, "users")

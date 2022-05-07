@@ -68,10 +68,14 @@ class SQLiteNoSQL:
 
     @property
     def is_open(self) -> bool:
-        """Return True if the database is open."""
+        """Return True if the database is open.
+
+        :return: True if the database is open.
+        :rtype: bool
+        """
         try:
             self.db.cursor()
-        except:  # noqa
+        except sqlite3.DatabaseError:
             return False
         return True
 
@@ -103,7 +107,7 @@ class SQLiteNoSQL:
         :return: The number of users in the database.
         :rtype: int
         """
-        return self.cur.execute("SELECT COUNT(*) FROM users").fetchone()[0]\
+        return self.cur.execute("SELECT COUNT(*) FROM users").fetchone()[0]
 
     @property
     def guilds_count(self) -> int:
@@ -130,9 +134,7 @@ class SQLiteNoSQL:
         return self.db
 
     def close(self):
-        """
-        Close the database connection.
-        """
+        """Close the database connection."""
         if self.is_open:
             try:
                 self.db.commit()
@@ -153,7 +155,27 @@ class SQLiteNoSQL:
                 logger.error("Failed to commit changes to database.", exc_info=DEBUG)
 
     def addrow(self, data: dict, item_id: int, table: str):
-        def _generate_values(_data: dict):
+        """
+        Add a row to the database.
+
+        :param data:
+        :type data:
+        :param item_id:
+        :type item_id:
+        :param table:
+        :type table:
+        :return: None
+        :rtype: None
+        """
+        def _generate_values(_data: dict) -> list:
+            """
+            Generate a list of sanitized values for the database.
+
+            :param _data: The data to sanitize.
+            :type _data: dict
+            :return: The sanitized data.
+            :rtype: list
+            """
             return [
                 str(_data[key])
                 .replace('"', "'")
@@ -166,81 +188,40 @@ class SQLiteNoSQL:
             ]
 
         self.open(self.dbfile)
-        try:
-            query = f"SELECT data FROM {table} WHERE id = '{item_id}';"
-            logger.debug(query)
-            self.cur.execute(query)
-            row: tuple = self.cur.fetchone()
+        query = f"SELECT data FROM {table} WHERE id = '{item_id}';"
+        logger.debug(query)
+        self.cur.execute(query)
+        row: tuple = self.cur.fetchone()
 
-            if row is None or (row[0:1] or (None,))[0] is None:
-                logger.debug(
-                    "Adding new row to table %s with id %s at %s.",
-                    table,
-                    item_id,
-                    str(int(time.time())),
-                )
-                data["first_seen"] = int(time.time())
-            else:
-                try:
-                    logger.debug("%s ;;; %s", data, row)
-                    data["first_seen"] = int(json.loads(row[0])["first_seen"])
-                except (KeyError, IndexError):
-                    data["first_seen"] = int(time.time())
-
-            _values = _generate_values(data)
-
-            _query = "INSERT or REPLACE INTO {} (id, data, {}) VALUES ({}, ?, {})".format(
+        if row is None or (row[0:1] or (None,))[0] is None:
+            logger.debug(
+                "Adding new row to table %s with id %s at %s.",
                 table,
-                ", ".join(
-                    [key for key in data.keys() if key in self._users_cols + self._guilds_cols]
-                ),
                 item_id,
-                ", ".join(["?" for _ in _values]),  # noqa
+                str(int(time.time())),
             )
-
-            logger.debug("%s, %s", _query, (json.dumps(data),) + tuple(_values))
-            self.db.execute(_query, (json.dumps(data),) + tuple(_values))
-        except sqlite3.IntegrityError:
-            # No longer needed, but kept for future use.
-            self.open(self.dbfile)
-            logger.debug("Updating row in table %s with id %s", table, item_id)
-            diff1: dict = {}
+            data["first_seen"] = int(time.time())
+        else:
             try:
-                diff1: dict = json.loads(row[0])
-            except (json.decoder.JSONDecodeError, IndexError):
-                for item in row:
-                    diff1: dict = json.loads(item)
+                logger.debug("%s ;;; %s", data, row)
+                data["first_seen"] = int(json.loads(row[0])["first_seen"])
+            except (KeyError, IndexError):
+                data["first_seen"] = int(time.time())
 
-            data["first_seen"] = diff1.get("first_seen", int(time.time()))
+        _values = _generate_values(data)
 
-            if diff1 == data:
-                logger.debug("No changes to update")
-            else:
-                _diff = DictDiffer(diff1, data)
-                logger.debug("----- DIFF")
-                if _diff.added():
-                    logger.debug("Added: " + ", ".join(_diff.added()))
-                if _diff.changed():
-                    logger.debug("Changed: " + ", ".join(_diff.changed()))
-                if _diff.removed():
-                    logger.debug("Removed: " + ", ".join(_diff.removed()))
-                logger.debug("-----")
+        _query = "INSERT or REPLACE INTO {} (id, data, {}) VALUES ({}, ?, {})".format(
+            table,
+            ", ".join(
+                [key for key in data.keys() if key in self._users_cols + self._guilds_cols]
+            ),
+            item_id,
+            ", ".join(["?" for _ in _values]),  # noqa
+        )
 
-                _values = _generate_values(data)
-
-                _query = "UPDATE {} SET (data, id, {}) = (?, ?, {}) WHERE id = {}".format(
-                    table,
-                    ", ".join(
-                        [key for key in data.keys() if key in self._users_cols + self._guilds_cols]
-                    ),
-                    ", ".join(["?" for _ in _values]),
-                    item_id,
-                )
-
-                logger.debug("%s, %s", _query, (json.dumps(data),) + tuple(_values))
-                self.db.execute(_query, (json.dumps(data),) + (item_id,) + tuple(_values))
-        finally:
-            self.db.commit()
+        logger.debug("%s, %s", _query, (json.dumps(data),) + tuple(_values))
+        self.db.execute(_query, (json.dumps(data),) + tuple(_values))
+        self.commit()
 
     def find(self, item_id: int, table: str, query: str = None) -> dict:
         """
@@ -313,7 +294,7 @@ class SQLiteNoSQL:
                         if item[1]:
                             _ = json.loads(item[0])
                             f.write(json.dumps(_, indent=4))
-                except:
+                except (json.decoder.JSONDecodeError, OSError):
                     logger.debug("Exception in dump_table_to_files method", exc_info=DEBUG)
                     _error_iter += 1
         except Exception as error:
@@ -396,8 +377,8 @@ class SQLiteNoSQL:
             logger.debug("Created %s_fts_after_insert", table)
             self.db.close()
 
-        except Exception:
-            logger.critical("An exception occurred", exc_info=1)
+        except (sqlite3.ProgrammingError, sqlite3.OperationalError):
+            logger.critical("An exception occurred while creating the FTS tables", exc_info=DEBUG)
 
     def rebuild_fts_table(self, table: str = "users"):
         """
@@ -412,8 +393,8 @@ class SQLiteNoSQL:
             self.cur.execute(f"INSERT INTO {table}_fts({table}_fts) " + "VALUES('rebuild')")
             self.db.commit()
             self.db.close()
-        except Exception:
-            logger.critical("An exception occurred", exc_info=1)
+        except (sqlite3.ProgrammingError, sqlite3.OperationalError):
+            logger.critical("An exception occurred while creating the FTS tables", exc_info=DEBUG)
 
 
 class DictDiffer:

@@ -114,7 +114,6 @@ if DISABLE_VCS:
 
 class Bot(commands.Bot):
     """Inherits the commands.Bot class and adds a close method"""
-
     def __init__(self, *kargs, **kwargs):
         super().__init__(*kargs, **kwargs)
         # what am i doing with my life
@@ -165,10 +164,10 @@ Try again later (may take a couple hours or as long as a day)",
 async def on_message(message: discord.Message):
     """
     Event handler for when a message is received.
+
     :param message: discord.Message
     :type message: discord.Message
     """
-
     if message.content.upper() == ",HELP":
         await asyncio.sleep(1)
         async with message.channel.typing():
