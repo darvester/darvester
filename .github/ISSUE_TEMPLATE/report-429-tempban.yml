@@ -1,0 +1,54 @@
+name: Report 429 tempban
+about: Report a 429 tempban you received while using Darvester
+title: "[BAN] 429 Ban Report"
+labels: 'ban report'
+assignees: V3ntus
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a tempban! Reports like these ensure Darvester functions safely while harvesting.
+  - type: input
+    id: date
+    attributes:
+      label: Date and time
+      description: Please input the date and time the ban occurred on.
+      placeholder: ex. 4/29/2022 13:46
+      value: "`r format(Sys.time(), '%d/%m/%Y %H:%M:%S')`"
+  - type: input
+    id: duration
+    attributes:
+      label: How long was the tool open for?
+      description: Darvester features a time counter in the bottom status bar that contains the amount of time that has passed since start.
+  - type: textarea
+    id: activity
+    attributes:
+      label: Were you using the harvesting account while the script was active? If so, what were you doing?
+      description: Please include as much relevant information as possible
+      placeholder: ex. I was executing the ,info command
+    validations:
+      required: true
+  - type: textarea
+    id: log-output
+    attributes:
+      label: "Log output:"
+      render: python
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What version were you using?
+      options:
+        - main
+        - dev
+        - 1.0.3
+        - 1.0.2
+        - 1.0.1
+        - 1.0.0
+    validations:
+      required: true
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: "Additional info:"
