@@ -15,7 +15,6 @@ body:
       label: Date and time
       description: Please input the date and time the ban occurred on.
       placeholder: ex. 4/29/2022 13:46
-      value: `r format(Sys.time(), '%d/%m/%Y %H:%M:%S')`
   - type: input
     id: duration
     attributes:
