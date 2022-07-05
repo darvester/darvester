@@ -20,6 +20,8 @@ body:
     attributes:
       label: How long was the tool open for?
       description: Darvester features a time counter in the bottom status bar that contains the amount of time that has passed since start.
+    validations:
+      required: true
   - type: textarea
     id: activity
     attributes:
