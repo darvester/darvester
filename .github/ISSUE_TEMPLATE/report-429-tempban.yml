@@ -1,5 +1,5 @@
 name: Report 429 tempban
-about: Report a 429 tempban you received while using Darvester
+description: Report a 429 tempban you received while using Darvester
 title: "[BAN] 429 Ban Report"
 labels: 'ban report'
 assignees: V3ntus
