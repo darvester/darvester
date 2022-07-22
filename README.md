@@ -46,6 +46,10 @@
 All as nested JSON in `harvested.db` (SQLite). Select data with `id` as user ID (Snowflake).
 You can access this data through Discord by using the command `,select [USER ID]` (see screenshots below)
 
+## API and Frontend:
+Prior to recent additions, there has been no easy way to retrieve data out of the database.  
+**NEW:** Check out this recent [discussion](https://github.com/V3ntus/darvester/discussions/39) concerning easy ways to interact with this database, including a web frontend and a REST API backend.
+
 <h3 align="center">To start logging, just join a server with your user. No need to verify*</h3>
 <sub>* Unless the server is using a 3rd party verification bot. For example, non-community servers using mee6 or Dyno to verify by role/reaction</sub>
 
