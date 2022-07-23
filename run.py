@@ -8,6 +8,14 @@ if sys.platform == "win32":
 else:
     os.system("clear")
 
+try:
+    from cfg import DB_NAME, DEBUG, DISABLE_VCS, ENABLE_PRESENCE, QUIET_MODE
+except ImportError as e:
+    raise ImportError(
+        "cfg.py not found. Please read over https://github.com/V3ntus/darvester/wiki/Installing " +
+        "to configure: {}".format(e)
+    )
+
 # BEGIN user agreement
 if not os.path.exists(".agreed"):
     try:
