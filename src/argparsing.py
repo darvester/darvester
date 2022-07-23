@@ -74,9 +74,14 @@ def _parse_args():
     args = argparser.parse_args()
 
     if args.ignore_guild:
-        try:
+        if not cfg.IGNORE_GUILD:  # if IGNORE_GUILD is empty
             cfg.IGNORE_GUILD = [int(args.ignore_guild)]
-        except (ValueError, TypeError):
+        elif isinstance(args.ignore_guild, int):  # if ignore_guild arg is a single guild ID
+            cfg.IGNORE_GUILD.append(args.ignore_guild)
+        elif isinstance(args.ignore_guild, str) and str(args.ignore_guild).isnumeric():
+            # if ignore_guild arg is a string guild ID
+            cfg.IGNORE_GUILD.append(int(args.ignore_guild))
+        else:  # else, ignore_guild arg must be a file name
             try:
                 with open(str(args.ignore_guild)) as _f:
                     cfg.IGNORE_GUILD = [int(_ig) for _ig in _f.read().split(",")]

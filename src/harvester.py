@@ -78,6 +78,17 @@ class Harvester:
 
                     guild: discord.Guild = client.get_guild(guildid)
 
+                    _should_ignore_guild: bool = False
+                    for ignored_guild in IGNORE_GUILD:
+                        if isinstance(ignored_guild, str) and ignored_guild.lower() in guild.name.lower():
+                            logger.warning(
+                                "Guild \"%s\" ignored. Skipping...",
+                                guild.name if not QUIET_MODE else "Guild ignored. Skipping...",
+                            )
+                            _should_ignore_guild = True
+                    if _should_ignore_guild:
+                        continue
+
                     if len(guild.members) != guild.member_count:
                         # This code should get the top five channels that contain a good amount of members
                         if guild.member_count < 100:
