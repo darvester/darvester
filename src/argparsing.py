@@ -22,9 +22,9 @@ def _parse_args():
     argparser.add_argument(
         "-ig",
         "--ignore-guild",
-        metavar="FILE/GUILD_ID",
-        help="Either a comma separated list of guild IDs in a text file, or "
-        + "a single guild ID passed. Darvester will ignore the guild(s) "
+        metavar="FILE/GUILD_ID_OR_NAME",
+        help="Either a comma separated list of guild IDs or strings in a text file, or "
+        + "a single guild ID or string passed. Darvester will ignore the guild(s) "
         + "specified here.",
     )
     argparser.add_argument(
