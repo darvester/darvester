@@ -67,14 +67,15 @@ See the wiki page [here](https://github.com/V3ntus/darvester/wiki/Installing)
 
 > `$` `python run.py -h`
 ```
-usage: run.py [-h] [-ig FILE/GUILD_ID] [-v] [-vv] [-p] [--db harvested.db] [-q] [--whitelist FILE/USER_ID] [--last-scanned LAST_SCANNED]
+usage: run.py [-h] [-ig FILE/GUILD_ID_OR_NAME] [-s] [-v] [-vv] [-p] [--db harvested.db] [-q] [--whitelist FILE/USER_ID] [--last-scanned LAST_SCANNED] [--disable-vcs]
 
 Darvester - PoC Discord guild and user information harvester
 
 optional arguments:
   -h, --help            show this help message and exit
-  -ig FILE/GUILD_ID, --ignore-guild FILE/GUILD_ID
-                        Either a comma separated list of guild IDs in a text file, or a single guild ID passed. Darvester will ignore the guild(s) specified here.
+  -ig FILE/GUILD_ID_OR_NAME, --ignore-guild FILE/GUILD_ID_OR_NAME
+                        Either a comma separated list of guild IDs or strings in a text file, or a single guild ID or string passed. Darvester will ignore the guild(s) specified here.
+  -s, --swap-ignore     Swap the functionality of the IGNORE_GUILD (--ignore-guild) list. With this flag set, the list will become a whitelist instead of a blacklist, and will only harvest guilds specified inside the list.
   -v, --debug           Enable verbose debug messages.
   -vv, --debug-discord  Enable debug messages from Discord.py (can get pretty spammy!).
   -p, --enable-presence
@@ -85,7 +86,7 @@ optional arguments:
                         Either a comma separated list of user IDs in a text file, or a single user ID passed. Darvester will only respond to this userwhen commands are issued.
   --last-scanned LAST_SCANNED, -ls LAST_SCANNED
                         The amount of time (in seconds) that must pass before we scan this user again, otherwise we skip when we encounter this user.
-  --disable-vcs, -dv    Disable the VCS data tracking system
+  --disable-vcs, -dv    Disable the VCS tracking system
 ```
 
 ## Screenshots:
