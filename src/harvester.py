@@ -7,7 +7,7 @@ import discord
 import enlighten
 from discord.ext.commands import Bot
 
-from cfg import DISABLE_VCS, IGNORE_GUILD, LAST_SCANNED_INTERVAL, QUIET_MODE, DEBUG
+from cfg import DISABLE_VCS, IGNORE_GUILD, LAST_SCANNED_INTERVAL, QUIET_MODE, DEBUG, SWAP_IGNORE
 from src import logutil, ui
 from src.gitutil import GitUtil
 from src.presence import BotStatus, RichPresence
@@ -69,7 +69,7 @@ class Harvester:
                     if guildidx >= len(_list_of_guilds):
                         guild_counter.clear()
 
-                    if guildid in IGNORE_GUILD:
+                    if (guildid in IGNORE_GUILD and not SWAP_IGNORE) or (guildid not in IGNORE_GUILD and SWAP_IGNORE):
                         logger.warning(
                             "Guild %s ignored. Skipping...",
                             guildid if not QUIET_MODE else "Guild ignored. Skipping...",
@@ -80,12 +80,14 @@ class Harvester:
 
                     _should_ignore_guild: bool = False
                     for ignored_guild in IGNORE_GUILD:
-                        if isinstance(ignored_guild, str) and ignored_guild.lower() in guild.name.lower():
-                            logger.warning(
-                                "Guild \"%s\" ignored. Skipping...",
-                                guild.name if not QUIET_MODE else "Guild ignored. Skipping...",
-                            )
-                            _should_ignore_guild = True
+                        if isinstance(ignored_guild, str):
+                            if (ignored_guild.lower() in guild.name.lower() and not SWAP_IGNORE) or \
+                                    (ignored_guild.lower() not in guild.name.lower() and SWAP_IGNORE):
+                                logger.warning(
+                                    "Guild \"%s\" ignored. Skipping...",
+                                    guild.name if not QUIET_MODE else "Guild ignored. Skipping...",
+                                )
+                                _should_ignore_guild = True
                     if _should_ignore_guild:
                         continue
 

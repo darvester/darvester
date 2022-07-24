@@ -17,7 +17,7 @@ def _parse_args():
     :rtype:
     """
     argparser = argparse.ArgumentParser(
-        description="Darvester - PoC Discord guild and user information " + "harvester"
+        description="Darvester - PoC Discord guild and user information harvester"
     )
     argparser.add_argument(
         "-ig",
@@ -26,6 +26,13 @@ def _parse_args():
         help="Either a comma separated list of guild IDs or strings in a text file, or "
         + "a single guild ID or string passed. Darvester will ignore the guild(s) "
         + "specified here.",
+    )
+    argparser.add_argument(
+        "-s",
+        "--swap-ignore",
+        action="store_true",
+        help="Swap the functionality of the IGNORE_GUILD (--ignore-guild) list. With this flag set, the list will " +
+             "become a whitelist instead of a blacklist, and will only harvest guilds specified inside the list."
     )
     argparser.add_argument(
         "-v", "--debug", help="Enable verbose debug messages.", action="store_true"
@@ -90,6 +97,9 @@ def _parse_args():
                 raise FileReadError(
                     "Could not read from the file: {}".format(args.ignore_guild)
                 ) from e
+
+    if args.swap_ignore:
+        cfg.SWAP_IGNORE = True
 
     if args.debug:
         cfg.DEBUG = True
