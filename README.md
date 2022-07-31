@@ -32,6 +32,7 @@
 - Connected accounts (reddit, YouTube, Facebook, etc.)
 - Public Discord flags (Discord Staff, Early Bot Developer, Certified Mod, etc.)
 - Avatar URL
+- Status/Activity ("Playing", "Listening to", etc.)
 
 **Data logged for each guild:**
 - Name
