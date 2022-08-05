@@ -17,6 +17,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "electron-log": "^4.4.8",
     "json-bigint": "^1.0.0",
     "lodash.debounce": "^4.0.8",
     "react": "^18.2.0",
@@ -33,9 +34,9 @@
     "eject": "react-scripts eject",
     "start-no-browser": "BROWSER=none react-scripts start",
     "electron-dev": "wait-on http://localhost:3000 && electron .",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder",
-    "postinstall": "electron-builder install-app-deps"
+    "pack": "npx electron-builder --dir",
+    "dist": "npx electron-builder",
+    "postinstall": "npx electron-builder install-app-deps"
   },
   "eslintConfig": {
     "extends": [
@@ -56,9 +57,9 @@
     ]
   },
   "devDependencies": {
-    "wait-on": "^6.0.1",
     "electron": "^20.0.1",
-    "electron-build": "^0.0.3"
+    "electron-build": "^0.0.3",
+    "wait-on": "^6.0.1"
   },
   "build": {
     "appId": "com.darvester",
