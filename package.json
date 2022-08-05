@@ -1,0 +1,69 @@
+{
+  "name": "darvester",
+  "description": "Powerful Discord OSINT toolkit",
+  "version": "2.0.0",
+  "author": {
+    "name": "V3ntus",
+    "email": "joe@gladiusso.com",
+    "url": "https://gladiusso.com/"
+  },
+  "private": true,
+  "main": "public/main.js",
+  "dependencies": {
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
+    "@mui/icons-material": "^5.8.4",
+    "@mui/material": "^5.9.1",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "json-bigint": "^1.0.0",
+    "lodash.debounce": "^4.0.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start-reactjs": "react-scripts start",
+    "start": "npm run electron-dev & npm run start-no-browser",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "start-no-browser": "BROWSER=none react-scripts start",
+    "electron-dev": "wait-on http://localhost:3000 && electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "wait-on": "^6.0.1",
+    "electron": "^20.0.1",
+    "electron-build": "^0.0.3"
+  },
+  "build": {
+    "appId": "com.darvester",
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    }
+  }
+}
