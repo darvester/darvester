@@ -12,6 +12,7 @@
   "dependencies": {
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
+    "@haensl/react-component-console": "^2.0.14",
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.9.1",
     "@testing-library/jest-dom": "^5.16.4",
@@ -20,6 +21,7 @@
     "electron-log": "^4.4.8",
     "json-bigint": "^1.0.0",
     "lodash.debounce": "^4.0.8",
+    "pm2": "^5.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.3.0",
@@ -36,7 +38,8 @@
     "electron-dev": "wait-on http://localhost:3000 && electron .",
     "pack": "npx electron-builder --dir",
     "dist": "npx electron-builder",
-    "postinstall": "npx electron-builder install-app-deps"
+    "postinstall": "npx electron-builder install-app-deps",
+    "preelectron-pack": "yarn build"
   },
   "eslintConfig": {
     "extends": [
@@ -65,6 +68,22 @@
     "appId": "com.darvester",
     "mac": {
       "category": "public.app-category.developer-tools"
+    },
+    "files": [
+      "public/**/*",
+      "build/**/*",
+      "node_modules/**/*",
+      "py-darvester/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "extraMetadata": {
+      "main": "public/electron.js"
     }
-  }
+  },
+  "browser": {
+    "child_process": false
+  },
+  "homepage": "./"
 }

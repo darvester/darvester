@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { getFirstRun, getConfigKey, getConfig, writeConfigKey } = require('./src/config');
 const { askPythonVersion, createPythonVenv, installPythonRequirements } = require('./src/utils');
-const path = require('path');
+const path = require('path');;
 
 // Register handlers for ipcMain events
 ipcMain.handle('utils:ask-python-version', askPythonVersion);
@@ -29,7 +29,7 @@ function createWindow (app) {
   win.removeMenu();
 
   //load the index.html from a url
-  win.loadURL('http://localhost:3000');
+  win.loadURL(`file://${path.join(__dirname, '..', 'build', 'index.html')}`);
 
   // Open the DevTools.
   // win.webContents.openDevTools()

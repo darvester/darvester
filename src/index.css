@@ -1,12 +1,18 @@
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@200&display=swap");
 
-html {
-  font-family: 'Montserrat', 'Roboto', sans-serif;
+html, p, h1, h2, h3, h4, h5, h6 {
   scroll-behavior: smooth;
+  font-family: 'Nunito', 'Roboto', sans-serif;
+}
+
+body {
+  background-color: #242424 !important;
 }
 
 ::-webkit-scrollbar {
   width: 9px;
+  height: 9px;
   /* border: 2px solid #222222; */
   border-radius: 6px;
 }
@@ -54,6 +60,15 @@ a:hover {
   background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url("../public/darvester.png");
   background-size: 100%;
   background-repeat: no-repeat;
+}
+
+.first_run_box {
+  transition: width 1s cubic-bezier(0, 0, 0, 0.99);
+}
+
+.first_run_box.frb_bigger {
+  width: 600px;
+  height: 600px;
 }
 
 .search_item:hover {
@@ -156,4 +171,32 @@ a:hover {
 .guild_icon:hover {
   transition: border-radius 0.3s cubic-bezier(0, 0, 0, 0.99);
   border-radius: 25%;
+}
+
+pre {
+  max-width: 600px;
+  overflow: auto;
+  padding: 6px;
+  background-color: #333333;
+  max-height: 370px;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+.Console {
+  background-color: #333333;
+  border-radius: 6px;
+  max-height: 300px;
+  overflow-y: scroll;
+  font-size: 12px;
+}
+
+.Console pre {
+  max-width: initial;
+  padding: initial;
+  padding-left: 6px;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  white-space: pre-line;
+  overflow: hidden;
 }

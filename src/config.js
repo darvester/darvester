@@ -1,2 +1,2 @@
-export const HOST = "gladiusso.com"
-export const PORT = "3000"
+export const HOST = "localhost"
+export const PORT = "8080"

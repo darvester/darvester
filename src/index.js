@@ -2,7 +2,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HashRouter, Routes, Route } from "react-router-dom";
-import { channels } from './constants';
 
 // Components
 import { SearchAppBar } from './components/Search';
@@ -10,6 +9,9 @@ import {
   Box,
   Typography
 } from '@mui/material';
+import FirstRun from './components/FirstRun';
+import { Boot } from './components/FirstRun';
+import Manager from './components/Manager';
 
 // Styles
 import './index.css';
@@ -24,11 +26,38 @@ import Users from './routes/users';
 import User from './routes/user';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const { ipcRenderer } = window.require('electron');
 
 const DetermineFirstRun = function() {
-  const getFirstRun = () => {
-    ipcRenderer.send(channels.FIRST_RUN, { method: 'get' });
+  const [isFirstRun, setIsFirstRun] = React.useState();
+  const [shouldRender, setShouldRender] = React.useState(false);
+
+  React.useEffect(() => {
+    window.electronAPI.askFirstRun().then(
+      (result) => {setIsFirstRun(result)}
+    );
+  }, []);
+
+  React.useEffect(() => {
+    setTimeout(() => {setShouldRender(true)}, 2000);
+  }, [isFirstRun]);
+
+  if (shouldRender) {
+    if (isFirstRun) {
+      return <FirstRun />;
+    } else {
+      return <SearchAppBar />;
+    }
+  } else {
+    return (
+      <Box sx={{
+        width: '100vw',
+        height: '100vh',
+        margin: 'auto',
+        position: 'relative'
+      }}>
+        <Boot />
+      </Box>
+    )
   }
 }
 
@@ -92,6 +121,7 @@ root.render(
             <Route path="info" element={<></>} />
             <Route path="guild" element={<Guild />} />
             <Route path="user" element={<User />} />
+            <Route path="manager" element={<Manager />} />
           </Route>
         </Routes>
       </HashRouter>

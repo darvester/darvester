@@ -1,4 +1,5 @@
 import { createTheme } from '@mui/material/styles';
+import React from 'react';
 
 import FacebookIcon from '@mui/icons-material/Facebook';
 import RedditIcon from '@mui/icons-material/Reddit';
@@ -113,4 +114,23 @@ export function secondsToHms(d) {
     var mDisplay = m > 0 ? m + (m === 1 ? " minute, " : " minutes, ") : "";
     var sDisplay = s > 0 ? s + (s === 1 ? " second" : " seconds") : "";
     return hDisplay + mDisplay + sDisplay; 
+}
+
+export function useDelayUnmount(isMounted, delayTime) {
+    const [ shouldRender, setShouldRender ] = React.useState(false);
+
+    React.useEffect(() => {
+        let timeoutId;
+        if (isMounted && !shouldRender) {
+            setShouldRender(true);
+        }
+        else if(!isMounted && shouldRender) {
+            timeoutId = setTimeout(
+                () => setShouldRender(false), 
+                delayTime
+            );
+        }
+        return () => clearTimeout(timeoutId);
+    }, [isMounted, delayTime, shouldRender]);
+    return shouldRender;
 }

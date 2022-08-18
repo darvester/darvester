@@ -142,6 +142,8 @@ export function SearchAppBar() {
               id="drawer_header"
               sx={{
                 padding: theme.spacing(2),
+                width: '100%',
+                height: '100%'
               }}
               >
                 Darvester
@@ -161,16 +163,20 @@ export function SearchAppBar() {
         </List>
         <Divider />
         <List>
-          {['Settings'].map((text, index) => (
+          {['Manager', 'Settings'].map((text, index) => (
             <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon></ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
+              <Link to={text.toLowerCase()} style={{ width: '100%' }}>
+                <ListItemButton>
+                  <ListItemIcon></ListItemIcon>
+                  <ListItemText primary={text} />
+                </ListItemButton>
+              </Link>
             </ListItem>
           ))}
           <ListItem key={"footer"}>
-            <ListItemText primary={"Version: 0.0.1"} />
+            <Typography variant="body" align="center">
+              Version {window.electronAPI.version}
+            </Typography>
           </ListItem>
         </List>
       </Box>

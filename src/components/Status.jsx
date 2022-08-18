@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 
-export default function StatusIndicator({status}) {
+export default function StatusIndicator({status, style}) {
     //
     return (
         <Box
@@ -16,7 +16,8 @@ export default function StatusIndicator({status}) {
                 display: 'grid',
                 placeItems: 'center',
                 float: 'left',
-                border: '5px solid #000000'
+                border: '5px solid #000000',
+                ...style
             }}
             className={`user_indicator ${status}`}
         >
