@@ -1,16 +1,25 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { getFirstRun, getConfigKey, getConfig, writeConfigKey } = require('./src/config');
 const { askPythonVersion, createPythonVenv, installPythonRequirements } = require('./src/utils');
-const path = require('path');;
+const { startCore, startApi, getStatus, describeProcess, sendSigInt } = require('./src/processes');
+const path = require('path');
 
 // Register handlers for ipcMain events
+// utils
 ipcMain.handle('utils:ask-python-version', askPythonVersion);
 ipcMain.handle('utils:create-python-venv', (e, venvPath) => createPythonVenv(venvPath));
+// config
 ipcMain.handle('config:ask-first-run', () => getFirstRun(app));
 ipcMain.handle('config:get-config-key', (e, key) => getConfigKey(key));
 ipcMain.handle('config:get-config', getConfig);
 ipcMain.handle('config:write-config-key', (e, key, value) => {writeConfigKey(key, value)});
 ipcMain.handle('config:install-pip-deps', (e, venvPath) => {installPythonRequirements(venvPath)})
+// processes
+ipcMain.handle('processes:start-core', startCore);
+ipcMain.handle('processes:start-api', startApi);
+ipcMain.handle('processes:get-status', getStatus);
+ipcMain.handle('processes:describe-status', (e, processName) => describeProcess(processName));
+ipcMain.handle('processes:send-sigint', (e, processName) => sendSigInt(processName));
 
 function createWindow (app) {
   // Create the browser window.

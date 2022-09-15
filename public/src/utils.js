@@ -1,7 +1,6 @@
 const { spawnSync, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const pm2 = require('pm2');
 const { BrowserWindow } = require('electron');
 
 // const { getConfigKey } = require('./config');
@@ -79,7 +78,7 @@ module.exports = {
             }
             const cmd = process.platform === 'win32' ? 'py' : 'python3';
             const args = process.platform === 'win32' ? ['-3', '-m', 'venv', '.'] : ['-m', 'venv', '.'];
-            const venv_process = spawnSync(cmd, args, {cwd: venvPath});
+            const venv_process = spawnSync(cmd, args, {cwd: venvPath}); // TODO: Convert to async
             if (!venv_process.stdout.length || !venv_process.stderr.length) {
                 console.log("Python venv created at:", venvPath);
                 return {error: false, message: "Python virtual environment created at: " + venvPath, done: true}
@@ -104,7 +103,7 @@ module.exports = {
             });
             venv_status.on('error', (err) => {
                 console.log('err', err.toString().trim());
-                main_window.webContents('utils:venv-status', {message: err.message, code: err.code, closed: false});
+                main_window.webContents.send('utils:venv-status', {message: err.message, code: err.code, closed: false});
             });
             venv_status.stdout.on('data', (data) => {
                 console.log('stdout', data.toString().trim());
@@ -115,26 +114,6 @@ module.exports = {
                 main_window.webContents.send('utils:venv-status', {message: data.toString().trim(), code: 1, closed: false});
             });
             return {error: false, message: "Installing requirements..."}
-            
-            // pm2.connect(true, (err) => {
-            //     if (err) {
-            //         throw err
-            //     }
-
-            //     pm2.start({
-            //         name: 'dep-darvester',
-            //         cwd: venvPath,
-            //         script: path.join(venvPath, 'bin', 'pip'),
-            //         args: 'freeze',
-            //         interpreter: null,
-            //         interpreter_args: null,
-            //     }, (err) => {
-            //         if (err) {
-            //             console.log(err)
-            //             return pm2.disconnect()
-            //         }
-            //     });
-            // });
         } catch (error) {
             console.log("Error installing requirements at: ", venvPath, error);
             return {error: true, message: "Error installing requirements: " + error}
