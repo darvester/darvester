@@ -15,18 +15,10 @@
     "@haensl/react-component-console": "^2.0.14",
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.9.1",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.3.0",
-    "@testing-library/user-event": "^13.5.0",
     "electron-log": "^4.4.8",
     "json-bigint": "^1.0.0",
     "lodash.debounce": "^4.0.8",
-    "pm2": "^5.2.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "pm2": "^5.2.0"
   },
   "scripts": {
     "start-reactjs": "react-scripts start",
@@ -60,20 +52,35 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.3.0",
+    "@testing-library/user-event": "^13.5.0",
     "electron": "^20.0.1",
     "electron-build": "^0.0.3",
-    "wait-on": "^6.0.1"
+    "wait-on": "^6.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
   },
   "build": {
     "appId": "com.darvester",
     "mac": {
       "category": "public.app-category.developer-tools"
     },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "shortcutName": "Darvester"
+    },
     "files": [
       "public/**/*",
       "build/**/*",
       "node_modules/**/*",
-      "py-darvester/**/*"
+      "py-darvester/**/*",
+      "py-darvester-api/**/*"
     ],
     "directories": {
       "buildResources": "assets"
