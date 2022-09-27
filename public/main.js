@@ -12,7 +12,7 @@ ipcMain.handle('utils:create-python-venv', (e, venvPath) => createPythonVenv(ven
 ipcMain.handle('config:ask-first-run', () => getFirstRun(app));
 ipcMain.handle('config:get-config-key', (e, key) => getConfigKey(key));
 ipcMain.handle('config:get-config', getConfig);
-ipcMain.handle('config:write-config-key', (e, key, value) => {writeConfigKey(key, value)});
+ipcMain.handle('config:write-config-key', (e, key, value) => writeConfigKey(key, value));
 ipcMain.handle('config:install-pip-deps', (e, venvPath) => {installPythonRequirements(venvPath)})
 // processes
 ipcMain.handle('processes:start-core', startCore);
@@ -24,6 +24,7 @@ ipcMain.handle('processes:send-sigint', (e, processName) => sendSigInt(processNa
 function createWindow (app) {
   // Create the browser window.
   const win = new BrowserWindow({
+    backgroundColor: "#333333",
     width: 1280,
     height: 900,
     webPreferences: {
