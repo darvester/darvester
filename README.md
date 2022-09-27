@@ -11,4 +11,4 @@
 ### PoC Discord user and guild information harvester
 
 # The Second Generation of Darvester is in development on this branch
-### Please stand by! Follow the progress on the [Github Project board](https://github.com/users/V3ntus/projects/2/views/1)
+### Please stand by! Follow the progress on the [Github Project board](https://github.com/orgs/darvester/projects/1)
