@@ -15,6 +15,15 @@ import {
 import StatusIndicator from './Status';
 
 export default function Manager() {
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+        return () => {
+            setIsMounted(false);
+        }
+    }, []);
+
     const [coreStatus, setCoreStatus] = React.useState({
         changing: false,
         status: 'offline'
@@ -38,37 +47,37 @@ export default function Manager() {
         }
     }
 
-    window.electronAPI.getStatus().then(() => {
-        window.electronAPI.onGetStatus(
-            (_event, status) => {
-                if (status.error) {
-                    console.log(status.error);
-                    return
-                }
-                status.message.filter((proc) => {
-                    return ["davester-api", "darvester-core"].includes(proc.name);
-                }).forEach(element => {
-                    if (element.name === "darvester-core") {
-                        setCoreStatus({
-                            changing: ["stopping", "launching"].includes(element.pm2_env.status),
-                            status: parseStatus(status)
-                        });
-                    } else if (element.name === "darvester-api") {
-                        setapiStatus({
-                            changing: ["stopping", "launching"].includes(element.pm2_env.status),
-                            status: parseStatus(status)
-                        });
-                    }
-                });
+    window.electronAPI.onGetStatus(
+        (_event, status) => {
+            if (status.error) {
+                console.log(status.error);
+                return
             }
-        );
-    });
+            status.message.filter((proc) => {
+                return ["davester-api", "darvester-core"].includes(proc.name);
+            }).forEach(element => {
+                if (element.name === "darvester-core") {
+                    setCoreStatus({
+                        changing: ["stopping", "launching"].includes(element.pm2_env.status),
+                        status: parseStatus(status)
+                    });
+                } else if (element.name === "darvester-api") {
+                    setapiStatus({
+                        changing: ["stopping", "launching"].includes(element.pm2_env.status),
+                        status: parseStatus(status)
+                    });
+                }
+            });
+        }
+    );
+
+    window.electronAPI.getStatus().then(() => {});
 
     return (
         <Box>
-            <Typography variant="h2" align='center' sx={{ padding: '20px' }}>Manager</Typography>
+            <Grow in={isMounted} timeout={1000} style={{ transformOrigin: '0 0 0' }}><Fade in={isMounted} timeout={600}><Typography variant="h2" align='center' sx={{ padding: '20px' }}>Manager</Typography></Fade></Grow>
             <Typography variant="h5" sx={{ paddingLeft: '20px' }}>Processes:</Typography>
-            <Box sx={{
+            <Grow in={isMounted} timeout={1250} style={{ transformOrigin: '0 0 0' }}><Fade in={isMounted} timeout={900}><Box sx={{
                 margin: '20px',
                 padding: '20px',
                 backgroundColor: '#444444',
@@ -104,8 +113,8 @@ export default function Manager() {
                         <Button variant="outlined" sx={{ margin: '8px 12px -4px'}}>Stop</Button>
                     </Box>
                 </Box>
-            </Box>
-            <Box sx={{
+            </Box></Fade></Grow>
+            <Grow in={isMounted} timeout={1500} style={{ transformOrigin: '0 0 0' }}><Fade in={isMounted} timeout={1200}><Box sx={{
                 margin: '20px',
                 padding: '20px',
                 backgroundColor: '#444444',
@@ -129,7 +138,7 @@ export default function Manager() {
                         <Button variant="outlined" sx={{ margin: '8px 12px -4px'}}>Stop</Button>
                     </Box>
                 </Box>
-            </Box>
+            </Box></Fade></Grow>
         </Box>
     )
 }

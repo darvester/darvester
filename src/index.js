@@ -12,6 +12,7 @@ import {
 import FirstRun from './components/FirstRun';
 import { Boot } from './components/FirstRun';
 import Manager from './components/Manager';
+import Settings from './components/Settings';
 
 // Styles
 import './index.css';
@@ -122,6 +123,7 @@ root.render(
             <Route path="guild" element={<Guild />} />
             <Route path="user" element={<User />} />
             <Route path="manager" element={<Manager />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>
       </HashRouter>
