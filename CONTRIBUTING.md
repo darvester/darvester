@@ -11,7 +11,7 @@ These guidelines will apply to all branches unless otherwise stated.
 
 ### Gen2
 
-Generation 2 of Darvester will, from now on, will be the focus of Darvester's development. This will be a package of `darvester`, `darvester-api`, and `darvester-api-frontend` in an Electron and React.js application. **To contribute to Darvester core instead, please point your PRs to the `dev` branch.**
+Generation 2 of Darvester will, from now on, will be the focus of Darvester's development. This will be a package of `darvester`, `darvester-api`, and `darvester-api-frontend` in an Electron and React.js application. **To contribute to Darvester core instead (the Python distribution of Darvester, without Electron), please point your PRs to the `dev` branch.**
 
 > To contribute to Generation 2, a rewrite and repackaging of Darvester, clone this repo then checkout the `gen2` branch.
 > ```
