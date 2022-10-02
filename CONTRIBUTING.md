@@ -11,6 +11,8 @@ These guidelines will apply to all branches unless otherwise stated.
 
 ### Gen2
 
+Generation 2 of Darvester will, from now on, will be the focus of Darvester's development. This will be a package of `darvester`, `darvester-api`, and `darvester-api-frontend` in an Electron and React.js application. **To contribute to Darvester core instead, please point your PRs to the `dev` branch.**
+
 > To contribute to Generation 2, a rewrite and repackaging of Darvester, clone this repo then checkout the `gen2` branch.
 > ```
 > git clone https://github.com/darvester/darvester/
@@ -35,3 +37,8 @@ Gen2 is an Electron/React.js application, you will find a (mostly) conventional 
 
 `src/routes/:`
 > - Landing pages for route assignments for react-router
+
+#### Contributing
+1. Clone the repo and checkout the `gen2` branch
+2. Make your intended changes and test.
+3. Submit a PR pointing to `gen2`. **If you are contributing to Darvester core (Python) instead, please checkout and point your PRs to the `dev` branch.**
