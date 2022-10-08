@@ -84,3 +84,7 @@ optional arguments:
   --disable-vcs, -dv    Disable the VCS data tracking system
 ```
 ## Screenshots
+![2](https://user-images.githubusercontent.com/25264755/194698744-271d5276-0791-429f-8536-4dd830bfe8f7.png)
+![3](https://user-images.githubusercontent.com/25264755/194698745-51e1e104-0fac-4a37-bd4c-86839ad50a39.png)
+![4](https://user-images.githubusercontent.com/25264755/194698748-33078a57-e46d-4fe6-833a-8ed78b5203eb.png)
+![5](https://user-images.githubusercontent.com/25264755/194698742-4b908548-ee1f-4c82-82b8-19983c7b0416.png)
