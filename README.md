@@ -1,4 +1,5 @@
-# darvester
+
+# Darvester
 
 <p align="center">
 <img width="50%" height="50%" align="center" src="https://user-images.githubusercontent.com/29584664/146680484-b63cbde2-5386-4feb-8cbe-f4807ea99b61.png" />
@@ -7,24 +8,23 @@
   Worked on for <a href="https://wakatime.com/badge/github/V3ntus/darvester"><img src="https://wakatime.com/badge/github/V3ntus/darvester.svg" alt="wakatime"></a>
 </p>
 
----
-### PoC Discord user and guild information harvester
+## 🖥️ PoC Discord user and guild information harvester
+Darvester aims to provide safe Discord OSINT harvesting, abiding by sane rate limiting and providing automated processing
 
-<p align=center>
-  Darvester aims to provide safe Discord OSINT harvesting, abiding by sane rate limiting and providing automated processing
- </p>
 
- ### Features:
- - **Rate-limit/soft ban avoidance**
- - **Automated processing**
- - **Flexible configuration**
- - **Utilization of the Git version control system to provide chronological data**
- - **Detailed logging**
- - **and more**
 
----
+## ✨ Features
 
-**Data logged for each user:**
+- Rate-limit/soft ban avoidance
+- Automated processing
+- Flexible configuration
+- Utilization of the Git version control system to provide chronological data
+- Detailed logging
+- and more
+
+
+## 💽 Data logged for each user
+
 - Profile created date, and first seen date
 - Username and discriminator
 - User ID (or Snowflake)
@@ -34,7 +34,8 @@
 - Avatar URL
 - Status/Activity ("Playing", "Listening to", etc.)
 
-**Data logged for each guild:**
+
+## 💾 Data logged for each guild
 - Name
 - Icon URL
 - Owner name and ID
@@ -47,24 +48,18 @@
 All as nested JSON in `harvested.db` (SQLite). Select data with `id` as user ID (Snowflake).
 You can access this data through Discord by using the command `,select [USER ID]` (see screenshots below)
 
-## API and Frontend:
+## 🗄️ API and Frontend
 Prior to recent additions, there has been no easy way to retrieve data out of the database.  
 **NEW:** Check out this recent [discussion](https://github.com/V3ntus/darvester/discussions/39) concerning easy ways to interact with this database, including a web frontend and a REST API backend.
 
 <h3 align="center">To start logging, just join a server with your user. No need to verify*</h3>
 <sub>* Unless the server is using a 3rd party verification bot. For example, non-community servers using mee6 or Dyno to verify by role/reaction</sub>
+## ⚠️ Disclaimer
 
-
-## DISCLAIMER:
-**Using this tool, you agree not to hold the contributors and developers
-accountable for any damages that occur. This tool violates Discord terms of
-service and may result in your access to Discord services terminated.**
-
-# Install
-
+Using this tool, you agree not to hold the contributors and developers accountable for any damages that occur. This tool violates Discord terms of service and may result in your access to Discord services terminated.
+## 📈 Install
 See the wiki page [here](https://github.com/V3ntus/darvester/wiki/Installing)
-
-# Usage
+## 🏎️ Usage
 
 > `$` `python run.py -h`
 ```
@@ -88,13 +83,8 @@ optional arguments:
                         The amount of time (in seconds) that must pass before we scan this user again, otherwise we skip when we encounter this user.
   --disable-vcs, -dv    Disable the VCS data tracking system
 ```
-
-## Screenshots:
-
-- ![Screen Shot 2022-02-15 at 15 46 07](https://user-images.githubusercontent.com/29584664/154154796-0f6f41fd-540e-419a-8dc2-730d9dda7e16.png)
-
-- ![Screen Shot 2022-01-01 at 16 21 22](https://user-images.githubusercontent.com/29584664/147861381-d5c48a42-3d1b-4d5f-825a-6bda4cc7b012.png)
-
-- Slave/Harvester: ![image](https://user-images.githubusercontent.com/29584664/147799316-bae5525d-048f-4f7b-9955-574b17004637.png)
-
-- Master: ![image](https://user-images.githubusercontent.com/29584664/147799297-3b2d489c-dfae-4b08-a68a-61d87bb900af.png)
+## Screenshots
+![2](https://user-images.githubusercontent.com/25264755/194698744-271d5276-0791-429f-8536-4dd830bfe8f7.png)
+![3](https://user-images.githubusercontent.com/25264755/194698745-51e1e104-0fac-4a37-bd4c-86839ad50a39.png)
+![4](https://user-images.githubusercontent.com/25264755/194698748-33078a57-e46d-4fe6-833a-8ed78b5203eb.png)
+![5](https://user-images.githubusercontent.com/25264755/194698742-4b908548-ee1f-4c82-82b8-19983c7b0416.png)
