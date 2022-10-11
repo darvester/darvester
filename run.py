@@ -13,7 +13,21 @@ if not os.path.exists(".agreed"):
     try:
         resp = (
             input(
-                """
+                """                                                              
+             @@@@@@@@@@@@@@@@@@@                                                
+             @@@@@@@@@@@@@@@@@@@@@@.     @@@@@@@@@@@@@@@@@@@@                   
+             @@@@@@@@@@@@@@@@@@@@@@@@@@ @@@@@@@@             @@@                
+             @@@@@@@@,     .@@@@@@@@ @@ /@@                                     
+             @@@@@@@@.       @@@@@@@@/@@                                        
+             @@@@@@@@.       @@@@@@@@@ @@                                       
+               @@@@@@.       @@@@@@@@  @@@@                                     
+                  @@@.       @@@@@@@*      @@@                                  
+                             @@@@@@@@@        @@@@                              
+                           @@@@@@@@@@@            @@@@                          
+             @@@@@@@@@@@@@@@@@@@@@@@@                @@@@                       
+             @@@@@@@@@@@@@@@@@@@@@@                    @@@@                     
+             @@@@@@@@@@@@@@@@@@@                                                
+                                                                                
 !! DISCLAIMER: !!
 Using this tool, you agree not to hold the contributors and developers
 accountable for any damages that occur. This tool violates Discord terms of
