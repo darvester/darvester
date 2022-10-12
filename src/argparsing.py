@@ -17,15 +17,22 @@ def _parse_args():
     :rtype:
     """
     argparser = argparse.ArgumentParser(
-        description="Darvester - PoC Discord guild and user information " + "harvester"
+        description="Darvester - PoC Discord guild and user information harvester"
     )
     argparser.add_argument(
         "-ig",
         "--ignore-guild",
-        metavar="FILE/GUILD_ID",
-        help="Either a comma separated list of guild IDs in a text file, or "
-        + "a single guild ID passed. Darvester will ignore the guild(s) "
+        metavar="FILE/GUILD_ID_OR_NAME",
+        help="Either a comma separated list of guild IDs or strings in a text file, or "
+        + "a single guild ID or string passed. Darvester will ignore the guild(s) "
         + "specified here.",
+    )
+    argparser.add_argument(
+        "-s",
+        "--swap-ignore",
+        action="store_true",
+        help="Swap the functionality of the IGNORE_GUILD (--ignore-guild) list. With this flag set, the list will " +
+             "become a whitelist instead of a blacklist, and will only harvest guilds specified inside the list."
     )
     argparser.add_argument(
         "-v", "--debug", help="Enable verbose debug messages.", action="store_true"
@@ -74,9 +81,14 @@ def _parse_args():
     args = argparser.parse_args()
 
     if args.ignore_guild:
-        try:
+        if not cfg.IGNORE_GUILD:  # if IGNORE_GUILD is empty
             cfg.IGNORE_GUILD = [int(args.ignore_guild)]
-        except (ValueError, TypeError):
+        elif isinstance(args.ignore_guild, int):  # if ignore_guild arg is a single guild ID
+            cfg.IGNORE_GUILD.append(args.ignore_guild)
+        elif isinstance(args.ignore_guild, str) and str(args.ignore_guild).isnumeric():
+            # if ignore_guild arg is a string guild ID
+            cfg.IGNORE_GUILD.append(int(args.ignore_guild))
+        else:  # else, ignore_guild arg must be a file name
             try:
                 with open(str(args.ignore_guild)) as _f:
                     cfg.IGNORE_GUILD = [int(_ig) for _ig in _f.read().split(",")]
@@ -85,6 +97,9 @@ def _parse_args():
                 raise FileReadError(
                     "Could not read from the file: {}".format(args.ignore_guild)
                 ) from e
+
+    if args.swap_ignore:
+        cfg.SWAP_IGNORE = True
 
     if args.debug:
         cfg.DEBUG = True
