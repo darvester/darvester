@@ -17,11 +17,11 @@ class SQLiteNoSQL:
     @staticmethod
     def _check_for_missing_cols(cur: sqlite3.Cursor, table: str, cols: list):
         logger.debug("Checking %s for missing columns...", table)
-        old_cols = [i[1] for i in cur.execute('PRAGMA table_info(?)', (table, )).fetchall()]
+        old_cols = [i[1] for i in cur.execute(f'PRAGMA table_info("{table}")').fetchall()]
         for new_col in cols:
             if new_col not in old_cols:
                 logger.debug("Found column not in database. Altering table %s, adding %s...", table, new_col)
-                cur.execute('ALTER TABLE ? ADD COLUMN ? text', (table, new_col))
+                cur.execute('ALTER TABLE {} ADD COLUMN {} text'.format(table, new_col))
 
     def __init__(self, f: str = dbfile):
         """
