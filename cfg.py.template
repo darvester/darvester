@@ -3,7 +3,12 @@ from logging import CRITICAL, INFO, WARNING
 TOKEN = "*discord user token here*"
 
 # Ignore these guilds
+# Can be a list of strings, guild IDs, or both
 IGNORE_GUILD = []
+
+# If this is True, IGNORE_GUILD will be swapped, as in, it will act as a whitelist instead of a blacklist.
+# Guilds in IGNORE_GUILD will now *only* be harvested and not ignored
+SWAP_IGNORE = False
 
 # Enable debug messages
 # Also functions as `logging.DEBUG` for LOG_LEVEL
@@ -33,6 +38,11 @@ LAST_SCANNED_INTERVAL = 600
 
 # Default log level. Debug options override this
 LOG_LEVEL = WARNING
+
+# Disable the VCS system
+# For this to be enabled, it requires the GitPython package to be installed,
+# and of course the git binaries to be installed and accessible from your PATH
+DISABLE_VCS = False
 
 # The path where the database will be dumped for the VCS
 # None defaults to $(pwd)/.darvester

@@ -8,6 +8,14 @@ if sys.platform == "win32":
 else:
     os.system("clear")
 
+try:
+    from cfg import DB_NAME, DEBUG, DISABLE_VCS, ENABLE_PRESENCE, QUIET_MODE
+except ImportError as e:
+    raise ImportError(
+        "cfg.py not found. Please read over https://github.com/V3ntus/darvester/wiki/Installing " +
+        "to configure: {}".format(e)
+    )
+
 # BEGIN user agreement
 if not os.path.exists(".agreed"):
     try:
@@ -48,7 +56,7 @@ from discord.ext import commands  # noqa: ignore = E402
 import asyncio # noqa: ignore = E402
 
 from cfg import DEBUG_DISCORD  # noqa: ignore = E402
-from cfg import DB_NAME, DEBUG, DISABLE_VCS, ENABLE_PRESENCE, QUIET_MODE
+from cfg import DB_NAME, DEBUG, DISABLE_VCS, ENABLE_PRESENCE, QUIET_MODE, SWAP_IGNORE, IGNORE_GUILD  # noqa: ignore = E402
 # Commands go here
 from commands import filter_cmd, join_cmd, select_cmd, info_cmd  # noqa: ignore = E402
 from src import logutil, ui  # noqa: ignore = E402
@@ -110,6 +118,14 @@ if DISABLE_VCS:
     logger.critical(
         "VCS system is disabled. Changes will not be logged in a git repository. Continuing..."
     )
+
+if SWAP_IGNORE and not IGNORE_GUILD:
+    logger.critical("IGNORE_GUILD is empty while SWAP_IGNORE is True. Cannot continue")
+    sys.exit(1)
+
+if SWAP_IGNORE:
+    logger.warning("SWAP_IGNORE is True. Guilds specified in IGNORE_GUILD or in the script arg will be whitelisted " +
+                   "instead of blacklisted.")
 
 
 class Bot(commands.Bot):
