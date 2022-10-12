@@ -333,6 +333,7 @@ class Harvester:
                                 "premium": str("True" if _profile_object.premium else "False"),
                                 "premium_since": str(int(_profile_object.premium_since.timestamp())
                                                      if _profile_object.premium_since else None),
+                                "banner": str(_profile_object.banner)
                             }
 
                             logger.debug(
