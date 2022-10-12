@@ -6,6 +6,9 @@ cfg.py
 .vscode/
 test*.py
 .idea/
+.DS_Store
+py-darvester/
+node_modules/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
