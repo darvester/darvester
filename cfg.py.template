@@ -10,13 +10,6 @@ IGNORE_GUILD = []
 # Guilds in IGNORE_GUILD will now *only* be harvested and not ignored
 SWAP_IGNORE = False
 
-# If True, Darvester will request guilds from the Guild Discovery tab and join/lurk them to harvest
-USE_DISCOVERY = False
-
-# Requires USE_DISCOVERY to be True
-# If this is True, Darvester will also leave the discovered guild after a harvest. 
-DISCOVERY_LEAVE_AFTER = False
-
 # Enable debug messages
 # Also functions as `logging.DEBUG` for LOG_LEVEL
 DEBUG = False
