@@ -1,9 +1,10 @@
 import json
+
 from discord import Message
 from discord.ext.commands import Bot
 
-from src.sqlutil import SQLiteNoSQL
 from src import logutil
+from src.sqlutil import SQLiteNoSQL
 
 logger = logutil.initLogger(__name__)
 

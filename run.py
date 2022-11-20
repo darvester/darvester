@@ -9,11 +9,19 @@ else:
     os.system("clear")
 
 try:
-    from cfg import DB_NAME, DEBUG, DISABLE_VCS, ENABLE_PRESENCE, QUIET_MODE
+    from cfg import (
+        DB_NAME,
+        DEBUG,
+        DISABLE_VCS,
+        ENABLE_PRESENCE,
+        IGNORE_GUILD,
+        QUIET_MODE,
+        SWAP_IGNORE,
+    )
 except ImportError as e:
     raise ImportError(
-        "cfg.py not found. Please read over https://github.com/V3ntus/darvester/wiki/Installing " +
-        "to configure: {}".format(e)
+        "cfg.py not found. Please read over https://github.com/V3ntus/darvester/wiki/Installing "
+        + "to configure: {}".format(e)
     )
 
 # BEGIN user agreement
@@ -51,14 +59,16 @@ from src.argparsing import _parse_args  # noqaL ignore = E402
 
 args = _parse_args()
 
+import asyncio  # noqa: ignore = E402
+
 import discord  # noqa: ignore = E402
 from discord.ext import commands  # noqa: ignore = E402
-import asyncio # noqa: ignore = E402
 
 from cfg import DEBUG_DISCORD  # noqa: ignore = E402
-from cfg import DB_NAME, DEBUG, DISABLE_VCS, ENABLE_PRESENCE, QUIET_MODE, SWAP_IGNORE, IGNORE_GUILD  # noqa: ignore = E402
+from cfg import DISABLE_VCS  # noqa: ignore = E402
+
 # Commands go here
-from commands import filter_cmd, join_cmd, select_cmd, info_cmd  # noqa: ignore = E402
+from commands import filter_cmd, info_cmd, join_cmd, select_cmd  # noqa: ignore = E402
 from src import logutil, ui  # noqa: ignore = E402
 from src.harvester import Harvester  # noqa: ignore = E402
 from src.sqlutil import SQLiteNoSQL  # noqa: ignore = E402
@@ -74,13 +84,13 @@ github_link = ui.manager.term.link("https://github.com/V3ntus/darvester", "Darve
 term_status = ui.new_status_bar(
     name="main",
     demo="Preparing",
-    status_format=github_link + u"{fill}{demo}{fill}{elapsed}",
+    status_format=github_link + "{fill}{demo}{fill}{elapsed}",
 )
 member_status = ui.new_status_bar(
-    name="member", demo="None", status_format=u"Member{fill}{demo}{fill}{elapsed}"
+    name="member", demo="None", status_format="Member{fill}{demo}{fill}{elapsed}"
 )
 guild_status = ui.new_status_bar(
-    name="guild", demo="None", status_format=u"Guild{fill}{demo}{fill}{elapsed}"
+    name="guild", demo="None", status_format="Guild{fill}{demo}{fill}{elapsed}"
 )
 
 init_counter = ui.new_counter(
@@ -124,12 +134,15 @@ if SWAP_IGNORE and not IGNORE_GUILD:
     sys.exit(1)
 
 if SWAP_IGNORE:
-    logger.warning("SWAP_IGNORE is True. Guilds specified in IGNORE_GUILD or in the script arg will be whitelisted " +
-                   "instead of blacklisted.")
+    logger.warning(
+        "SWAP_IGNORE is True. Guilds specified in IGNORE_GUILD or in the script arg will be whitelisted "
+        + "instead of blacklisted."
+    )
 
 
 class Bot(commands.Bot):
     """Inherits the commands.Bot class and adds a close method"""
+
     def __init__(self, *kargs, **kwargs):
         super().__init__(*kargs, **kwargs)
         # what am i doing with my life
