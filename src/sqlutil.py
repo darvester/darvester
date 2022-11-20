@@ -14,14 +14,17 @@ dbfile = DB_NAME
 
 class SQLiteNoSQL:
     """Structured database for storing and retrieving data."""
+
     @staticmethod
     def _check_for_missing_cols(cur: sqlite3.Cursor, table: str, cols: list):
         logger.debug("Checking %s for missing columns...", table)
         old_cols = [i[1] for i in cur.execute(f'PRAGMA table_info("{table}")').fetchall()]
         for new_col in cols:
             if new_col not in old_cols:
-                logger.debug("Found column not in database. Altering table %s, adding %s...", table, new_col)
-                cur.execute('ALTER TABLE {} ADD COLUMN {} text'.format(table, new_col))
+                logger.debug(
+                    "Found column not in database. Altering table %s, adding %s...", table, new_col
+                )
+                cur.execute("ALTER TABLE {} ADD COLUMN {} text".format(table, new_col))
 
     def __init__(self, f: str = dbfile):
         """
@@ -47,7 +50,7 @@ class SQLiteNoSQL:
             "first_seen",
             "premium",
             "premium_since",
-            "banner"
+            "banner",
         ]
         self._guilds_cols = [
             "name",
@@ -178,6 +181,7 @@ class SQLiteNoSQL:
         :return: None
         :rtype: None
         """
+
         def _generate_values(_data: dict) -> list:
             """
             Generate a list of sanitized values for the database.
@@ -188,10 +192,7 @@ class SQLiteNoSQL:
             :rtype: list
             """
             return [
-                str(_data[key])
-                .replace('"', "'")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
+                str(_data[key]).replace('"', "'").replace("\n", "\\n").replace("\r", "\\r")
                 if _data[key] is not None or _data[key] != ""
                 else '"None"'
                 for key in _data
@@ -223,9 +224,7 @@ class SQLiteNoSQL:
 
         _query = "INSERT or REPLACE INTO {} (id, data, {}) VALUES ({}, ?, {})".format(
             table,
-            ", ".join(
-                [key for key in data.keys() if key in self._users_cols + self._guilds_cols]
-            ),
+            ", ".join([key for key in data.keys() if key in self._users_cols + self._guilds_cols]),
             item_id,
             ", ".join(["?" for _ in _values]),  # noqa
         )
@@ -259,7 +258,7 @@ class SQLiteNoSQL:
                 _d: dict = json.loads(data[0])
             except (json.decoder.JSONDecodeError, IndexError):
                 for item in data:
-                    _d1: dict = json.loads(item)
+                    _d: dict = json.loads(item)
             except TypeError:
                 pass
             if _d and query in _d.keys():
