@@ -16,7 +16,7 @@ GitPython==3.1.29
 idna==3.4
 jinxed==1.2.0
 multidict==6.0.2
-prefixed==0.4.2
+prefixed==0.5.0
 pycares==4.2.2
 pycparser==2.21
 pypresence==4.2.1
