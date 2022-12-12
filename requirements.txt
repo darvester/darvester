@@ -17,7 +17,7 @@ idna==3.4
 jinxed==1.2.0
 multidict==6.0.2
 prefixed==0.5.0
-pycares==4.2.2
+pycares==4.3.0
 pycparser==2.21
 pypresence==4.2.1
 six==1.16.0
