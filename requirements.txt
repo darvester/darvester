@@ -15,7 +15,7 @@ gitdb==4.0.9
 GitPython==3.1.29
 idna==3.4
 jinxed==1.2.0
-multidict==6.0.2
+multidict==6.0.3
 prefixed==0.5.0
 pycares==4.3.0
 pycparser==2.21
