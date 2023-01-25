@@ -1,0 +1,37 @@
+name: darvester
+description: Powerful Discord OSINT Toolkit
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=2.18.6 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  go_router: ^6.0.1
+  sqflite:
+  shared_preferences:
+  file_picker: ^5.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+  fonts:
+    - family: Unbounded
+      fonts:
+        - asset: fonts/Unbounded-Regular.ttf
+    - family: UnboundedLight
+      fonts:
+        - asset: fonts/Unbounded-Light.ttf
+    - family: UnboundedBold
+      fonts:
+        - asset: fonts/Unbounded-Bold.ttf
+
+  uses-material-design: true
