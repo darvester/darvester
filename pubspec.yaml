@@ -33,5 +33,7 @@ flutter:
     - family: UnboundedBold
       fonts:
         - asset: fonts/Unbounded-Bold.ttf
+  assets:
+    - images/default_avatar.png
 
   uses-material-design: true

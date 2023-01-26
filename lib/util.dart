@@ -29,21 +29,30 @@ class Preferences {
 }
 
 class DarvesterDB {
-  Database? db;
+  late Database db;
   String path;
 
   DarvesterDB(this.path);
 
-  Future<void> openDB(String? path, {bool tryToForce = false}) async {
-    // Database safety:
-    // Check if it isn't already an instance of a Database
-    if (db is !Database && db == null) {
-      // Create an instance of a new Database with is-null safety
-      db ??= await openDatabase(path ?? this.path);
-    // else try to force a Database close and assign a new instance
-    } else if (db is Database && tryToForce) {
-      await db?.close();
-      db = await openDatabase(path ?? this.path);
+  Future<Database> openDB(String? path, {bool tryToForce = false}) async {
+    if (tryToForce) {
+      await db.close();
     }
+    db = await openDatabase(path ?? this.path);
+    return db;
+  }
+
+  Future<List<Map>> getGuilds({int limit = 50, int offset = 0, List<String> columns = const ["data"]}) async {
+    await openDB(path);
+    String limitStr = limit > 0 ? " LIMIT $limit " : "";
+    String offsetStr = offset > 0 ? " OFFSET $offset " : "";
+    List<Map> guilds = await db.rawQuery('SELECT ${columns.join(", ")}, id FROM guilds $limitStr $offsetStr');
+    return guilds;
+  }
+
+  Future<Map> getGuild(int id, {List<String> columns = const ["data"]}) async {
+    await openDB(path);
+    List<Map> guild = await db.rawQuery('SELECT ${columns.join(", ")}, id FROM guilds WHERE id = ?', [id,]);
+    return guild[0];
   }
 }
