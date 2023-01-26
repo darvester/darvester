@@ -12,7 +12,7 @@ class Preferences {
     prefsInstance.setBool(key, value);
   }
 
-  setString(String key, String value, bool isSecret) async {
+  setString(String key, String value, {bool isSecret = false}) async {
     SharedPreferences prefsInstance = await SharedPreferences.getInstance();
     prefsInstance.setString(key, isSecret ? base64.encode(utf8.encode(value)) : value);
   }

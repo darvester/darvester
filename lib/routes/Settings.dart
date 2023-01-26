@@ -1,10 +1,12 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
 // Util
 import '../util.dart';
+
+// Components
+import '../components/Snackbars.dart';
 
 class _Settings extends StatefulWidget {
   const _Settings({Key? key}) : super(key: key);
@@ -13,6 +15,9 @@ class _Settings extends StatefulWidget {
   State<_Settings> createState() => _SettingsState();
 }
 
+/// Contains the state and methods available to modify the state of settings
+///
+/// - [Map] [prefs]: contains a key-value pair for each preference entry needed
 class _SettingsState extends State<_Settings> {
   Map prefs = {};
 
@@ -22,6 +27,11 @@ class _SettingsState extends State<_Settings> {
     _loadPrefs();
   }
 
+  /// Loads needed settings entries into the state. This is usually only needed
+  /// on first load of the widget.
+  /// Will first build a local [Map] of keys and values that we need to populate
+  /// the settings page with, getting the values from the [Preferences] store,
+  /// then will update the state with this [Map].
   Future<void> _loadPrefs() async {
     Map _prefs = {
       "databasePath": await Preferences.instance.getString("databasePath"),
@@ -31,8 +41,11 @@ class _SettingsState extends State<_Settings> {
     });
   }
 
+  /// Sets a key and value in the state's [prefs].
   Future<String> setKey(String key, String value) async {
-    Map _prefs = prefs..addAll({key: value});
+    Map _prefs = prefs;
+    _prefs.update(key, (_) => value, ifAbsent: () => value);
+    await Preferences.instance.setString(key, value);
     setState(() {
       prefs = _prefs;
     });
@@ -78,14 +91,32 @@ class _SettingsState extends State<_Settings> {
                           style: TextStyle(
                               fontFamily: "UnboundedBold", fontSize: 24),
                         ),
+                        Text(
+                            (prefs["databasePath"] == null || prefs["databasePath"].toString().isEmpty)
+                                ? "Not set" : prefs["databasePath"],
+                          style: const TextStyle(
+                            fontFamily: "Courier",
+                          )
+                        ),
                         ElevatedButton(
                           onPressed: () {
                             FilePicker.platform.pickFiles(
                               type: FileType.custom,
                               allowedExtensions: <String>["db"],
                               dialogTitle: "Pick your harvested.db"
-                            ).then((pathToDB) => {
-                                prefs["databasePath"] = pathToDB?.files.single.path ?? ""
+                            ).then((pathToDB) {
+                              if ((pathToDB?.files.single.path ?? "").isEmpty) {
+                                showSnackbar(context, ErrorsSnackbars.genericError("Path to database cannot be empty"));
+                              } else {
+                                setKey("databasePath", pathToDB?.files.single.path ?? "")
+                                  .then((_) => showSnackbar(context, SettingsSnackbars.settingSaved("databasePath")))
+                                  .catchError((err) {
+                                    showSnackbar(context, ErrorsSnackbars.genericError(kDebugMode
+                                        ? "Could not save database setting"
+                                        : "Could not save database setting: $err"
+                                    ));
+                                });
+                              }
                             });
                           },
                           child: const Icon(Icons.folder)
