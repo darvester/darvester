@@ -6,6 +6,33 @@ import '../routes/Settings.dart';
 class MainDrawer extends StatelessWidget {
   const MainDrawer({Key? key}) : super(key: key);
 
+  static bool checkLocation(BuildContext context, String route) {
+    return GoRouter.of(context).location == route;
+  }
+
+  static const List<Map> menuItems = [
+    {
+      "icon": Icons.home,
+      "title": 'Home',
+      "route": '/',
+    },
+    {
+      "icon": Icons.explore,
+      "title": 'Guilds',
+      "route": '/guilds',
+    },
+    {
+      "icon": Icons.person,
+      "title": 'Users',
+      "route": '/users',
+    },
+    {
+      "icon": Icons.storage,
+      "title": 'Manager',
+      "route": '/manager',
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -24,32 +51,17 @@ class MainDrawer extends StatelessWidget {
                       )
                   ),
               ),
-              ListTile(
-                leading: const Icon(Icons.home),
-                title: const Text('Home'),
+              ...menuItems.map((e) => ListTile(
+                leading: Icon(e["icon"]),
+                title: Text(e["title"]),
                 onTap: () {
-                  if (GoRouter.of(context).location != "/") {
-                    context.go('/');
-                  } else {
+                  if (checkLocation(context, e["route"])) {
                     context.pop();
+                  } else {
+                    context.go(e["route"]);
                   }
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.explore),
-                title: const Text('Guilds'),
-                onTap: () => context.go('/guilds'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text('Users'),
-                onTap: () => context.go('/users'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.storage),
-                title: const Text('Manager'),
-                onTap: () => context.go('/manager')
-              ),
+                }
+              )).toList(),
               ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text('Settings'),
