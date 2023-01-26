@@ -128,6 +128,21 @@ class _SettingsState extends State<_Settings> {
                         )
                       ],
                     ),
+                    const SizedBox(height: 36),
+                    if (kDebugMode) Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                            onPressed: () {
+                              Preferences.instance.setString("databasePath", "").then((_) {
+                                setKey("databasePath", "");
+                                showSnackbar(context, SettingsSnackbars.settingSaved("databasePath"));
+                              });
+                            },
+                            child: const Text("Reset Database Path")
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
