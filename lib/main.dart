@@ -1,15 +1,15 @@
 // Component packages
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:window_size/window_size.dart';
 
 // Routes
 import 'routes/Home.dart';
 import 'routes/Guilds.dart';
 import 'routes/Users.dart';
 import 'routes/Manager.dart';
-
-// Components
-// import 'components/MainDrawer.dart';
 
 final _router = GoRouter(
   routes: <RouteBase>[
@@ -48,6 +48,12 @@ final _router = GoRouter(
 );
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    setWindowTitle('Darvester');
+    setWindowMinSize(const Size(800, 600));
+    setWindowMaxSize(Size.infinite);
+  }
   runApp(const Darvester());
 }
 
