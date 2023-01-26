@@ -29,7 +29,21 @@ class Preferences {
 }
 
 class DarvesterDB {
-  late Database db;
+  Database? db;
+  String path;
 
-  void openDB(String path) {}
+  DarvesterDB(this.path);
+
+  Future<void> openDB(String? path, {bool tryToForce = false}) async {
+    // Database safety:
+    // Check if it isn't already an instance of a Database
+    if (db is !Database && db == null) {
+      // Create an instance of a new Database with is-null safety
+      db ??= await openDatabase(path ?? this.path);
+    // else try to force a Database close and assign a new instance
+    } else if (db is Database && tryToForce) {
+      await db?.close();
+      db = await openDatabase(path ?? this.path);
+    }
+  }
 }
