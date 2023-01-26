@@ -86,18 +86,23 @@ class _SettingsState extends State<_Settings> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          "Database",
+                          "Database:",
                           textAlign: TextAlign.left,
                           style: TextStyle(
                               fontFamily: "UnboundedBold", fontSize: 24),
                         ),
-                        Text(
-                            (prefs["databasePath"] == null || prefs["databasePath"].toString().isEmpty)
-                                ? "Not set" : prefs["databasePath"],
+                        const SizedBox(width: 36),
+                        Expanded(child: Text(
+                          (prefs["databasePath"] == null || prefs["databasePath"].toString().isEmpty)
+                              ? "Not set" : prefs["databasePath"],
                           style: const TextStyle(
                             fontFamily: "Courier",
-                          )
-                        ),
+                          ),
+                          overflow: TextOverflow.fade,
+                          maxLines: 1,
+                          softWrap: false,
+                        )),
+                        const SizedBox(width: 36),
                         ElevatedButton(
                           onPressed: () {
                             FilePicker.platform.pickFiles(
