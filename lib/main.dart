@@ -58,7 +58,11 @@ Future<void> main() async {
     setWindowMaxSize(Size.infinite);
   }
   String databasePath = await Preferences.instance.getString("databasePath");
-  await DarvesterDB.instance.openDB(databasePath);
+  try {
+    await DarvesterDB.instance.openDB(databasePath);
+  } catch (e) {
+    // emit warning
+  }
   runApp(const Darvester());
 }
 

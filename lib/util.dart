@@ -51,7 +51,9 @@ class DarvesterDB {
   }
 
   Future<Map> getGuild(int id, {List<String> columns = const ["data"]}) async {
-    List<Map> guild = await db.rawQuery('SELECT ${columns.join(", ")}, id FROM guilds WHERE id = ?', [id,]);
+    List<Map> guild = await db.rawQuery('SELECT ${columns.join(", ")}, id FROM guilds WHERE id = ?', [
+      id,
+    ]);
     return guild[0];
   }
 }

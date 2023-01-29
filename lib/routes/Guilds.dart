@@ -18,12 +18,40 @@ class Guilds extends StatefulWidget {
 }
 
 class _GuildsState extends State<Guilds> {
-  DarvesterDB? db;
   bool isLoading = true;
   List<Map> guilds = [];
 
   void listGuilds() {
     guilds.clear();
+    Preferences.instance.getString("databasePath").then((value) {
+      if (value.isNotEmpty) {
+        DarvesterDB.instance.getGuilds(columns: ["name", "icon"]).then((guilds) {
+          for (var guild in guilds) {
+            precacheImage(NetworkImage(guild["icon"]), context);
+          }
+          setState(() {
+            this.guilds.addAll(guilds);
+          });
+        });
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext builder) {
+            return AlertDialog(
+              title: const Text("Database path empty"),
+              content: const Text("Database path is not set. Please set in Settings"),
+              actions: <Widget>[
+                TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
+                TextButton(
+                    onPressed: () =>
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())),
+                    child: const Text("Take me there")),
+              ],
+            );
+          },
+        );
+      }
+    });
   }
 
   @override
@@ -55,110 +83,99 @@ class _GuildsState extends State<Guilds> {
                 ],
               ),
               child: Container(
-                  padding: const EdgeInsets.only(left: 24, right: 24),
-                  height: double.infinity,
-                  width: double.infinity,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Showing ${guilds.length} guilds",
-                            style: const TextStyle(
-                              fontFamily: "UnboundedLight",
-                            ),
+                padding: const EdgeInsets.only(left: 24, right: 24),
+                height: double.infinity,
+                width: double.infinity,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Showing ${guilds.length} guilds",
+                          style: const TextStyle(
+                            fontFamily: "UnboundedLight",
                           ),
-                        ],
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          IconButton(
-                              onPressed: () => listGuilds(),
-                              icon: const Icon(Icons.refresh),
-                          ),
-                        ],
-                      )
-                    ],
-                  )),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          onPressed: () => listGuilds(),
+                          icon: const Icon(Icons.refresh),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           Expanded(
             flex: 9,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 36, left: 36, right: 36),
-              child: GridView.count(
-                crossAxisCount:
-                    MediaQuery.of(context).size.width > 1000 ? 6 : 4,
-                mainAxisSpacing: 36,
-                crossAxisSpacing: 36,
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: guilds.map((e) {
-                  return TextButton(
-                    style: const ButtonStyle(
-                      padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(
-                          EdgeInsets.all(0)),
-                      foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.white),
-                      overlayColor:
-                          MaterialStatePropertyAll<Color>(Color(0x00000000)),
-                    ),
-                    onPressed: () {
-                      // TODO: context.push to /guild:id
-                    },
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(48),
-                      child: Stack(
-                        children: [
-                          DecoratedBox(
-                            decoration: const BoxDecoration(
-                              color: Color(0xff222222),
-                            ),
-                            child: Center(
-                              child: Opacity(
-                                opacity: 0.3,
-                                child: FadeInImage(
-                                  fit: BoxFit.fitWidth,
-                                  placeholder: const AssetImage(
-                                      'images/default_avatar.png'),
-                                  imageErrorBuilder:
-                                      (context, error, stackTrace) {
-                                    return const Image(
-                                      image: AssetImage(
-                                          'images/default_avatar.png'),
-                                      fit: BoxFit.fitWidth,
-                                    );
-                                  },
-                                  image: NetworkImage(e["icon"]),
-                                ),
+            child: GridView.count(
+              padding: const EdgeInsets.all(36),
+              crossAxisCount: MediaQuery.of(context).size.width > 1000 ? 6 : 4,
+              mainAxisSpacing: 24,
+              crossAxisSpacing: 24,
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: guilds.map((e) {
+                return TextButton(
+                  style: const ButtonStyle(
+                    padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
+                    foregroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+                    overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
+                  ),
+                  onPressed: () {
+                    // TODO: context.push to /guild:id
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(48),
+                    child: Stack(
+                      children: [
+                        DecoratedBox(
+                          decoration: const BoxDecoration(
+                            color: Color(0xff222222),
+                          ),
+                          child: Center(
+                            child: Opacity(
+                              opacity: 0.3,
+                              child: FadeInImage(
+                                fit: BoxFit.fill,
+                                placeholder: const AssetImage('images/default_avatar.png'),
+                                imageErrorBuilder: (context, error, stackTrace) {
+                                  return const Image(
+                                    image: AssetImage('images/default_avatar.png'),
+                                    fit: BoxFit.fitWidth,
+                                  );
+                                },
+                                image: NetworkImage(e["icon"]),
                               ),
                             ),
                           ),
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                e["name"],
-                                style: TextStyle(
-                                  fontSize:
-                                      MediaQuery.of(context).size.width > 1000
-                                          ? 24
-                                          : 16,
-                                ),
-                                textAlign: TextAlign.center,
+                        ),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              e["name"],
+                              style: TextStyle(
+                                fontSize: MediaQuery.of(context).size.width > 1000 ? 24 : 16,
                               ),
+                              textAlign: TextAlign.center,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                );
+              }).toList(),
             ),
           ),
         ],

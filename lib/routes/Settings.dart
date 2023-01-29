@@ -92,9 +92,12 @@ class _SettingsState extends State<_Settings> {
                               fontFamily: "UnboundedBold", fontSize: 24),
                         ),
                         const SizedBox(width: 36),
-                        Expanded(child: Text(
-                          (prefs["databasePath"] == null || prefs["databasePath"].toString().isEmpty)
-                              ? "Not set" : prefs["databasePath"],
+                        Expanded(
+                            child: Text(
+                          (prefs["databasePath"] == null ||
+                                  prefs["databasePath"].toString().isEmpty)
+                              ? "Not set"
+                              : prefs["databasePath"],
                           style: const TextStyle(
                             fontFamily: "Courier",
                           ),
@@ -104,45 +107,62 @@ class _SettingsState extends State<_Settings> {
                         )),
                         const SizedBox(width: 36),
                         ElevatedButton(
-                          onPressed: () {
-                            FilePicker.platform.pickFiles(
-                              type: FileType.custom,
-                              allowedExtensions: <String>["db"],
-                              dialogTitle: "Pick your harvested.db"
-                            ).then((pathToDB) {
-                              if ((pathToDB?.files.single.path ?? "").isEmpty) {
-                                showSnackbar(context, ErrorsSnackbars.genericError("Path to database cannot be empty"));
-                              } else {
-                                setKey("databasePath", pathToDB?.files.single.path ?? "")
-                                  .then((_) => showSnackbar(context, SettingsSnackbars.settingSaved("databasePath")))
-                                  .catchError((err) {
-                                    showSnackbar(context, ErrorsSnackbars.genericError(kDebugMode
-                                        ? "Could not save database setting"
-                                        : "Could not save database setting: $err"
-                                    ));
-                                });
-                              }
-                            });
-                          },
-                          child: const Icon(Icons.folder)
-                        )
+                            onPressed: () {
+                              FilePicker.platform
+                                  .pickFiles(
+                                      type: FileType.custom,
+                                      allowedExtensions: <String>["db"],
+                                      dialogTitle: "Pick your harvested.db")
+                                  .then((pathToDB) {
+                                if ((pathToDB?.files.single.path ?? "")
+                                    .isEmpty) {
+                                  showSnackbar(
+                                      context,
+                                      ErrorsSnackbars.genericError(
+                                          "Path to database cannot be empty"));
+                                } else {
+                                  setKey("databasePath",
+                                          pathToDB?.files.single.path ?? "")
+                                      .then((_) {
+                                    DarvesterDB.instance.openDB(
+                                        pathToDB?.files.single.path ?? "");
+                                    showSnackbar(
+                                        context,
+                                        SettingsSnackbars.settingSaved(
+                                            "databasePath"));
+                                  }).catchError((err) {
+                                    showSnackbar(
+                                        context,
+                                        ErrorsSnackbars.genericError(kDebugMode
+                                            ? "Could not save database setting"
+                                            : "Could not save database setting: $err"));
+                                  });
+                                }
+                              });
+                            },
+                            child: const Icon(Icons.folder))
                       ],
                     ),
                     const SizedBox(height: 36),
-                    if (kDebugMode) Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        ElevatedButton(
-                            onPressed: () {
-                              Preferences.instance.setString("databasePath", "").then((_) {
-                                setKey("databasePath", "");
-                                showSnackbar(context, SettingsSnackbars.settingSaved("databasePath"));
-                              });
-                            },
-                            child: const Text("Reset Database Path")
-                        ),
-                      ],
-                    ),
+                    if (kDebugMode)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton(
+                              onPressed: () {
+                                Preferences.instance
+                                    .setString("databasePath", "")
+                                    .then((_) {
+                                  setKey("databasePath", "");
+                                  showSnackbar(
+                                      context,
+                                      SettingsSnackbars.settingSaved(
+                                          "databasePath"));
+                                });
+                              },
+                              child: const Text("Reset Database Path")),
+                        ],
+                      ),
                   ],
                 ),
               ),
