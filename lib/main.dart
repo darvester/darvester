@@ -11,6 +11,9 @@ import 'routes/Guilds.dart';
 import 'routes/Users.dart';
 import 'routes/Manager.dart';
 
+// Util
+import 'util.dart';
+
 final _router = GoRouter(
   routes: <RouteBase>[
     GoRoute(
@@ -47,13 +50,15 @@ final _router = GoRouter(
   initialLocation: '/',
 );
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     setWindowTitle('Darvester');
     setWindowMinSize(const Size(800, 600));
     setWindowMaxSize(Size.infinite);
   }
+  String databasePath = await Preferences.instance.getString("databasePath");
+  await DarvesterDB.instance.openDB(databasePath);
   runApp(const Darvester());
 }
 

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,43 +22,14 @@ class _GuildsState extends State<Guilds> {
   bool isLoading = true;
   List<Map> guilds = [];
 
+  void listGuilds() {
+    guilds.clear();
+  }
+
   @override
   void initState() {
     super.initState();
-    Preferences.instance.getString("databasePath").then((value) {
-      if (value.isNotEmpty) {
-        db = DarvesterDB(value);
-        db?.getGuilds(columns: ["name", "icon"]).then((guilds) {
-          for (var guild in guilds) {
-            precacheImage(NetworkImage(guild["icon"]), context);
-          }
-          setState(() {
-            this.guilds.addAll(guilds);
-          });
-        });
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext builder) {
-            return AlertDialog(
-              title: const Text("Database path empty"),
-              content: const Text(
-                  "Database path is not set. Please set in Settings"),
-              actions: <Widget>[
-                TextButton(
-                    onPressed: () => context.go("/"),
-                    child: const Text("Go back")),
-                TextButton(
-                    onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (context) => const Settings())),
-                    child: const Text("Take me there")),
-              ],
-            );
-          },
-        );
-      }
-    });
+    listGuilds();
   }
 
   @override
@@ -85,36 +55,60 @@ class _GuildsState extends State<Guilds> {
                 ],
               ),
               child: Container(
-                padding: const EdgeInsets.only(left: 24, right: 24),
-                height: double.infinity,
-                width: double.infinity,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [Text("Showing ${guilds.length} guilds")],
-                ),
-              ),
+                  padding: const EdgeInsets.only(left: 24, right: 24),
+                  height: double.infinity,
+                  width: double.infinity,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Showing ${guilds.length} guilds",
+                            style: const TextStyle(
+                              fontFamily: "UnboundedLight",
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          IconButton(
+                              onPressed: () => listGuilds(),
+                              icon: const Icon(Icons.refresh),
+                          ),
+                        ],
+                      )
+                    ],
+                  )),
             ),
           ),
           Expanded(
             flex: 9,
             child: Padding(
-              padding: const EdgeInsets.only(top: 36),
+              padding: const EdgeInsets.only(top: 36, left: 36, right: 36),
               child: GridView.count(
                 crossAxisCount:
-                    MediaQuery.of(context).size.width > 1000 ? 6 : 3,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
+                    MediaQuery.of(context).size.width > 1000 ? 6 : 4,
+                mainAxisSpacing: 36,
+                crossAxisSpacing: 36,
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: guilds.map((e) {
                   return TextButton(
                     style: const ButtonStyle(
-                      padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
-                      foregroundColor: MaterialStatePropertyAll<Color>(Colors.white),
-                      overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
+                      padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(
+                          EdgeInsets.all(0)),
+                      foregroundColor:
+                          MaterialStatePropertyAll<Color>(Colors.white),
+                      overlayColor:
+                          MaterialStatePropertyAll<Color>(Color(0x00000000)),
                     ),
                     onPressed: () {
-                      print("hi");
+                      // TODO: context.push to /guild:id
                     },
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(48),
@@ -122,7 +116,7 @@ class _GuildsState extends State<Guilds> {
                         children: [
                           DecoratedBox(
                             decoration: const BoxDecoration(
-                                color: Color(0xff222222),
+                              color: Color(0xff222222),
                             ),
                             child: Center(
                               child: Opacity(
@@ -134,8 +128,8 @@ class _GuildsState extends State<Guilds> {
                                   imageErrorBuilder:
                                       (context, error, stackTrace) {
                                     return const Image(
-                                      image:
-                                          AssetImage('images/default_avatar.png'),
+                                      image: AssetImage(
+                                          'images/default_avatar.png'),
                                       fit: BoxFit.fitWidth,
                                     );
                                   },
@@ -149,8 +143,11 @@ class _GuildsState extends State<Guilds> {
                               padding: const EdgeInsets.all(16.0),
                               child: Text(
                                 e["name"],
-                                style: const TextStyle(
-                                  fontSize: 24,
+                                style: TextStyle(
+                                  fontSize:
+                                      MediaQuery.of(context).size.width > 1000
+                                          ? 24
+                                          : 16,
                                 ),
                                 textAlign: TextAlign.center,
                               ),

@@ -30,20 +30,20 @@ class Preferences {
 
 class DarvesterDB {
   late Database db;
-  String path;
 
-  DarvesterDB(this.path);
+  DarvesterDB._privateConstructor();
 
-  Future<Database> openDB(String? path, {bool tryToForce = false}) async {
+  static final DarvesterDB instance = DarvesterDB._privateConstructor();
+
+  Future<Database> openDB(String path, {bool tryToForce = false}) async {
     if (tryToForce) {
       await db.close();
     }
-    db = await openDatabase(path ?? this.path);
+    db = await openDatabase(path, version: 1);
     return db;
   }
 
   Future<List<Map>> getGuilds({int limit = 50, int offset = 0, List<String> columns = const ["data"]}) async {
-    await openDB(path);
     String limitStr = limit > 0 ? " LIMIT $limit " : "";
     String offsetStr = offset > 0 ? " OFFSET $offset " : "";
     List<Map> guilds = await db.rawQuery('SELECT ${columns.join(", ")}, id FROM guilds $limitStr $offsetStr');
@@ -51,7 +51,6 @@ class DarvesterDB {
   }
 
   Future<Map> getGuild(int id, {List<String> columns = const ["data"]}) async {
-    await openDB(path);
     List<Map> guild = await db.rawQuery('SELECT ${columns.join(", ")}, id FROM guilds WHERE id = ?', [id,]);
     return guild[0];
   }
