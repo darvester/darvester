@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import sys
 import time
 from datetime import datetime
 from itertools import islice
@@ -589,3 +590,4 @@ class Harvester:
         else:
             self.db.close()
         logger.info("Bye!")
+        sys.exit()
