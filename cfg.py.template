@@ -39,7 +39,7 @@ ID_WHITELIST = []
 
 # The amount of time that must pass before we harvest this user again
 # in seconds
-LAST_SCANNED_INTERVAL = 600
+LAST_SCANNED_INTERVAL = 3600
 
 # Default log level. Debug options override this
 LOG_LEVEL = WARNING
