@@ -240,9 +240,9 @@ class Harvester:
                     _g_desc = guild.description if not QUIET_MODE else '"quiet mode"'
 
                     term_status.update(
-                        demo=f"Harvesting {_g_name}" + f" with {len(guild.members)} members"
+                        demo=f"Harvesting {_g_name} with {len(guild.members)} members"
                     )
-                    guild_status.update(demo=f"Name: {_g_name}" + f" | Description: {_g_desc}")
+                    guild_status.update(demo=f"Name: {_g_name} | Description: {_g_desc}")
 
                     if guild.unavailable:
                         logger.warning(
@@ -562,10 +562,17 @@ class Harvester:
                 # Clear the id array so we can recheck everything
                 self._id_array = set()
 
-        except discord.errors.HTTPException:
+        except discord.errors.CaptchaRequired:
             logger.critical(
-                "HTTP 429 returned. You may have been temp banned! \
-Try again later (may take a couple hours or as long as a day)",
+                "CaptchaRequired error hit. Please report this at https://github.com/darvester/darvester/issues",
+                exc_info=DEBUG
+            )
+            self.close()
+        except discord.errors.HTTPException as e:
+            logger.critical(
+                "HTTP 429 returned. You may have been temp banned. "
+                "Try again later (may take a couple hours or as long as a day)"
+                if int(e.status) == 429 else f"{e.status}: {e.text}",
                 exc_info=DEBUG,
             )
             self.close()
