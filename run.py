@@ -17,6 +17,7 @@ try:
         IGNORE_GUILD,
         QUIET_MODE,
         SWAP_IGNORE,
+        USE_DISCOVERY,
     )
 except ImportError as e:
     raise ImportError(
@@ -137,6 +138,12 @@ if SWAP_IGNORE:
     logger.warning(
         "SWAP_IGNORE is True. Guilds specified in IGNORE_GUILD or in the script arg will be whitelisted "
         + "instead of blacklisted."
+    )
+
+if USE_DISCOVERY:
+    logger.warning(
+        "USE_DISCOVERY: Warning! It is unadvisable to enable this feature as fetching members from a server takes a "
+        "long time. As most servers on Discover are pretty large, Darvester may slow down tremendously."
     )
 
 

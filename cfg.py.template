@@ -10,7 +10,9 @@ IGNORE_GUILD = []
 # Guilds in IGNORE_GUILD will now *only* be harvested and not ignored
 SWAP_IGNORE = False
 
-# If True, Darvester will request guilds from the Guild Discovery tab and join/lurk them to harvest
+# If True, Darvester will request guilds from the Guild Discovery tab and join/lurk them to harvest.
+# Warning! It is unadvisable to enable this feature as fetching members from a server takes a long time.
+# As most servers on Discover are pretty large, your Darvester will slow down tremendously.
 USE_DISCOVERY = False
 
 # Enable debug messages
