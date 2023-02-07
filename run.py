@@ -64,6 +64,7 @@ import asyncio  # noqa: ignore = E402
 
 import discord  # noqa: ignore = E402
 from discord.ext import commands  # noqa: ignore = E402
+from discord.utils import MISSING  # noqa: ignore = E402
 
 from cfg import DEBUG_DISCORD  # noqa: ignore = E402
 from cfg import DISABLE_VCS  # noqa: ignore = E402
@@ -157,8 +158,27 @@ class Bot(commands.Bot):
     async def close(self):
         """Overrides the default close method to allow for graceful shutdown"""
         harvester.close()
-        await super().close()
+        if self._closed:
+            return
 
+        self._closed = True
+
+        for voice in self.voice_clients:
+            try:
+                await voice.disconnect(force=True)
+            except Exception:  # noqa
+                # If an error happens during disconnects, disregard it
+                pass
+
+        if self.ws is not None and self.ws.open:
+            await self.ws.close(code=1000)
+
+        await self.http.close()
+
+        if self._ready is not MISSING:
+            self._ready.clear()
+
+        self.loop = MISSING
 
 # Setup bot client
 set_title("Darvester - Connecting")

@@ -590,4 +590,3 @@ class Harvester:
         else:
             self.db.close()
         logger.info("Bye!")
-        sys.exit()
