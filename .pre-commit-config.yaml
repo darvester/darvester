@@ -25,7 +25,7 @@ repos:
     - id: check-merge-conflict
       name: Merge Conflicts
   - repo: https://github.com/psf/black
-    rev: 21.12b0
+    rev: 22.3.0
     hooks:
     - id: black
       name: Black Formatting
@@ -47,4 +47,4 @@ repos:
         name: isort Formatting
         language: python
         types: [file, python]
-        args: [--skip=env]
+        args: [--skip=env, --profile=black]

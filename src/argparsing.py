@@ -31,8 +31,8 @@ def _parse_args():
         "-s",
         "--swap-ignore",
         action="store_true",
-        help="Swap the functionality of the IGNORE_GUILD (--ignore-guild) list. With this flag set, the list will " +
-             "become a whitelist instead of a blacklist, and will only harvest guilds specified inside the list."
+        help="Swap the functionality of the IGNORE_GUILD (--ignore-guild) list. With this flag set, the list will "
+        + "become a whitelist instead of a blacklist, and will only harvest guilds specified inside the list.",
     )
     argparser.add_argument(
         "-v", "--debug", help="Enable verbose debug messages.", action="store_true"

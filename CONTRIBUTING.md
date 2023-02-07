@@ -20,7 +20,7 @@ Generation 2 of Darvester will, from now on, will be the focus of Darvester's de
 > ```
 
 #### Layout
-Gen2 is an Electron/React.js application, you will find a (mostly) conventional folder structure.  
+Gen2 is an Electron/React.js application, you will find a (mostly) conventional folder structure.
 
 `public/src/:`
 > - This folder contains the Electron IPC API. providing config, process, and utility calls such as getConfigKey, createPythonVenv, and more.

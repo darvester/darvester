@@ -1,13 +1,25 @@
 import asyncio
+import base64
+import sys
 import time
 from datetime import datetime
 from itertools import islice
 
+import aiohttp
 import discord
 import enlighten
 from discord.ext.commands import Bot
 
-from cfg import DISABLE_VCS, IGNORE_GUILD, LAST_SCANNED_INTERVAL, QUIET_MODE, DEBUG, SWAP_IGNORE
+from cfg import (
+    DEBUG,
+    DISABLE_VCS,
+    IGNORE_GUILD,
+    LAST_SCANNED_INTERVAL,
+    QUIET_MODE,
+    SWAP_IGNORE,
+    TOKEN,
+    USE_DISCOVERY,
+)
 from src import logutil, ui
 from src.gitutil import GitUtil
 from src.presence import BotStatus, RichPresence
@@ -23,6 +35,11 @@ if not DISABLE_VCS:
 logger = logutil.initLogger("harvester")
 quiet_msg = "(quiet mode enabled)"
 
+if DEBUG:
+    from pprint import pprint
+else:
+    pprint = logger.debug
+
 
 class Harvester:
     """Main class for bot"""
@@ -33,8 +50,60 @@ class Harvester:
         # Setup database
         self.db = SQLiteNoSQL("harvested.db")
         self.cur = self.db.cursor
+        self.user_agent: str = ""
         if not DISABLE_VCS:
             self._repo = git.init_repo()
+
+    async def grab_discoverable_guilds(self, offset: int = 0, limit: int = 10):
+        logger.debug(
+            "Grabbing guilds from Discover tab with offset {} and limit {}...".format(offset, limit)
+        )
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "https://discord.com/api/v9/discoverable-guilds?offset={}&limit={}".format(
+                    offset, limit
+                ),
+                headers={
+                    "authority": "discord.com",
+                    "authorization": TOKEN,
+                    "referer": "https://discord.com/guild-discovery",
+                    "user-agent": self.user_agent,
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-origin",
+                    "x-discord-locale": "en-US",
+                    "x-super-properties": str(
+                        base64.b64encode(
+                            bytes(
+                                str(
+                                    {
+                                        "os": "Mac OS X",
+                                        "browser": "Discord Client",
+                                        "release_channel": "stable",
+                                        "client_version": "0.0.269",
+                                        "os_version": "21.6.0",
+                                        "os_arch": "x64",
+                                        "system_locale": "en-US",
+                                        "client_build_number": 159692,
+                                        "client_event_source": None,
+                                    }
+                                ),
+                                encoding="utf-8",
+                            )
+                        )
+                    ),
+                },
+            ) as resp:
+                if not resp.ok:
+                    logger.debug(
+                        f"grab_discoverable_guilds failed with status {resp.status},"
+                        + f' reason "{resp.reason}".'
+                    )
+                    return None
+                res = await resp.json()
+                logger.debug(f"Got {len(res['guilds'])} guilds from Discover:")
+                pprint(res)
+                return res
 
     async def thread_start(self, client: Bot):
         """The main entry method for the harvester"""
@@ -49,6 +118,7 @@ class Harvester:
         logger.info("Logged in as %s", client.user.name if not QUIET_MODE else "user")
 
         await BotStatus.update(client=client, state="Preparing")
+        self.user_agent = client.http.user_agent
 
         try:
             while True:
@@ -56,6 +126,44 @@ class Harvester:
                 _request_number = 0  # For our rate limiting
                 # Store all guilds bot/user is in
                 _list_of_guilds = [guild.id for guild in client.guilds]
+                _discovered_guilds = []
+
+                if USE_DISCOVERY:
+                    _d_guilds: dict = await self.grab_discoverable_guilds()
+                    if not _d_guilds:
+                        logger.warning(
+                            "Could not grab guilds from Discover tab. Check debug for more details"
+                        )
+                    else:
+                        _d_guild: dict
+                        for _d_guild in _d_guilds.get("guilds", []):
+                            if _d_guild["id"] not in _list_of_guilds:
+                                try:
+                                    client.guilds.append(await client.join_guild(_d_guild["id"], lurking=True))
+                                    _discovered_guilds.append(_d_guild["id"])
+                                    _list_of_guilds.append(_d_guild["id"])
+                                    logger.info("Joined guild from Discover: " + _d_guild["name"])
+                                    await asyncio.sleep(1)
+                                except discord.NotFound:
+                                    logger.error(
+                                        f"Error joining guild {_d_guild['name']} from Discover, guild does "
+                                        "not exist or has disabled discovery"
+                                    )
+                                except discord.HTTPException as e:
+                                    if (
+                                        e.status == 400
+                                        and "Maximum number of server members reached" in e.text
+                                    ):
+                                        logger.error(
+                                            f"Error joining guild {_d_guild['name']} from Discover, server "
+                                            "is full"
+                                        )
+                                        continue
+                                    else:
+                                        raise e from e
+                            else:
+                                logger.info(f"Skipping {_d_guild['name']} as already joined...")
+
                 guild_counter = ui.new_counter(
                     name="guild",
                     total=len(_list_of_guilds),
@@ -69,7 +177,9 @@ class Harvester:
                     if guildidx >= len(_list_of_guilds):
                         guild_counter.clear()
 
-                    if (guildid in IGNORE_GUILD and not SWAP_IGNORE) or (guildid not in IGNORE_GUILD and SWAP_IGNORE):
+                    if (guildid in IGNORE_GUILD and not SWAP_IGNORE) or (
+                        guildid not in IGNORE_GUILD and SWAP_IGNORE
+                    ):
                         logger.warning(
                             "Guild %s ignored. Skipping...",
                             guildid if not QUIET_MODE else "Guild ignored. Skipping...",
@@ -81,10 +191,11 @@ class Harvester:
                     _should_ignore_guild: bool = False
                     for ignored_guild in IGNORE_GUILD:
                         if isinstance(ignored_guild, str):
-                            if (ignored_guild.lower() in guild.name.lower() and not SWAP_IGNORE) or \
-                                    (ignored_guild.lower() not in guild.name.lower() and SWAP_IGNORE):
+                            if (
+                                ignored_guild.lower() in guild.name.lower() and not SWAP_IGNORE
+                            ) or (ignored_guild.lower() not in guild.name.lower() and SWAP_IGNORE):
                                 logger.warning(
-                                    "Guild \"%s\" ignored. Skipping...",
+                                    'Guild "%s" ignored. Skipping...',
                                     guild.name if not QUIET_MODE else "Guild ignored. Skipping...",
                                 )
                                 _should_ignore_guild = True
@@ -130,9 +241,9 @@ class Harvester:
                     _g_desc = guild.description if not QUIET_MODE else '"quiet mode"'
 
                     term_status.update(
-                        demo=f"Harvesting {_g_name}" + f" with {len(guild.members)} members"
+                        demo=f"Harvesting {_g_name} with {len(guild.members)} members"
                     )
-                    guild_status.update(demo=f"Name: {_g_name}" + f" | Description: {_g_desc}")
+                    guild_status.update(demo=f"Name: {_g_name} | Description: {_g_desc}")
 
                     if guild.unavailable:
                         logger.warning(
@@ -180,9 +291,7 @@ class Harvester:
                         "premium_tier": guild.premium_tier,
                     }
 
-                    logger.debug(
-                        'GUILD: Inserting guild "%s" = "%s"', guild.id, guild_data["name"]
-                    )
+                    logger.debug('GUILD: Inserting guild "%s" = "%s"', guild.id, guild_data["name"])
 
                     self.db.addrow(guild_data, guild.id, "guilds")
                     _request_number += 1
@@ -331,9 +440,12 @@ class Harvester:
                                 "activities": _activities_modeled,
                                 "status": str(member.status),
                                 "premium": str("True" if _profile_object.premium else "False"),
-                                "premium_since": str(int(_profile_object.premium_since.timestamp())
-                                                     if _profile_object.premium_since else None),
-                                "banner": str(_profile_object.banner)
+                                "premium_since": str(
+                                    int(_profile_object.premium_since.timestamp())
+                                    if _profile_object.premium_since
+                                    else None
+                                ),
+                                "banner": str(_profile_object.banner),
                             }
 
                             logger.debug(
@@ -451,10 +563,17 @@ class Harvester:
                 # Clear the id array so we can recheck everything
                 self._id_array = set()
 
-        except discord.errors.HTTPException:
+        except discord.errors.CaptchaRequired:
             logger.critical(
-                "HTTP 429 returned. You may have been temp banned! \
-Try again later (may take a couple hours or as long as a day)",
+                "CaptchaRequired error hit. Please report this at https://github.com/darvester/darvester/issues",
+                exc_info=DEBUG
+            )
+            self.close()
+        except discord.errors.HTTPException as e:
+            logger.critical(
+                "HTTP 429 returned. You may have been temp banned. "
+                "Try again later (may take a couple hours or as long as a day)"
+                if int(e.status) == 429 else f"{e.status}: {e.text}",
                 exc_info=DEBUG,
             )
             self.close()

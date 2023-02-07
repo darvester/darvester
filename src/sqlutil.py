@@ -14,14 +14,17 @@ dbfile = DB_NAME
 
 class SQLiteNoSQL:
     """Structured database for storing and retrieving data."""
+
     @staticmethod
     def _check_for_missing_cols(cur: sqlite3.Cursor, table: str, cols: list):
         logger.debug("Checking %s for missing columns...", table)
         old_cols = [i[1] for i in cur.execute(f'PRAGMA table_info("{table}")').fetchall()]
         for new_col in cols:
             if new_col not in old_cols:
-                logger.debug("Found column not in database. Altering table %s, adding %s...", table, new_col)
-                cur.execute('ALTER TABLE {} ADD COLUMN {} text'.format(table, new_col))
+                logger.debug(
+                    "Found column not in database. Altering table %s, adding %s...", table, new_col
+                )
+                cur.execute("ALTER TABLE {} ADD COLUMN {} text".format(table, new_col))
 
     def __init__(self, f: str = dbfile):
         """
@@ -47,7 +50,7 @@ class SQLiteNoSQL:
             "first_seen",
             "premium",
             "premium_since",
-            "banner"
+            "banner",
         ]
         self._guilds_cols = [
             "name",
@@ -178,6 +181,7 @@ class SQLiteNoSQL:
         :return: None
         :rtype: None
         """
+
         def _generate_values(_data: dict) -> list:
             """
             Generate a list of sanitized values for the database.
@@ -189,24 +193,22 @@ class SQLiteNoSQL:
             """
             return [
                 str(_data[key])
-                .replace('"', "'")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                if _data[key] is not None or _data[key] != ""
-                else '"None"'
+                if type(_data[key]) not in [set, dict, list] else json.dumps(_data[key])
+                # let json serialize instead of str __repr__
+                if isinstance(_data[key], str) and _data[key] != "" else None
+                # replace empty string with null
                 for key in _data
                 if key in self._users_cols + self._guilds_cols and key not in ["id", "data"]
             ]
 
         self.open(self.dbfile)
-        query = f"SELECT data FROM {table} WHERE id = '{item_id}';"
-        logger.debug(query)
-        self.cur.execute(query)
+        query = f"SELECT data FROM {table} WHERE id = ?;"
+        self.cur.execute(query, (item_id, ))
         row: tuple = self.cur.fetchone()
 
         if row is None or (row[0:1] or (None,))[0] is None:
             logger.debug(
-                "Adding new row to table %s with id %s at %s.",
+                "    Adding new row to table %s with id %s at %s.",
                 table,
                 item_id,
                 str(int(time.time())),
@@ -214,7 +216,7 @@ class SQLiteNoSQL:
             data["first_seen"] = int(time.time())
         else:
             try:
-                logger.debug("%s ;;; %s", data, row)
+                logger.debug("    RETURN: %s ;;; %s", data, row)
                 data["first_seen"] = int(json.loads(row[0])["first_seen"])
             except (KeyError, IndexError):
                 data["first_seen"] = int(time.time())
@@ -223,14 +225,12 @@ class SQLiteNoSQL:
 
         _query = "INSERT or REPLACE INTO {} (id, data, {}) VALUES ({}, ?, {})".format(
             table,
-            ", ".join(
-                [key for key in data.keys() if key in self._users_cols + self._guilds_cols]
-            ),
+            ", ".join([key for key in data.keys() if key in self._users_cols + self._guilds_cols]),
             item_id,
             ", ".join(["?" for _ in _values]),  # noqa
         )
 
-        logger.debug("%s, %s", _query, (json.dumps(data),) + tuple(_values))
+        logger.debug("    INSERT: %s, %s", _query, (json.dumps(data),) + tuple(_values))
         self.db.execute(_query, (json.dumps(data),) + tuple(_values))
         self.commit()
 
@@ -259,7 +259,7 @@ class SQLiteNoSQL:
                 _d: dict = json.loads(data[0])
             except (json.decoder.JSONDecodeError, IndexError):
                 for item in data:
-                    _d1: dict = json.loads(item)
+                    _d: dict = json.loads(item)
             except TypeError:
                 pass
             if _d and query in _d.keys():
