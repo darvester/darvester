@@ -139,7 +139,7 @@ class Harvester:
                         for _d_guild in _d_guilds.get("guilds", []):
                             if _d_guild["id"] not in _list_of_guilds:
                                 try:
-                                    client.guilds.append(await client.join_guild(_d_guild["id"]))
+                                    client.guilds.append(await client.join_guild(_d_guild["id"], lurking=True))
                                     _discovered_guilds.append(_d_guild["id"])
                                     _list_of_guilds.append(_d_guild["id"])
                                     logger.info("Joined guild from Discover: " + _d_guild["name"])
