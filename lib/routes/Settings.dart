@@ -63,15 +63,12 @@ class _SettingsState extends State<_Settings> {
         Expanded(
           flex: 6,
           child: Container(
-            margin: const EdgeInsets.all(36),
+            margin: const EdgeInsets.all(24),
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: const Color(0xff333333),
                 boxShadow: const <BoxShadow>[
-                  BoxShadow(
-                      color: Color(0x66000000),
-                      offset: Offset(6, 6),
-                      blurRadius: 6),
+                  BoxShadow(color: Color(0x66000000), offset: Offset(6, 6), blurRadius: 6),
                 ],
                 border: Border.all(
                   width: 0,
@@ -88,14 +85,12 @@ class _SettingsState extends State<_Settings> {
                         const Text(
                           "Database:",
                           textAlign: TextAlign.left,
-                          style: TextStyle(
-                              fontFamily: "UnboundedBold", fontSize: 24),
+                          style: TextStyle(fontFamily: "UnboundedBold", fontSize: 24),
                         ),
                         const SizedBox(width: 36),
                         Expanded(
                             child: Text(
-                          (prefs["databasePath"] == null ||
-                                  prefs["databasePath"].toString().isEmpty)
+                          (prefs["databasePath"] == null || prefs["databasePath"].toString().isEmpty)
                               ? "Not set"
                               : prefs["databasePath"],
                           style: const TextStyle(
@@ -114,22 +109,13 @@ class _SettingsState extends State<_Settings> {
                                       allowedExtensions: <String>["db"],
                                       dialogTitle: "Pick your harvested.db")
                                   .then((pathToDB) {
-                                if ((pathToDB?.files.single.path ?? "")
-                                    .isEmpty) {
+                                if ((pathToDB?.files.single.path ?? "").isEmpty) {
                                   showSnackbar(
-                                      context,
-                                      ErrorsSnackbars.genericError(
-                                          "Path to database cannot be empty"));
+                                      context, ErrorsSnackbars.genericError("Path to database cannot be empty"));
                                 } else {
-                                  setKey("databasePath",
-                                          pathToDB?.files.single.path ?? "")
-                                      .then((_) {
-                                    DarvesterDB.instance.openDB(
-                                        pathToDB?.files.single.path ?? "");
-                                    showSnackbar(
-                                        context,
-                                        SettingsSnackbars.settingSaved(
-                                            "databasePath"));
+                                  setKey("databasePath", pathToDB?.files.single.path ?? "").then((_) {
+                                    DarvesterDB.instance.openDB(pathToDB?.files.single.path ?? "", context, tryToForce: true);
+                                    showSnackbar(context, SettingsSnackbars.settingSaved("databasePath"));
                                   }).catchError((err) {
                                     showSnackbar(
                                         context,
@@ -150,14 +136,9 @@ class _SettingsState extends State<_Settings> {
                         children: [
                           ElevatedButton(
                               onPressed: () {
-                                Preferences.instance
-                                    .setString("databasePath", "")
-                                    .then((_) {
+                                Preferences.instance.setString("databasePath", "").then((_) {
                                   setKey("databasePath", "");
-                                  showSnackbar(
-                                      context,
-                                      SettingsSnackbars.settingSaved(
-                                          "databasePath"));
+                                  showSnackbar(context, SettingsSnackbars.settingSaved("databasePath"));
                                 });
                               },
                               child: const Text("Reset Database Path")),

@@ -11,9 +11,6 @@ import 'routes/Guilds.dart';
 import 'routes/Users.dart';
 import 'routes/Manager.dart';
 
-// Util
-import 'util.dart';
-
 final _router = GoRouter(
   routes: <RouteBase>[
     GoRoute(
@@ -23,13 +20,6 @@ final _router = GoRouter(
     GoRoute(
       path: '/guilds',
       builder: (BuildContext context, GoRouterState state) => const Guilds(),
-      routes: <RouteBase>[
-        GoRoute(
-          path: ':id',
-          // TODO: Guild.dart
-          builder: (BuildContext context, GoRouterState state) => const Placeholder(),
-        )
-      ]
     ),
     GoRoute(
       path: '/users',
@@ -50,18 +40,12 @@ final _router = GoRouter(
   initialLocation: '/',
 );
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     setWindowTitle('Darvester');
     setWindowMinSize(const Size(800, 600));
     setWindowMaxSize(Size.infinite);
-  }
-  String databasePath = await Preferences.instance.getString("databasePath");
-  try {
-    await DarvesterDB.instance.openDB(databasePath);
-  } catch (e) {
-    // emit warning
   }
   runApp(const Darvester());
 }
