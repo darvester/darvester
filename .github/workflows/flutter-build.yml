@@ -36,4 +36,4 @@ jobs:
      - uses: actions/upload-artifact@v3
        with:
          name: Darvester_macos
-         path: ${{ GITHUB_WORKSPACE }}/build/macos/Build/Products/Debug/darvester.app/
+         path: ${GITHUB_WORKSPACE}/build/macos/Build/Products/Debug/darvester.app/
