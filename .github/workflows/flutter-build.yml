@@ -32,8 +32,8 @@ jobs:
          architecture: x64
      - run: flutter config --enable-macos-desktop
      - run: flutter build macos
-     - run: ls -a 
+     - run: ls -a build/macos/
      - uses: actions/upload-artifact@v3
        with:
          name: Darvester_macos
-         path: ${GITHUB_WORKSPACE}/build/macos/Build/Products/Debug/darvester.app/
+         path: build/macos/Build/Products/Release/darvester.app/
