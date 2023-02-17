@@ -30,7 +30,7 @@ jobs:
      - uses: actions/upload-artifact@v3
        with:
          name: darvester_linux_release
-         path: build/linux/release/bundle/
+         path: build/linux/Release/
 
  build-macos:
    runs-on: macos-latest
