@@ -40,7 +40,16 @@ final _router = GoRouter(
   initialLocation: '/',
 );
 
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..maxConnectionsPerHost = 5;
+  }
+}
+
 void main() {
+  HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     setWindowTitle('Darvester');
