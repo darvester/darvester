@@ -10,5 +10,6 @@
 ---
 ### PoC Discord user and guild information harvester
 
-# The Second Generation of Darvester is in development on this branch
-### Please stand by! Follow the progress on the [Github Project board](https://github.com/orgs/darvester/projects/1)
+# Development has halted for the Node.js/Electron branch. Check out `gen2-flutter` instead which is built on Flutter
+
+Follow the progress on the [Github Project board](https://github.com/orgs/darvester/projects/1)
