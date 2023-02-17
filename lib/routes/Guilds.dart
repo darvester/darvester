@@ -20,8 +20,9 @@ class Guilds extends StatefulWidget {
 
 class _GuildsState extends State<Guilds> {
   List<Map> guilds = [];
+  bool isLoading = true;
 
-  void listGuilds() {
+  Future listGuilds() async {
     guilds.clear();
     Preferences.instance.getString("databasePath").then((value) {
       if (value.isNotEmpty) {
@@ -32,8 +33,12 @@ class _GuildsState extends State<Guilds> {
             }
             setState(() {
               this.guilds.addAll(guilds);
+              isLoading = false;
             });
           } else {
+            setState(() {
+              isLoading = false;
+            });
             showDialog(
               context: context,
               builder: (BuildContext builder) {
@@ -54,6 +59,9 @@ class _GuildsState extends State<Guilds> {
           }
         });
       } else {
+        setState(() {
+          isLoading = false;
+        });
         showDialog(
           context: context,
           builder: (BuildContext builder) {
@@ -87,7 +95,13 @@ class _GuildsState extends State<Guilds> {
         title: const Text('Guilds'),
       ),
       drawer: const MainDrawer(),
-      body: Column(
+      body: isLoading ? const SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: Center(
+            child: CircularProgressIndicator()
+          )
+      ) : Column(
         children: [
           Expanded(
             flex: 1,
