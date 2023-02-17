@@ -3,6 +3,8 @@ import "package:lazy_load_scrollview/lazy_load_scrollview.dart";
 
 import '../util.dart';
 
+Logger logger = Logger(name: "GuildUsers");
+
 class GuildUsers extends StatefulWidget {
   final String guildID;
   const GuildUsers({Key? key, required this.guildID}) : super(key: key);
@@ -14,26 +16,32 @@ class GuildUsers extends StatefulWidget {
 class _GuildUsersState extends State<GuildUsers> {
   List<Map> members = [];
   int membersOffset = 0;
+  bool reachedEnd = false;
+  static const int limit = 40;
 
   void loadMoreMembers() {
-    DarvesterDB.instance.getGuildMembers(
-        widget.guildID,
-        context,
-        offset: membersOffset
-    ).then((r) {
-      setState(() {
-        if (r != null) {
-          members.addAll(r);
-          membersOffset += 20;
+    if (reachedEnd) {
+      logger.debug("End of guild members reached, not getting more");
+      return;
+    }
+    logger.debug("Trying to load another 40 (offset $membersOffset) more members for ${widget.guildID}...");
+    DarvesterDB.instance.getGuildMembers(widget.guildID, context, limit: limit, offset: membersOffset).then((r) {
+      if (r != null) {
+        if (r.isNotEmpty) {
+          setState(() {
+            members.addAll(r);
+          });
+          membersOffset += limit;
+        } else {
+          reachedEnd = true;
         }
-      });
+      }
     });
   }
 
   @override
   void initState() {
     super.initState();
-
     loadMoreMembers();
   }
 
@@ -46,72 +54,79 @@ class _GuildUsersState extends State<GuildUsers> {
           color: const Color(0x55333333),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: (members.isEmpty) ? const Center(
-          child: CircularProgressIndicator(),
-        ) : LazyLoadScrollView(
-          onEndOfPage: () { loadMoreMembers(); },
-          child: GridView.count(
-            padding: const EdgeInsets.all(36),
-            crossAxisCount: MediaQuery.of(context).size.width > 1000 ? 7 : 4,
-            physics: const AlwaysScrollableScrollPhysics(), // alt: [ClampingScrollPhysics]
-            mainAxisSpacing: 24,
-            crossAxisSpacing: 24,
-            children: members.map((member) {
-              return TextButton(
-                style: const ButtonStyle(
-                  padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
-                  foregroundColor: MaterialStatePropertyAll<Color>(Colors.white),
-                  overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
-                ),
-                onPressed: () {
-                  // Navigator.of(context)
-                  //     .push(MaterialPageRoute(builder: (context) => Guild(guildid: e["id"].toString())));
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(180),
-                  child: Stack(
-                    children: [
-                      DecoratedBox(
-                        decoration: const BoxDecoration(
-                          color: Color(0xff222222),
-                        ),
-                        child: Center(
-                          child: Opacity(
-                            opacity: 0.3,
-                            child: FadeInImage(
-                              fit: BoxFit.fill,
-                              placeholder: const AssetImage('images/default_avatar.png'),
-                              imageErrorBuilder: (context, error, stackTrace) {
-                                return const Image(
-                                  image: AssetImage('images/default_avatar.png'),
-                                  fit: BoxFit.fitWidth,
-                                );
-                              },
-                              image: assetOrNetwork(member["avatar_url"]),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            member["name"],
-                            style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.width > 1000 ? 8 : 12,
-                            ),
-                            textAlign: TextAlign.center,
-                            textScaleFactor: ScaleSize.textScaleFactor(context),
-                          ),
-                        ),
-                      ),
-                    ],
+        child: (members.isEmpty)
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : LazyLoadScrollView(
+                onEndOfPage: () => loadMoreMembers(),
+                child: GridView.builder(
+                  itemCount: members.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: MediaQuery.of(context).size.width > 1000 ? 7 : 4,
+                    mainAxisSpacing: 24,
+                    crossAxisSpacing: 24,
                   ),
+                  padding: const EdgeInsets.all(36),
+                  physics: const AlwaysScrollableScrollPhysics(), // alt: [ClampingScrollPhysics]
+                  itemBuilder: (BuildContext context, idx) {
+                    Map member = members[idx];
+                    return TextButton(
+                      style: const ButtonStyle(
+                        padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
+                        foregroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+                        overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
+                      ),
+                      onPressed: () {
+                        // Navigator.of(context)
+                        //     .push(MaterialPageRoute(builder: (context) => Guild(guildid: e["id"].toString())));
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(180),
+                        child: Stack(
+                          children: [
+                            DecoratedBox(
+                              decoration: const BoxDecoration(
+                                color: Color(0xff222222),
+                              ),
+                              child: Center(
+                                child: Opacity(
+                                  opacity: 0.3,
+                                  child: FadeInImage(
+                                    fit: BoxFit.fill,
+                                    placeholder: const AssetImage('images/default_avatar.png'),
+                                    imageErrorBuilder: (context, error, stackTrace) {
+                                      return const Image(
+                                        image: AssetImage('images/default_avatar.png'),
+                                        fit: BoxFit.fitWidth,
+                                      );
+                                    },
+                                    image: assetOrNetwork(member["avatar_url"]),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(
+                                  "${member["name"]}\u200b#${member["discriminator"]}",
+                                  style: TextStyle(
+                                    fontSize: MediaQuery.of(context).size.width > 1000 ? 8 : 12,
+                                    color: const Color(0xaaffffff),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  textScaleFactor: ScaleSize.textScaleFactor(context),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            }).toList(),
-          ),
-        ),
+              ),
       ),
     );
   }
