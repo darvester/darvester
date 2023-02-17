@@ -9,6 +9,10 @@ import 'package:go_router/go_router.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart';
+
+// Consts
+NumberFormat enNumFormat = NumberFormat.decimalPattern('en_us');
 
 // UDFs
 bool checkInvalidImage(String? uri) {
@@ -27,6 +31,7 @@ ImageProvider assetOrNetwork(String? uri, {String? fallbackUri}) {
   }
 }
 
+/* TODO: replace instances of showDialog with this */
 showAlertDialog(BuildContext context, String title, String content) {
   showDialog(
       context: context,
@@ -135,7 +140,8 @@ class DarvesterDB {
     db = await openDB(await Preferences.instance.getString("databasePath"), context);
     String limitStr = limit > 0 ? " LIMIT $limit " : "";
     String offsetStr = offset > 0 ? " OFFSET $offset " : "";
-    List<Map>? guilds = await db?.rawQuery('SELECT ${columns.join(", ")}, id FROM guilds $limitStr $offsetStr');
+    List<Map>? guilds = await db
+        ?.rawQuery('SELECT ${columns.join(", ")}, id FROM guilds ORDER BY LOWER(name) ASC $limitStr $offsetStr');
     logger.debug("Found ${guilds?.length ?? 0} guilds:");
     logger.debug(guilds.toString());
     return guilds;
@@ -159,21 +165,29 @@ class DarvesterDB {
   }
 
   Future<List<Map>?> getGuildMembers(
-      String id,
-      BuildContext context,
-      {
-        List<String> columns = const ["data"],
-        String sortBy = "asc",
-        int limit = 20,
-        int offset = 0,
-      }) async {
+    String id,
+    BuildContext context, {
+    List<String> columns = const ["data"],
+    String sortBy = "asc",
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    db = await openDB(await Preferences.instance.getString("databasePath"), context);
     if (!["asc", "desc"].contains(sortBy)) sortBy = "asc";
     sortBy = sortBy.toUpperCase();
 
     logger.debug("Grabbing members for guild $id...");
-    List<Map>? members = await db?.rawQuery('SELECT data, id FROM users WHERE data LIKE "%$id%" ORDER BY name $sortBy LIMIT $limit OFFSET $offset');
+    List<Map>? members = await db?.query(
+      "users",
+      columns: ["data", "id"],
+      where: "data LIKE '%$id%'",
+      orderBy: "LOWER(name) $sortBy",
+      limit: limit,
+      offset: offset,
+    );
     List<Map> newMembers = [];
 
+    /* TODO: Fix this piece of crap try catch loop */
     try {
       if (members != null || (members?.isNotEmpty ?? false)) {
         logger.debug("Got ${members?.length ?? 0} members for guild $id");
@@ -192,9 +206,66 @@ class DarvesterDB {
       }
     } catch (_) {
       return [];
-    }
+    } // this try catch loop is rabies
 
     return newMembers;
+  }
+
+  Future<List<Map>?> getUsers(
+    BuildContext context, {
+    List<String> columns = const ["data", "id"],
+    String sortBy = "asc",
+    String sortColumn = "name",
+    String? searchTerm,
+    int limit = 40,
+    int offset = 0,
+  }) async {
+    db = await openDB(await Preferences.instance.getString("databasePath"), context);
+    if (!["asc", "desc"].contains(sortBy)) sortBy = "asc";
+    sortBy = sortBy.toUpperCase();
+
+    List<Map>? users = await db?.query(
+      "users",
+      columns: columns,
+      where: "LOWER(data) LIKE \"%?%\"",
+      whereArgs: [searchTerm],
+      orderBy: "$sortColumn $sortBy",
+      limit: limit,
+      offset: offset,
+    );
+    List<Map> newUsers = [];
+
+    try {
+      if (users != null || (users?.isNotEmpty ?? false)) {
+        logger.debug("Got ${users?.length ?? 0} users");
+        users?.asMap().forEach((idx, user) {
+          // logger.debug("Got user ${user['id']}: ${user['data']}");
+          try {
+            newUsers.add({
+              ...user,
+              'data': jsonDecode(user["data"]),
+            });
+          } catch (_) {
+            logger.error("Could not parse user ${user["id"]}: $_");
+          }
+        });
+        return newUsers;
+      } else {
+        return [];
+      }
+    } catch (_) {
+      logger.error("Exception occurred trying to fetch users");
+      return [];
+    }
+  }
+
+  Future<int> getUsersCount({String? searchTerm}) async {
+    String whereQuery = "";
+    if (searchTerm != null) {
+      whereQuery = "WHERE data LIKE \"%$searchTerm%\"";
+    }
+    List<Map>? count = await db?.rawQuery("SELECT COUNT(1) FROM users $whereQuery");
+    return count?[0]["COUNT(1)"] ?? 0;
   }
 }
 
