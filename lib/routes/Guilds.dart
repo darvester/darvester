@@ -154,7 +154,7 @@ class _GuildsState extends State<Guilds> {
             flex: 9,
             child: GridView.count(
               padding: const EdgeInsets.all(36),
-              crossAxisCount: MediaQuery.of(context).size.width > 1000 ? 6 : 4,
+              crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 7 : 4,
               mainAxisSpacing: 24,
               crossAxisSpacing: 24,
               physics: const AlwaysScrollableScrollPhysics(),
@@ -167,7 +167,7 @@ class _GuildsState extends State<Guilds> {
                   ),
                   onPressed: () {
                     Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (context) => Guild(guildid: e["id"].toString())));
+                        .push(MaterialPageRoute(builder: (context) => Guild(guildID: e["id"].toString())));
                   },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(48),
@@ -181,7 +181,8 @@ class _GuildsState extends State<Guilds> {
                             child: Opacity(
                               opacity: 0.3,
                               child: FadeInImage(
-                                fit: BoxFit.fill,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
                                 placeholder: const AssetImage('images/default_avatar.png'),
                                 imageErrorBuilder: (context, error, stackTrace) {
                                   return const Image(
