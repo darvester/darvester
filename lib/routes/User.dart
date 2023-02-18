@@ -120,6 +120,8 @@ class _UserState extends State<User> {
   Map user = {};
   bool isLoading = true;
 
+  int tabIndex = 0;
+
   double bodyOpacity = 0;
   double headerOpacity = 0;
 
@@ -335,10 +337,15 @@ class _UserState extends State<User> {
                           child: Column(
                             children: [
                               Row(
-                                children: const [
+                                children: [
                                   Expanded(
                                     child: TabBar(
-                                      tabs: <Widget>[Tab(text: "User Info"), Tab(text: "Last Activities")],
+                                      onTap: (index) {
+                                        setState(() {
+                                          tabIndex = index;
+                                        });
+                                      },
+                                      tabs: const <Widget>[Tab(text: "User Info"), Tab(text: "Last Activities")],
                                     ),
                                   ),
                                 ],
@@ -346,19 +353,16 @@ class _UserState extends State<User> {
                               Expanded(
                                 flex: 1,
                                 child: SingleChildScrollView(
-                                  child: ConstrainedBox(
-                                    constraints: const BoxConstraints(
-                                      maxWidth: 1000,
-                                      maxHeight: 1000,
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: TabBarView(children: <Widget>[
-                                        UserInfo(user: user),
-                                        const Text("Last Activities"),
-                                      ]),
-                                    ),
-                                  ),
+                                  child: Builder(
+                                    builder: (_) {
+                                      return AnimatedCrossFade(
+                                        firstChild: UserInfo(user: user),
+                                        secondChild: const Placeholder(),
+                                        crossFadeState: tabIndex == 0 ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                                        duration: const Duration(milliseconds: 300),
+                                      );
+                                    }
+                                  )
                                 ),
                               ),
                             ],
