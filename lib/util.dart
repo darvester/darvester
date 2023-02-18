@@ -15,7 +15,8 @@ import 'package:intl/intl.dart';
 NumberFormat enNumFormat = NumberFormat.decimalPattern('en_us');
 
 // UDFs
-bool checkInvalidImage(String? uri) {
+/// Returns true if the image URL is valid
+bool checkValidImage(String? uri) {
   return uri?.contains("http") ?? false;
 }
 
@@ -24,7 +25,7 @@ DateTime timestampToDateTime(int timestamp) {
 }
 
 ImageProvider assetOrNetwork(String? uri, {String? fallbackUri}) {
-  if (checkInvalidImage(uri) && uri != null) {
+  if (checkValidImage(uri) && uri != null) {
     return CachedNetworkImageProvider(uri);
   } else {
     return AssetImage(fallbackUri ?? "images/default_avatar.png");
@@ -191,12 +192,13 @@ class DarvesterDB {
     try {
       if (members != null || (members?.isNotEmpty ?? false)) {
         logger.debug("Got ${members?.length ?? 0} members for guild $id");
-        for (var member in members!) {
+        for (var e in members!) {
           try {
-            member = jsonDecode(member["data"]);
-            newMembers.add(member);
+            Map member;
+            member = jsonDecode(e["data"]);
+            newMembers.add({...member, "id": e["id"]});
           } catch (_) {
-            logger.warning("Could not parse member ${member['id']}");
+            logger.warning("Could not parse member ${e['id']}");
             continue;
           }
         }
@@ -266,6 +268,26 @@ class DarvesterDB {
     }
     List<Map>? count = await db?.rawQuery("SELECT COUNT(1) FROM users $whereQuery");
     return count?[0]["COUNT(1)"] ?? 0;
+  }
+
+  Future<Map?> getUser(String id, BuildContext context, {List<String> columns = const ["data"]}) async {
+    logger.debug("Looking up user: (id=$id, columns=$columns)");
+    db = await openDB(await Preferences.instance.getString("databasePath"), context);
+    List<Map>? user = await db?.query(
+      "users",
+      columns: columns,
+      where: "id = ?",
+      whereArgs: [id],
+    );
+    if (user != null) {
+      logger.debug("Found user $id:");
+      logger.debug(user[0].toString());
+    } else {
+      logger.warning("User $id not found");
+      return null;
+    }
+
+    return user[0];
   }
 }
 
