@@ -21,6 +21,10 @@ dependencies:
   intl:
   lazy_load_scrollview:
   cached_network_image:
+  flutter_markdown:
+  markdown:
+  url_launcher:
+  font_awesome_flutter:
 
 dev_dependencies:
   flutter_test:
