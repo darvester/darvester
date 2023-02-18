@@ -7,6 +7,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:intl/intl.dart';
 import 'package:markdown/markdown.dart' show ExtensionSet;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // Util
 import '../util.dart';
@@ -25,6 +26,327 @@ const TextStyle headerStyle = TextStyle(
 String? getNitroTier() {
   // TODO: implement nitro tier helper func
   return null;
+}
+
+class UserConnection extends StatelessWidget {
+  final Map connection;
+  const UserConnection({Key? key, required this.connection}) : super(key: key);
+
+  String? getUrl() {
+    switch (connection["type"][0].toString().toLowerCase()) {
+      case "reddit":
+        return "https://reddit.com/u/${connection["name"]}";
+      case "spotify":
+        return "https://open.spotify.com/user/${connection["id"]}";
+      // case "steam":
+      //   return "https://steamcommunity.com/id/${connection["id"]}";
+      case "twitch":
+        return "https://twitch.tv/${connection["name"]}";
+      case "twitter":
+        return "https://twitter.com/${connection["name"]}";
+      case "youtube":
+        return "https://youtube.com/channel/${connection["id"]}";
+      case "instagram":
+        return "https://instagram.com/${connection["name"]}";
+      case "tiktok":
+        return "https://tiktok.com/@${connection["name"]}";
+      case "github":
+        return "https://github.com/${connection["name"]}";
+      default:
+        return null;
+    }
+  }
+
+  Widget getIcon(String type) {
+    switch (type.toLowerCase()) {
+      case "battlenet":
+        return const Tooltip(
+          message: "Battle.net",
+          child: FaIcon(
+            FontAwesomeIcons.gamepad,
+            size: 14,
+          ),
+        );
+      case "battle_net":
+        return const Tooltip(
+          message: "Battle.net",
+          child: FaIcon(
+            FontAwesomeIcons.gamepad,
+            size: 14,
+          ),
+        );
+      case "ebay":
+        return const Tooltip(
+          message: "eBay",
+          child: FaIcon(
+            FontAwesomeIcons.ebay,
+            size: 14,
+          ),
+        );
+      case "epicgames":
+        return const Tooltip(
+          message: "Epic Games",
+          child: FaIcon(
+            FontAwesomeIcons.gamepad,
+            size: 14,
+          ),
+        );
+      case "facebook":
+        return const Tooltip(
+          message: "Facebook",
+          child: FaIcon(
+            FontAwesomeIcons.facebook,
+            size: 14,
+          ),
+        );
+      case "github":
+        return const Tooltip(
+          message: "GitHub",
+          child: FaIcon(
+            FontAwesomeIcons.github,
+            size: 14,
+          ),
+        );
+      case "instagram":
+        return const Tooltip(
+          message: "Instagram",
+          child: FaIcon(
+            FontAwesomeIcons.instagram,
+            size: 14,
+          ),
+        );
+      case "leagueoflegends":
+        return const Tooltip(
+          message: "League of Legends",
+          child: FaIcon(
+            FontAwesomeIcons.gamepad,
+            size: 14,
+          ),
+        );
+      case "paypal":
+        return const Tooltip(
+          message: "PayPal",
+          child: FaIcon(
+            FontAwesomeIcons.paypal,
+            size: 14,
+          ),
+        );
+      case "playstation":
+        return const Tooltip(
+          message: "PlayStation Network",
+          child: FaIcon(
+            FontAwesomeIcons.playstation,
+            size: 14,
+          ),
+        );
+      case "reddit":
+        return const Tooltip(
+          message: "Reddit",
+          child: FaIcon(
+            FontAwesomeIcons.reddit,
+            size: 14,
+          ),
+        );
+      case "riotgames":
+        return const Tooltip(
+          message: "Riot Games",
+          child: FaIcon(
+            FontAwesomeIcons.gamepad,
+            size: 14,
+          ),
+        );
+      case "spotify":
+        return const Tooltip(
+          message: "Spotify",
+          child: FaIcon(
+            FontAwesomeIcons.spotify,
+            size: 14,
+            color: Color(0xff44ff44),
+          ),
+        );
+      case "skype":
+        return const Tooltip(
+          message: "Skype",
+          child: FaIcon(
+            FontAwesomeIcons.skype,
+            size: 14,
+          ),
+        );
+      case "steam":
+        return const Tooltip(
+          message: "Steam",
+          child: FaIcon(
+            FontAwesomeIcons.steam,
+            size: 14,
+            color: Color(0xff394a8d),
+          ),
+        );
+      case "tiktok":
+        return const Tooltip(
+          message: "TikTok",
+          child: FaIcon(
+            FontAwesomeIcons.tiktok,
+            size: 14,
+          ),
+        );
+      case "twitch":
+        return const Tooltip(
+          message: "Twitch",
+          child: FaIcon(
+            FontAwesomeIcons.twitch,
+            size: 14,
+            color: Color(0xff6441a5),
+          ),
+        );
+      case "twitter":
+        return const Tooltip(
+          message: "Twitter",
+          child: FaIcon(
+            FontAwesomeIcons.twitter,
+            size: 14,
+          ),
+        );
+      case "xbox":
+        return const Tooltip(
+          message: "Xbox",
+          child: FaIcon(
+            FontAwesomeIcons.xbox,
+            size: 14,
+            color: Color(0xff00aa00),
+          ),
+        );
+      case "youtube":
+        return const Tooltip(
+          message: "YouTube",
+          child: FaIcon(
+            FontAwesomeIcons.youtube,
+            size: 14,
+            color: Color(0xffff0000),
+          ),
+        );
+      default:
+        return Tooltip(
+          message: type,
+          child: const FaIcon(
+            FontAwesomeIcons.user,
+            size: 14,
+          ),
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    BoxDecoration containerDecoration = BoxDecoration(
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: const Color(0xaaffffff),
+        ));
+
+    return Container(
+      margin: const EdgeInsets.all(4),
+      decoration: containerDecoration,
+      constraints: const BoxConstraints(
+        maxWidth: 300,
+      ),
+      padding: const EdgeInsets.all(8),
+      child: TextButton(
+        style: const ButtonStyle(
+          foregroundColor: MaterialStatePropertyAll<Color>(Color(0xffffffff)),
+          padding: MaterialStatePropertyAll<EdgeInsets>(EdgeInsets.zero),
+        ),
+        onPressed: () {
+          String? url = getUrl();
+          if (url != null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Opening ${connection["name"]} in browser"),
+              behavior: SnackBarBehavior.floating,
+              width: 300,
+              duration: const Duration(seconds: 3),
+            ));
+            launchUrl(Uri.parse(url));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Copied \"${connection["name"]}\""),
+              behavior: SnackBarBehavior.floating,
+              width: 300,
+              duration: const Duration(seconds: 1),
+            ));
+            Clipboard.setData(ClipboardData(text: connection["name"]));
+          }
+        },
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: getIcon(connection["type"][0]),
+            ),
+            Expanded(
+              child: Text(
+                connection["name"],
+                style: const TextStyle(fontFamily: "UnboundedLight", fontSize: 12),
+              ),
+            ),
+            getUrl() != null ? const FaIcon(
+              FontAwesomeIcons.arrowUpRightFromSquare,
+              size: 14,
+            ) : const FaIcon(
+              FontAwesomeIcons.copy,
+              size: 14,
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class UserConnections extends StatelessWidget {
+  final List connections;
+  const UserConnections({Key? key, required this.connections}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 1,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              ...(() {
+                List<Widget> cells = [];
+                for (var connection in connections) {
+                  if (connections.indexOf(connection) % 2 == 0) {
+                    cells.add(UserConnection(connection: connection));
+                  }
+                }
+                return cells;
+              }())
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...(() {
+                List<Widget> cells = [];
+                for (var connection in connections) {
+                  if (connections.indexOf(connection) % 2 == 1) {
+                    cells.add(UserConnection(connection: connection));
+                  }
+                }
+                return cells;
+              }())
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class UserInfo extends StatelessWidget {
@@ -51,29 +373,27 @@ class UserInfo extends StatelessWidget {
             ));
             launchUrl(Uri.parse(href ?? text));
           },
-          onTapText: () {
-            Clipboard.setData(ClipboardData(text: user["bio"]));
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Copied bio to clipboard"),
-              behavior: SnackBarBehavior.floating,
-              width: 300,
-              duration: Duration(seconds: 1),
-            ));
-          },
           styleSheet: MarkdownStyleSheet(
             a: const TextStyle(
               fontFamily: "UnboundedLight",
+              color: Color(0xaaaaaaff),
+            ),
+            p: const TextStyle(
+              fontFamily: "UnboundedLight",
+              color: Color(0xaaffffff),
             ),
             code: const TextStyle(
               fontFamily: "Courier",
-              fontSize: 14
+              fontSize: 14,
+              color: Color(0xeeffffff),
+              backgroundColor: Color(0xaa444444),
             ),
             blockSpacing: 0.1,
             textScaleFactor: 0.9,
           ),
-          data: user["bio"].toString().replaceAll("\n", "\n\n"),
-          selectable: false,
-          extensionSet: ExtensionSet.gitHubWeb,
+          data: user["bio"].toString().isEmpty ? "None" : user["bio"].toString().replaceAll("\n", "\n\n"),
+          selectable: true,
+          extensionSet: ExtensionSet.gitHubFlavored,
         ),
         const SizedBox(height: 16),
         const Text(
@@ -82,8 +402,7 @@ class UserInfo extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {
-            Clipboard.setData(
-                ClipboardData(text: "${user["created_at"] * 1000}"));
+            Clipboard.setData(ClipboardData(text: "${user["created_at"] * 1000}"));
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
               content: Text("Copied timestamp to clipboard"),
               behavior: SnackBarBehavior.floating,
@@ -93,15 +412,24 @@ class UserInfo extends StatelessWidget {
           },
           child: Text(
             DateFormat.yMd().add_jm().format(DateTime.fromMillisecondsSinceEpoch(user["created_at"] * 1000)),
-            style: const TextStyle(
-              color: Color(0xaaffffff),
-              fontFamily: "UnboundedLight",
-              fontSize: 12
-            ),
+            style: const TextStyle(color: Color(0xaaffffff), fontFamily: "UnboundedLight", fontSize: 12),
           ),
         ),
         const Divider(),
-
+        const Text(
+          "CONNECTIONS",
+          style: TextStyle(fontSize: 12),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          constraints: const BoxConstraints(
+            minHeight: 30,
+          ),
+          child: UserConnections(
+            connections: user["connected_accounts"],
+          ),
+        ),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -317,12 +645,14 @@ class _UserState extends State<User> {
                                     style: const ButtonStyle(
                                       padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
                                     ),
-                                    child: Text(widget.userID,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontFamily: "UnboundedLight",
-                                          color: Color(0xaa777777),
-                                        )),
+                                    child: Text(
+                                      widget.userID,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontFamily: "UnboundedLight",
+                                        color: Color(0xaa777777),
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -350,6 +680,7 @@ class _UserState extends State<User> {
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 8),
                               Expanded(
                                 flex: 1,
                                 child: SingleChildScrollView(
@@ -358,11 +689,12 @@ class _UserState extends State<User> {
                                       return AnimatedCrossFade(
                                         firstChild: UserInfo(user: user),
                                         secondChild: const Placeholder(),
-                                        crossFadeState: tabIndex == 0 ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                                        crossFadeState:
+                                            tabIndex == 0 ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                                         duration: const Duration(milliseconds: 300),
                                       );
-                                    }
-                                  )
+                                    },
+                                  ),
                                 ),
                               ),
                             ],
