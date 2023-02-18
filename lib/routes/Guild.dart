@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
@@ -10,6 +11,9 @@ import '../util.dart';
 
 // Components
 import '../components/GuildUsers.dart';
+
+// Routes
+import '../routes/User.dart';
 
 Logger logger = Logger(name: "guild");
 
@@ -40,9 +44,9 @@ String getGuildNitroTier(int premiumTier) {
 }
 
 class Guild extends StatefulWidget {
-  final String guildid;
+  final String guildID;
 
-  const Guild({Key? key, required this.guildid}) : super(key: key);
+  const Guild({Key? key, required this.guildID}) : super(key: key);
 
   @override
   State<Guild> createState() => _GuildState();
@@ -70,8 +74,8 @@ class _GuildState extends State<Guild> {
   Future<void> getGuild() async {
     Preferences.instance.getString("databasePath").then((value) {
       if (value.isNotEmpty) {
-        DarvesterDB.instance.getGuild(widget.guildid, context, columns: ["data"]).then((r) {
-          DarvesterDB.instance.getUsersCount(searchTerm: widget.guildid).then((value) {
+        DarvesterDB.instance.getGuild(widget.guildID, context, columns: ["data"]).then((r) {
+          DarvesterDB.instance.getUsersCount(searchTerm: widget.guildID).then((value) {
             setState(() {
               membersInDatabase = value;
             });
@@ -80,8 +84,8 @@ class _GuildState extends State<Guild> {
           Map guild;
           try {
             guild = jsonDecode(r!["data"]);
-            if (checkInvalidImage(guild["icon"])) {
-              precacheImage(NetworkImage(guild["icon"]), context);
+            if (checkValidImage(guild["icon"])) {
+              precacheImage(CachedNetworkImageProvider(guild["icon"]), context);
             }
 
             setState(() {
@@ -311,7 +315,12 @@ class _GuildState extends State<Guild> {
                                                       owner = guild["owner"]["name"];
                                                       return (owner != null)
                                                           ? TextButton(
-                                                              onPressed: () {},
+                                                              onPressed: () {
+                                                                if (guild["owner"] != null && guild["owner"]["id"].toString().isNotEmpty) {
+                                                                  Navigator.of(context)
+                                                                      .push(MaterialPageRoute(builder: (context) => User(userID: guild["owner"]["id"].toString())));
+                                                                }
+                                                              },
                                                               child: Text(
                                                                 owner,
                                                                 style: bodyStyle,
@@ -383,7 +392,7 @@ class _GuildState extends State<Guild> {
                                 ),
                               ]),
                               GuildUsers(
-                                guildID: widget.guildid,
+                                guildID: widget.guildID,
                               ),
                               const SizedBox(
                                 height: 20,

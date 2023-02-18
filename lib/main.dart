@@ -24,13 +24,6 @@ final _router = GoRouter(
     GoRoute(
       path: '/users',
       builder: (BuildContext context, GoRouterState state) => const Users(),
-      routes: <RouteBase>[
-        GoRoute(
-          path: ':id',
-          // TODO: User.dart
-          builder: (BuildContext context, GoRouterState state) => const Placeholder(),
-        )
-      ]
     ),
     GoRoute(
       path: '/manager',

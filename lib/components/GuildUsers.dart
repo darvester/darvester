@@ -3,6 +3,8 @@ import "package:lazy_load_scrollview/lazy_load_scrollview.dart";
 
 import '../util.dart';
 
+import '../routes/User.dart';
+
 Logger logger = Logger(name: "GuildUsers");
 
 class GuildUsers extends StatefulWidget {
@@ -17,14 +19,14 @@ class _GuildUsersState extends State<GuildUsers> {
   List<Map> members = [];
   int membersOffset = 0;
   bool reachedEnd = false;
-  static const int limit = 40;
+  static const int limit = 50;
 
   void loadMoreMembers() {
     if (reachedEnd) {
       logger.debug("End of guild members reached, not getting more");
       return;
     }
-    logger.debug("Trying to load another 40 (offset $membersOffset) more members for ${widget.guildID}...");
+    logger.debug("Trying to load another $limit (offset $membersOffset) more members for ${widget.guildID}...");
     DarvesterDB.instance.getGuildMembers(widget.guildID, context, limit: limit, offset: membersOffset).then((r) {
       if (r != null) {
         if (r.isNotEmpty) {
@@ -78,8 +80,8 @@ class _GuildUsersState extends State<GuildUsers> {
                         overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
                       ),
                       onPressed: () {
-                        // Navigator.of(context)
-                        //     .push(MaterialPageRoute(builder: (context) => Guild(guildid: e["id"].toString())));
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (context) => User(userID: member["id"].toString())));
                       },
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(180),
