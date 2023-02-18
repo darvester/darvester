@@ -33,12 +33,10 @@ class _UsersState extends State<Users> {
             userCount = i;
           });
         });
-        DarvesterDB.instance.getUsers(
-          context,
-          columns: ["data", "id", "name", "discriminator", "avatar_url"],
-          limit: usersLimit,
-          offset: usersOffset
-        ).then(
+        DarvesterDB.instance
+            .getUsers(context,
+                columns: ["data", "id", "name", "discriminator", "avatar_url"], limit: usersLimit, offset: usersOffset)
+            .then(
           (users) {
             if (users != null) {
               if (users.isNotEmpty) {
@@ -81,6 +79,62 @@ class _UsersState extends State<Users> {
         showAlertDialog(context, "Users is empty", "Could not load any content from the users database");
       }
     });
+  }
+
+  Widget itemBuilder(idx) {
+    Map user = users.elementAt(idx);
+    return TextButton(
+      style: const ButtonStyle(
+        padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
+        foregroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+        overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
+      ),
+      onPressed: () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => User(userID: user["id"].toString())));
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(180),
+        child: Stack(
+          children: [
+            DecoratedBox(
+              decoration: const BoxDecoration(
+                color: Color(0xff222222),
+              ),
+              child: Center(
+                child: Opacity(
+                  opacity: 0.3,
+                  child: FadeInImage(
+                    fit: BoxFit.fill,
+                    placeholder: const AssetImage('images/default_avatar.png'),
+                    imageErrorBuilder: (context, error, stackTrace) {
+                      return const Image(
+                        image: AssetImage('images/default_avatar.png'),
+                        fit: BoxFit.fitWidth,
+                      );
+                    },
+                    image: assetOrNetwork(user["avatar_url"]),
+                  ),
+                ),
+              ),
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  "${user["name"]}\u200b#${user["discriminator"]}",
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width > 1000 ? 8 : 12,
+                  ),
+                  textAlign: TextAlign.center,
+                  textScaleFactor: ScaleSize.textScaleFactor(context),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -161,67 +215,13 @@ class _UsersState extends State<Users> {
                       padding: const EdgeInsets.all(36),
                       itemCount: users.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: MediaQuery.of(context).size.width > 1000 ? 7 : 4,
+                        crossAxisCount: MediaQuery.of(context).size.width > 1000 ? 9 : 5,
                         mainAxisSpacing: 24,
                         crossAxisSpacing: 24,
                       ),
-                      itemBuilder: (BuildContext context, idx) {
-                        Map user = users.elementAt(idx);
-                        return TextButton(
-                          style: const ButtonStyle(
-                            padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
-                            foregroundColor: MaterialStatePropertyAll<Color>(Colors.white),
-                            overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
-                          ),
-                          onPressed: () {
-                            // Navigator.of(context)
-                            //     .push(MaterialPageRoute(builder: (context) => Guild(guildid: e["id"].toString())));
-                          },
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(180),
-                            child: Stack(
-                              children: [
-                                DecoratedBox(
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xff222222),
-                                  ),
-                                  child: Center(
-                                    child: Opacity(
-                                      opacity: 0.3,
-                                      child: FadeInImage(
-                                        fit: BoxFit.fill,
-                                        placeholder: const AssetImage('images/default_avatar.png'),
-                                        imageErrorBuilder: (context, error, stackTrace) {
-                                          return const Image(
-                                            image: AssetImage('images/default_avatar.png'),
-                                            fit: BoxFit.fitWidth,
-                                          );
-                                        },
-                                        image: assetOrNetwork(user["avatar_url"]),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Text(
-                                      "${user["name"]}\u200b#${user["discriminator"]}",
-                                      style: TextStyle(
-                                        fontSize: MediaQuery.of(context).size.width > 1000 ? 8 : 12,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                      textScaleFactor: ScaleSize.textScaleFactor(context),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                      itemBuilder: (BuildContext context, idx) => itemBuilder(idx),
                     ),
-                  )
+                  ),
                 )
               ],
             ),
