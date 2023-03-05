@@ -20,7 +20,7 @@ class Manager(enlighten.Manager):
 class Counter(enlighten.Counter):
     def __init__(self, **kwargs):
         if MINIMAL_OUTPUT:
-            super().__init__(**kwargs, stream=os.devnull)
+            super().__init__(**kwargs)
         super().__init__(**kwargs)
 
     def update(self, incr=1, force=False, **fields):
@@ -37,7 +37,7 @@ class Counter(enlighten.Counter):
 class StatusBar(enlighten.StatusBar):
     def __init__(self, *args, **kwargs):
         if MINIMAL_OUTPUT:
-            super().__init__(*args, **kwargs, stream=os.devnull)
+            super().__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
     
     def update(self, *objects, **fields):
