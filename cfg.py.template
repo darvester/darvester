@@ -52,3 +52,7 @@ DISABLE_VCS = False
 # The path where the database will be dumped for the VCS
 # None defaults to $(pwd)/.darvester
 VCS_REPO_PATH = None
+
+# Minmal output is meant for "headless" output, only
+# outputting information to terminal in a JSON string.
+MINIMAL_OUTPUT = False

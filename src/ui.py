@@ -1,11 +1,59 @@
 import os
+import json
 import sys
+import time
 
 import enlighten
 
-manager = enlighten.get_manager()
+from cfg import MINIMAL_OUTPUT
+
+manager = enlighten.get_manager(
+    stream=open(os.devnull, "w") if MINIMAL_OUTPUT else None
+)
 counters = {}
 status_bars = {}
+
+class Manager(enlighten.Manager):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+class Counter(enlighten.Counter):
+    def __init__(self, **kwargs):
+        if MINIMAL_OUTPUT:
+            super().__init__(**kwargs, stream=os.devnull)
+        super().__init__(**kwargs)
+
+    def update(self, incr=1, force=False, **fields):
+        if MINIMAL_OUTPUT:
+            print(json.dumps({
+                "source": super().desc,
+                "timestamp": int(time.time()),
+                "message": fields.get("demo"),
+                "type": "counter",
+            }))
+        else:
+            return super().update(incr, force, **fields)
+
+class StatusBar(enlighten.StatusBar):
+    def __init__(self, *args, **kwargs):
+        if MINIMAL_OUTPUT:
+            super().__init__(*args, **kwargs, stream=os.devnull)
+        super().__init__(*args, **kwargs)
+    
+    def update(self, *objects, **fields):
+        if MINIMAL_OUTPUT:
+            _src: str = super().status_format.split("{")[0]
+            print(json.dumps({
+                "source": _src if "Darvester" not in _src else "Darvester",
+                "timestamp": int(time.time()),
+                "message": fields.get("demo"),
+                "type": "status",
+            }))
+        else:
+            return super().update(*objects, **fields)
+
+manager.counter_class = Counter
+manager.status_bar_class = StatusBar
 
 
 def set_title(title: str):
@@ -57,7 +105,7 @@ def new_counter(
     :rtype: enlighten.Counter
     """
     if name in counters:
-        if isinstance(counters[name], enlighten.Counter):
+        if isinstance(counters[name], enlighten.Counter) or isinstance(counters[name], Counter):
             try:
                 counters[name].close()
             except KeyError:
@@ -103,7 +151,7 @@ def new_status_bar(
     :rtype: enlighten.StatusBar
     """
     if name in status_bars:
-        if isinstance(status_bars[name], enlighten.StatusBar):
+        if isinstance(status_bars[name], enlighten.StatusBar) or isinstance(status_bars[name], StatusBar):
             try:
                 status_bars[name].close()
             except KeyError:

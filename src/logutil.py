@@ -7,9 +7,9 @@ https://github.com/V3ntus/repo-finder-bot/blob/main/utils/logutil.py
 
 import logging
 
-from cfg import DEBUG, DEBUG_DISCORD, LOG_LEVEL
+from cfg import DEBUG, DEBUG_DISCORD, LOG_LEVEL, MINIMAL_OUTPUT
 
-
+# TODO: check for MINIMAL_OUTPUT and output JSON
 def getLogger(name):
     """Function to get a logger
     Useful for modules that have already initialized a logger,
