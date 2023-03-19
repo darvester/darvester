@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:io';
 import 'dart:developer' as developer;
 import 'dart:convert';
+import 'dart:collection';
 
 import 'package:darvester/routes/Settings.dart';
 import 'package:flutter/material.dart';
@@ -349,5 +350,19 @@ class Logger {
       level: 500,
       name: name,
     );
+  }
+}
+
+class EvictingQueue<E> extends DoubleLinkedQueue<E> {
+  final int limit;
+
+  EvictingQueue(this.limit);
+
+  @override
+  void add(E value) {
+    super.add(value);
+    while (super.length > limit) {
+      super.removeFirst();
+    }
   }
 }
