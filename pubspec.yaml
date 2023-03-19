@@ -12,6 +12,7 @@ dependencies:
 
   go_router: ^6.0.1
   sqflite:
+  crypto:
   shared_preferences:
   file_picker: ^5.2.5
   window_size:
@@ -25,11 +26,14 @@ dependencies:
   markdown:
   url_launcher:
   font_awesome_flutter:
+  fl_chart: ^0.61.0
+  nyxx_self:
+    git:
+      url: https://github.com/V3ntus/nyxx-self
+      ref: dev
+  collection: ^1.17.0
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-
   flutter_lints: ^2.0.0
 
 flutter:
