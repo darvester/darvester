@@ -36,8 +36,7 @@ final _router = GoRouter(
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..maxConnectionsPerHost = 5;
+    return super.createHttpClient(context)..maxConnectionsPerHost = 5;
   }
 }
 
@@ -59,12 +58,8 @@ class Darvester extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: "Darvester",
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        fontFamily: "Unbounded"
-      ),
+      theme: ThemeData(brightness: Brightness.dark, fontFamily: "Unbounded"),
       routerConfig: _router,
     );
   }
 }
-

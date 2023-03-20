@@ -287,13 +287,15 @@ class UserConnection extends StatelessWidget {
                 style: const TextStyle(fontFamily: "UnboundedLight", fontSize: 12),
               ),
             ),
-            getUrl() != null ? const FaIcon(
-              FontAwesomeIcons.arrowUpRightFromSquare,
-              size: 14,
-            ) : const FaIcon(
-              FontAwesomeIcons.copy,
-              size: 14,
-            )
+            getUrl() != null
+                ? const FaIcon(
+                    FontAwesomeIcons.arrowUpRightFromSquare,
+                    size: 14,
+                  )
+                : const FaIcon(
+                    FontAwesomeIcons.copy,
+                    size: 14,
+                  )
           ],
         ),
       ),
@@ -623,8 +625,7 @@ class _UserState extends State<User> {
                                         width: 300,
                                         duration: Duration(seconds: 1),
                                       ));
-                                      Clipboard.setData(
-                                          ClipboardData(text: "${user["name"]}#${user["discriminator"]}"));
+                                      Clipboard.setData(ClipboardData(text: "${user["name"]}#${user["discriminator"]}"));
                                     },
                                     style: const ButtonStyle(
                                       padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
@@ -689,8 +690,7 @@ class _UserState extends State<User> {
                                       return AnimatedCrossFade(
                                         firstChild: UserInfo(user: user),
                                         secondChild: const Placeholder(),
-                                        crossFadeState:
-                                            tabIndex == 0 ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                                        crossFadeState: tabIndex == 0 ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                                         duration: const Duration(milliseconds: 300),
                                       );
                                     },

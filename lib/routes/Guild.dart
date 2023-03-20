@@ -96,8 +96,7 @@ class _GuildState extends State<Guild> {
             setState(() {
               isLoading = false;
             });
-            showAlertDialog(context, "Guild missing",
-                "Data is missing here. This shouldn't happen, but you should still report this.");
+            showAlertDialog(context, "Guild missing", "Data is missing here. This shouldn't happen, but you should still report this.");
           }
         });
       } else {
@@ -317,8 +316,8 @@ class _GuildState extends State<Guild> {
                                                           ? TextButton(
                                                               onPressed: () {
                                                                 if (guild["owner"] != null && guild["owner"]["id"].toString().isNotEmpty) {
-                                                                  Navigator.of(context)
-                                                                      .push(MaterialPageRoute(builder: (context) => User(userID: guild["owner"]["id"].toString())));
+                                                                  Navigator.of(context).push(
+                                                                      MaterialPageRoute(builder: (context) => User(userID: guild["owner"]["id"].toString())));
                                                                 }
                                                               },
                                                               child: Text(

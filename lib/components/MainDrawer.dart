@@ -36,43 +36,35 @@ class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-        child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              const DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Colors.grey,
-                  ),
-                  child: Text(
-                      "Darvester",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24
-                      )
-                  ),
-              ),
-              ...menuItems.map((e) => ListTile(
-                leading: Icon(e["icon"]),
-                title: Text(e["title"]),
-                onTap: () {
-                  if (checkLocation(context, e["route"])) {
-                    context.pop();
-                  } else {
-                    context.go(e["route"]);
-                  }
-                }
-              )).toList(),
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Settings'),
-                onTap: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const Settings())
-                  );
-                }
-              ),
-            ],
-        ),
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.grey,
+            ),
+            child: Text("Darvester", style: TextStyle(color: Colors.white, fontSize: 24)),
+          ),
+          ...menuItems
+              .map((e) => ListTile(
+                  leading: Icon(e["icon"]),
+                  title: Text(e["title"]),
+                  onTap: () {
+                    if (checkLocation(context, e["route"])) {
+                      context.pop();
+                    } else {
+                      context.go(e["route"]);
+                    }
+                  }))
+              .toList(),
+          ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings()));
+              }),
+        ],
+      ),
     );
   }
 }

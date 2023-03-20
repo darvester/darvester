@@ -90,9 +90,7 @@ class _SettingsState extends State<_Settings> {
                         const SizedBox(width: 36),
                         Expanded(
                             child: Text(
-                          (prefs["databasePath"] == null || prefs["databasePath"].toString().isEmpty)
-                              ? "Not set"
-                              : prefs["databasePath"],
+                          (prefs["databasePath"] == null || prefs["databasePath"].toString().isEmpty) ? "Not set" : prefs["databasePath"],
                           style: const TextStyle(
                             fontFamily: "Courier",
                           ),
@@ -104,24 +102,17 @@ class _SettingsState extends State<_Settings> {
                         ElevatedButton(
                             onPressed: () {
                               FilePicker.platform
-                                  .pickFiles(
-                                      type: FileType.custom,
-                                      allowedExtensions: <String>["db"],
-                                      dialogTitle: "Pick your harvested.db")
+                                  .pickFiles(type: FileType.custom, allowedExtensions: <String>["db"], dialogTitle: "Pick your harvested.db")
                                   .then((pathToDB) {
                                 if ((pathToDB?.files.single.path ?? "").isEmpty) {
-                                  showSnackbar(
-                                      context, ErrorsSnackbars.genericError("Path to database cannot be empty"));
+                                  showSnackbar(context, ErrorsSnackbars.genericError("Path to database cannot be empty"));
                                 } else {
                                   setKey("databasePath", pathToDB?.files.single.path ?? "").then((_) {
                                     DarvesterDB.instance.openDB(pathToDB?.files.single.path ?? "", context, tryToForce: true);
                                     showSnackbar(context, SettingsSnackbars.settingSaved("databasePath"));
                                   }).catchError((err) {
-                                    showSnackbar(
-                                        context,
-                                        ErrorsSnackbars.genericError(kDebugMode
-                                            ? "Could not save database setting"
-                                            : "Could not save database setting: $err"));
+                                    showSnackbar(context,
+                                        ErrorsSnackbars.genericError(kDebugMode ? "Could not save database setting" : "Could not save database setting: $err"));
                                   });
                                 }
                               });

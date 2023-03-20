@@ -34,10 +34,7 @@ class _UsersState extends State<Users> {
             userCount = i;
           });
         });
-        DarvesterDB.instance
-            .getUsers(context,
-                columns: ["data", "id", "name", "discriminator", "avatar_url"], limit: usersLimit, offset: usersOffset)
-            .then(
+        DarvesterDB.instance.getUsers(context, columns: ["data", "id", "name", "discriminator", "avatar_url"], limit: usersLimit, offset: usersOffset).then(
           (users) {
             if (users != null) {
               if (users.isNotEmpty) {
@@ -61,13 +58,11 @@ class _UsersState extends State<Users> {
                 builder: (BuildContext builder) {
                   return AlertDialog(
                     title: const Text("Users is empty"),
-                    content:
-                        const Text("Data is possibly missing here. This shouldn't happen, but you should report this."),
+                    content: const Text("Data is possibly missing here. This shouldn't happen, but you should report this."),
                     actions: <Widget>[
                       TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
                       TextButton(
-                          onPressed: () =>
-                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())),
+                          onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())),
                           child: const Text("Settings")),
                     ],
                   );
@@ -91,8 +86,7 @@ class _UsersState extends State<Users> {
         overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
       ),
       onPressed: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => User(userID: user["id"].toString())));
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => User(userID: user["id"].toString())));
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(180),

@@ -80,8 +80,7 @@ class _GuildUsersState extends State<GuildUsers> {
                         overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
                       ),
                       onPressed: () {
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (context) => User(userID: member["id"].toString())));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => User(userID: member["id"].toString())));
                       },
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(180),
