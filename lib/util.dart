@@ -6,6 +6,7 @@ import 'dart:collection';
 
 import 'package:darvester/routes/Settings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,13 +22,34 @@ bool checkValidImage(String? uri) {
   return uri?.contains("http") ?? false;
 }
 
+/// Validates a Discord JWT token by taking the header of the JWT, decoding it from Base64
+/// as a [BigInt], then validating if the timestamp is greater than the Discord epoch. Returns [true]
+/// if the token is valid.
+/// [Discord Snowflake documentation](https://discord.com/developers/docs/reference#snowflakes-snowflake-id-format-structure-left-to-right)
+bool validateJwtDiscordToken(String token) {
+  try {
+    BigInt userId = BigInt.parse(base64
+        .decode(token.split(".")[0])
+        .map((el) {
+          return String.fromCharCode(el);
+        })
+        .toList()
+        .join());
+    return BigInt.from(DateTime.now().microsecondsSinceEpoch) >= (BigInt.from(1420070400000) + (userId >> 22));
+  } catch (err) {
+    return false;
+  }
+  // 204778193311
+  // 1420070400000
+}
+
 DateTime timestampToDateTime(int timestamp) {
   return DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
 }
 
 ImageProvider assetOrNetwork(String? uri, {String? fallbackUri}) {
   if (checkValidImage(uri) && uri != null) {
-    return CachedNetworkImageProvider(uri);
+    return CachedNetworkImageProvider(uri, errorListener: () {});
   } else {
     return AssetImage(fallbackUri ?? "images/default_avatar.png");
   }
@@ -54,6 +76,7 @@ showAlertDialog(BuildContext context, String title, String content) {
 
 // Classes
 class Preferences {
+  // i dont think this needs to be a singleton
   final Logger logger = Logger(name: "prefs");
   Preferences._privateConstructor();
 
@@ -95,6 +118,10 @@ class DarvesterDB {
 
   static final DarvesterDB instance = DarvesterDB._privateConstructor();
 
+  bool isOpen() {
+    return (db?.isOpen ?? false);
+  }
+
   Future<Database?> openDB(String path, BuildContext context, {bool tryToForce = false}) async {
     logger.debug("Attempting to open database: $path ...");
 
@@ -106,6 +133,7 @@ class DarvesterDB {
 
     if (db == null || !(db?.isOpen ?? false)) {
       if (!await File(path).exists()) {
+        // TODO: remove this, figure out a better way of showing a dialog smh
         throw showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -116,8 +144,7 @@ class DarvesterDB {
                 actions: <Widget>[
                   TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
                   TextButton(
-                    onPressed: () =>
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())),
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())),
                     child: const Text("Settings"),
                   ),
                 ],
@@ -137,16 +164,27 @@ class DarvesterDB {
   }
 
   Future<List<Map>?> getGuilds(BuildContext context,
-      {int limit = 50, int offset = 0, List<String> columns = const ["data"]}) async {
+      {int limit = 50, int offset = 0, List<String> columns = const ["data"], String sortColumn = "name", String sortBy = "asc"}) async {
+    if (!["asc", "desc"].contains(sortBy)) sortBy = "asc";
+    sortBy = sortBy.toUpperCase();
+
     logger.debug("Looking up guilds: (columns=$columns, limit=$limit, offset=$offset)");
     db = await openDB(await Preferences.instance.getString("databasePath"), context);
     String limitStr = limit > 0 ? " LIMIT $limit " : "";
     String offsetStr = offset > 0 ? " OFFSET $offset " : "";
-    List<Map>? guilds = await db
-        ?.rawQuery('SELECT ${columns.join(", ")}, id FROM guilds ORDER BY LOWER(name) ASC $limitStr $offsetStr');
+    List<Map>? guilds = await db?.rawQuery('SELECT ${columns.join(", ")}, id FROM guilds ORDER BY LOWER(?) ASC $limitStr $offsetStr', [sortColumn]);
     logger.debug("Found ${guilds?.length ?? 0} guilds:");
     logger.debug(guilds.toString());
     return guilds;
+  }
+
+  Future<int> getGuildsCount({String? searchTerm}) async {
+    String whereQuery = "";
+    if (searchTerm != null) {
+      whereQuery = "WHERE data LIKE \"%$searchTerm%\"";
+    }
+    List<Map>? count = await db?.rawQuery("SELECT COUNT(1) FROM guilds $whereQuery");
+    return count?[0]["COUNT(1)"] ?? 0;
   }
 
   Future<Map?> getGuild(String id, BuildContext context, {List<String> columns = const ["data"]}) async {

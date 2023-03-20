@@ -20,23 +20,20 @@ class HarvesterIsolate {
   /// The [SendPort] instance to send messages to the isolate.
   late final SendPort sendPort;
 
-  /// The [ReceivePort] where messages from the isolate will be found in.
-  late final ReceivePort receivePort;
-
   /// The current state of the isolate.
   late HarvesterIsolateState state;
 
   /// A queue of [HarvesterIsolateMessage]s. Size constrained to 500.
   late final messageQueue = EvictingQueue<HarvesterIsolateMessage>(500);
 
-  /// Callback that is run in the [isolate].
+  /// Callback that is run in the [isolate]. List of args is token, [DarvesterDB], and a [SendPort]
+  /// to communicate with the main isolate.
   void _spawnHarvester(List args) {
-    Harvester harvester = Harvester(
+    Harvester(
       args[0] as String,
       args[1] as DarvesterDB,
       args[2] as SendPort,
     );
-    harvester.loop();
   }
 
   /// Instantiates a [HarvesterIsolate] struct which runs the [Harvester] loop.
@@ -54,7 +51,6 @@ class HarvesterIsolate {
   /// Spawns the [Isolate].
   Future<void> _init(String token, DarvesterDB db) async {
     ReceivePort receivePort = ReceivePort();
-
     receivePort.listen((message) {
       if (message is SendPort) {
         sendPort = message;

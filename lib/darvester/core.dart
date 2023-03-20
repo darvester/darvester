@@ -1,29 +1,88 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:isolate';
 
+import 'package:crypto/crypto.dart';
 import 'package:nyxx_self/nyxx.dart';
 
 import '../util.dart' show DarvesterDB, Logger;
 import './isolate_message.dart';
 
+class IsolateLogger extends Logger {
+  final SendPort sendPort;
+
+  IsolateLogger(this.sendPort, {super.name});
+
+  @override
+  void critical(String message) {
+    sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.log, data: "CRITICAL: $message"));
+    super.critical(message);
+  }
+
+  @override
+  void debug(String message) {
+    sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.log, data: "DEBUG: $message"));
+    super.debug(message);
+  }
+
+  @override
+  void error(String message) {
+    sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.log, data: "ERROR: $message"));
+    super.error(message);
+  }
+
+  @override
+  void info(String message) {
+    sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.log, data: message));
+    super.info(message);
+  }
+
+  @override
+  void warning(String message) {
+    sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.log, data: "WARN: $message"));
+    super.warning(message);
+  }
+}
+
 class Harvester {
   late INyxxWebsocket bot;
   final DarvesterDB db;
-  final Logger logger = Logger(name: "harvester");
+  late final Logger logger;
   final Set<int> userIDSet = {};
   final SendPort sendPort;
   late HarvesterIsolateMessage lastMessage;
+  late final Digest _digest;
+
   bool _willStop = false;
   bool _willPause = false;
 
   Harvester(String token, this.db, this.sendPort) {
-    bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged | GatewayIntents.guildMembers | GatewayIntents.messageContent);
+    _digest = md5.convert(utf8.encode(token));
+    logger = IsolateLogger(sendPort, name: _digest.toString());
+    bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged | GatewayIntents.guildMembers | GatewayIntents.messageContent)
+      ..registerPlugin(Logging(logLevel: Level.ALL))
+      ..connect();
+    bot.eventsWs.onReady.listen((event) {
+      logger.info("Bot ready. Starting the harvester loop...");
+      loop();
+    });
   }
 
   void loop() async {
-    if (!db.isOpen()) return;
+    void stop(ReceivePort receivePort) async {
+      sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.stopped));
+      logger.info("Disposing bot...");
+      await bot.dispose();
+
+      // this may cause a crash btw if receivePort isn't open or instantiated
+      receivePort.close();
+    }
+
+    if (!db.isOpen()) logger.critical("Database is not open");
+
     int requestNumber = 0;
     Set<int> guildIDs = {...bot.guilds.entries.map((guild) => guild.key.id)};
+    logger.info("This isolate will work with ${guildIDs.length} guilds");
     Set<int> discoveredGuilds = {};
 
     ReceivePort receivePort = ReceivePort();
@@ -34,17 +93,19 @@ class Harvester {
       if (message is HarvesterIsolateMessage) {
         switch (message.type) {
           case HarvesterIsolateMessageType.stop:
-            sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.log, data: "Stopping harvester..."));
+            logger.info("Stopping harvester: ${_digest.toString()}...");
             sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.stopping));
             _willStop = true;
             break;
           case HarvesterIsolateMessageType.start:
-            sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.log, data: "Starting harvester..."));
+            logger.info("Starting harvester: ${_digest.toString()}...");
+            sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.starting));
             _willStop = false;
             _willPause = false;
             break;
           case HarvesterIsolateMessageType.pause:
-            sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.log, data: "Pausing harvester..."));
+            logger.info("Pausing harvester: ${_digest.toString()}...");
+            sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.pausing));
             _willPause = true;
             break;
           default:
@@ -56,14 +117,14 @@ class Harvester {
 
     for (var guildID in guildIDs) {
       if (_willStop) {
-        sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.stopped));
-
-        // this may cause a crash btw if receiveport isn't open or instantiated
-        receivePort.close();
+        stop(receivePort);
         return;
       }
-      while (_willPause) {
+      if (_willPause) {
         sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.paused));
+        while (_willPause) {
+          if (lastMessage.type == HarvesterIsolateMessageType.start) _willPause = false;
+        }
       }
       IGuild guild = await bot.fetchGuild(Snowflake(guildID), withCounts: true);
 
@@ -100,14 +161,14 @@ class Harvester {
 
       for (Snowflake userID in guild.members.keys.toList()) {
         if (_willStop) {
-          sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.stopped));
-
-          // this may cause a crash btw if receiveport isn't open or instantiated
-          receivePort.close();
+          stop(receivePort);
           return;
         }
-        while (_willPause) {
+        if (_willPause) {
           sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.paused));
+          while (_willPause) {
+            if (lastMessage.type == HarvesterIsolateMessageType.start) _willPause = false;
+          }
         }
 
         IProfile profile = await bot.fetchProfile(userID);
@@ -138,8 +199,12 @@ class Harvester {
         // TODO: implement profile db insert
 
         userIDSet.add(userID.id);
+        requestNumber++;
+        await Future.delayed(const Duration(seconds: 1));
       }
       discoveredGuilds.add(guildID);
     }
+    logger.info("Finished with all guilds.");
+    stop(receivePort);
   }
 }

@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:darvester/util.dart';
 import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart';
 
 // Components
 import '../components/MainDrawer.dart';
+import '../components/Isolate.dart';
+
+// Util
+import '../util.dart';
 
 // Classes
 import '../darvester/harvester_isolate.dart';
@@ -19,15 +22,18 @@ class Manager extends StatefulWidget {
 }
 
 class _ManagerState extends State<Manager> {
-  HarvesterIsolateSet harvesterThreads = HarvesterIsolateSet();
+  final Logger logger = Logger(name: "manager");
 
   Future<Digest> spawnHarvesterThread(String token, DarvesterDB db) async {
     Digest hashedToken = md5.convert(utf8.encode(token));
 
-    if (harvesterThreads.get(hashedToken) != null) {
+    if (HarvesterIsolateSet.instance.get(hashedToken) == null) {
+      logger.info("Spawned a new harvester isolate: ${hashedToken.toString()}");
       // TODO: check if context messenger logic needs to be a singleton across routes
       HarvesterIsolate hIsolate = HarvesterIsolate(token, db, context);
-      harvesterThreads.add(hIsolate);
+      setState(() {
+        HarvesterIsolateSet.instance.add(hIsolate);
+      });
     }
     return hashedToken;
   }
@@ -39,7 +45,73 @@ class _ManagerState extends State<Manager> {
         title: const Text('Manager'),
       ),
       drawer: const MainDrawer(),
-      body: const Placeholder(),
+      body: Column(
+        children: [
+          SizedBox(
+            height: 80,
+            width: double.infinity,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color(0xff444444),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xaa000000),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: 200,
+                        ),
+                        child: TextField(
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Token",
+                          ),
+                          onSubmitted: (String token) async {
+                            String msg = "Could not validate JWT token";
+                            if (validateJwtDiscordToken(token)) {
+                              Digest threadDigest = await spawnHarvesterThread(token, DarvesterDB.instance);
+                              msg = "Started ${threadDigest.toString()}";
+                            }
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: HarvesterIsolateSet.instance.set.isNotEmpty
+                ? GridView.count(
+                    crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 2 : 1,
+                    mainAxisSpacing: 24,
+                    crossAxisSpacing: 24,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(36),
+                    children: HarvesterIsolateSet.instance.set.map((isolate) {
+                      return IsolateCard(digest: isolate.hash);
+                    }).toList(),
+                  )
+                : const Center(
+                    child: Text("No harvester isolates spawned"),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
