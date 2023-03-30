@@ -61,3 +61,47 @@ enum HarvesterIsolateState {
   /// The isolate is in an unknown state.
   unknown,
 }
+
+extension IsolateStateMessage on HarvesterIsolateState {
+  String get printableStateShort {
+    switch (this) {
+      case HarvesterIsolateState.starting:
+        return "Starting";
+      case HarvesterIsolateState.started:
+        return "Working";
+      case HarvesterIsolateState.stopping:
+        return "Stopping";
+      case HarvesterIsolateState.stopped:
+        return "Stopped";
+      case HarvesterIsolateState.pausing:
+        return "Pausing";
+      case HarvesterIsolateState.paused:
+        return "Pausing";
+      case HarvesterIsolateState.crashed:
+        return "Crashed";
+      case HarvesterIsolateState.unknown:
+        return "Unknown";
+    }
+  }
+
+  String get printableStateLong {
+    switch (this) {
+      case HarvesterIsolateState.starting:
+        return "The isolate is starting Darvester";
+      case HarvesterIsolateState.started:
+        return "Darvester is harvesting on this isolate";
+      case HarvesterIsolateState.stopping:
+        return "The isolate is stopping Darvester";
+      case HarvesterIsolateState.stopped:
+        return "Darvester has stopped harvesting on this isolate";
+      case HarvesterIsolateState.pausing:
+        return "The isolate is pausing Darvester";
+      case HarvesterIsolateState.paused:
+        return "Darvester has been paused and is waiting to be resumed";
+      case HarvesterIsolateState.crashed:
+        return "Darvester has crashed. Please view the logs for more info";
+      case HarvesterIsolateState.unknown:
+        return "The isolate is in an unknown state";
+    }
+  }
+}
