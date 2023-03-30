@@ -96,23 +96,26 @@ class _ManagerState extends State<Manager> {
           ),
           Expanded(
             child: HarvesterIsolateSet.instance.set.isNotEmpty
-                ? GridView.count(
-                    crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 3 : 1,
-                    mainAxisSpacing: 24,
-                    crossAxisSpacing: 24,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(36),
-                    children: HarvesterIsolateSet.instance.set.map((isolate) {
-                      return IsolateCard(digest: isolate.hash);
-                    }).toList(),
+                ? GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 3 : 2,
+                      mainAxisExtent: 520,
+                      mainAxisSpacing: 24,
+                      crossAxisSpacing: 24,
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    itemCount: HarvesterIsolateSet.instance.set.length,
+                    itemBuilder: (_, int index) => IsolateCard(
+                      digest: HarvesterIsolateSet.instance.set.elementAt(index).hash,
+                      parentSetState: update,
+                    ),
                   )
                 : const Center(
                     child: Text(
-                      style: TextStyle(
-                        color: Color(0xff888888),
-                      ),
-                      "No harvester isolates spawned"
-                    ),
+                        style: TextStyle(
+                          color: Color(0xff888888),
+                        ),
+                        "No harvester isolates spawned"),
                   ),
           ),
         ],
