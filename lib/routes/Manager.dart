@@ -24,6 +24,12 @@ class Manager extends StatefulWidget {
 class _ManagerState extends State<Manager> {
   final Logger logger = Logger(name: "manager");
 
+  IsolateCard? generateIsolateCards(BuildContext _, int idx) {
+    return IsolateCard(
+      digest: HarvesterIsolateSet.instance.set.elementAt(idx).hash,
+    );
+  }
+
   Future<Digest> spawnHarvesterThread(String token, DarvesterDB db) async {
     Digest hashedToken = md5.convert(utf8.encode(token));
 
@@ -105,10 +111,7 @@ class _ManagerState extends State<Manager> {
                     ),
                     padding: const EdgeInsets.all(16),
                     itemCount: HarvesterIsolateSet.instance.set.length,
-                    itemBuilder: (_, int index) => IsolateCard(
-                      digest: HarvesterIsolateSet.instance.set.elementAt(index).hash,
-                      parentSetState: update,
-                    ),
+                    itemBuilder: generateIsolateCards,
                   )
                 : const Center(
                     child: Text(
