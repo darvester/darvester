@@ -20,6 +20,8 @@ class HarvesterIsolate {
   /// The [SendPort] instance to send messages to the isolate.
   late final SendPort sendPort;
 
+  bool sendPortInitialized = false;
+
   /// The current state of the isolate.
   late HarvesterIsolateState state;
 
@@ -42,31 +44,20 @@ class HarvesterIsolate {
     hash = md5.convert(utf8.encode(token));
     // Call _init to spawn the isolate
     _init(token, db);
-
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text("A Harvester isolate was initialized"),
-    ));
   }
 
   /// Spawns the [Isolate].
   Future<void> _init(String token, DarvesterDB db) async {
     ReceivePort receivePort = ReceivePort();
     receivePort.listen((message) {
-      if (message is SendPort) {
+      if (message is SendPort && !sendPortInitialized) {
         sendPort = message;
+        sendPortInitialized = true;
       } else if (message is HarvesterIsolateMessage) {
         switch (message.type) {
           case HarvesterIsolateMessageType.state:
             if (message.state != null) {
               state = message.state!;
-              switch (message.state) {
-                case HarvesterIsolateState.stopped:
-                  // this may cause a crash btw if receiveport isn't open or instantiated
-                  receivePort.close();
-                  break;
-                default:
-                  break;
-              }
             }
             messageQueue.add(message);
             break;

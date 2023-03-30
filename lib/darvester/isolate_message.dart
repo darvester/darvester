@@ -57,4 +57,7 @@ enum HarvesterIsolateState {
 
   /// The isolate has crashed and may have outputted a stacktrace.
   crashed,
+
+  /// The isolate is in an unknown state.
+  unknown,
 }

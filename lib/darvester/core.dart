@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
+import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:nyxx_self/nyxx.dart';
@@ -21,7 +22,8 @@ class IsolateLogger extends Logger {
 
   @override
   void debug(String message) {
-    sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.log, data: "DEBUG: $message"));
+    // TODO: implement debug logging flag
+    // sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.log, data: "DEBUG: $message"));
     super.debug(message);
   }
 
@@ -52,6 +54,8 @@ class Harvester {
   final SendPort sendPort;
   late HarvesterIsolateMessage lastMessage;
   late final Digest _digest;
+  final Random _rng = Random();
+  final ReceivePort receivePort = ReceivePort();
 
   bool _willStop = false;
   bool _willPause = false;
@@ -59,37 +63,26 @@ class Harvester {
   Harvester(String token, this.db, this.sendPort) {
     _digest = md5.convert(utf8.encode(token));
     logger = IsolateLogger(sendPort, name: _digest.toString());
+
+    // Initialize the bot
     bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged | GatewayIntents.guildMembers | GatewayIntents.messageContent)
-      ..registerPlugin(Logging(logLevel: Level.ALL))
-      ..connect();
+      // ..registerPlugin(Logging(logLevel: Level.ALL))
+      // ..registerPlugin(IgnoreExceptions())
+      ..connect().catchError((err) {
+        sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.crashed));
+        logger.critical("Bot crashed while connecting: $err");
+      });
+
+    // Register onReady listener that will start the loop
     bot.eventsWs.onReady.listen((event) {
       logger.info("Bot ready. Starting the harvester loop...");
+      sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.started));
+      sendPort.send(receivePort.sendPort);
       loop();
     });
-  }
-
-  void loop() async {
-    void stop(ReceivePort receivePort) async {
-      sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.stopped));
-      logger.info("Disposing bot...");
-      await bot.dispose();
-
-      // this may cause a crash btw if receivePort isn't open or instantiated
-      receivePort.close();
-    }
-
-    if (!db.isOpen()) logger.critical("Database is not open");
-
-    int requestNumber = 0;
-    Set<int> guildIDs = {...bot.guilds.entries.map((guild) => guild.key.id)};
-    logger.info("This isolate will work with ${guildIDs.length} guilds");
-    Set<int> discoveredGuilds = {};
-
-    ReceivePort receivePort = ReceivePort();
-    sendPort.send(receivePort.sendPort);
 
     // Listen for events from Manager
-    receivePort.listen((message) {
+    receivePort.listen((message) async {
       if (message is HarvesterIsolateMessage) {
         switch (message.type) {
           case HarvesterIsolateMessageType.stop:
@@ -102,6 +95,20 @@ class Harvester {
             sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.starting));
             _willStop = false;
             _willPause = false;
+            // Initialize the bot
+            bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged | GatewayIntents.guildMembers | GatewayIntents.messageContent)
+              // ..registerPlugin(Logging(logLevel: Level.ALL))
+              // ..registerPlugin(IgnoreExceptions())
+              ..connect().catchError((err) {
+                sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.crashed));
+                logger.critical("Bot crashed while connecting: $err");
+              });
+            bot.eventsWs.onReady.listen((event) {
+              logger.info("Bot ready. Starting the harvester loop...");
+              sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.started));
+              sendPort.send(receivePort.sendPort);
+              loop();
+            });
             break;
           case HarvesterIsolateMessageType.pause:
             logger.info("Pausing harvester: ${_digest.toString()}...");
@@ -114,6 +121,28 @@ class Harvester {
         }
       }
     });
+  }
+
+  /// A Future that will delay for a random amount of milliseconds from 1000 to 2500
+  Future<void> _loopDelay() async {
+    final int delay = 1000 + _rng.nextInt(1500);
+    logger.debug("Sleeping for $delay milliseconds");
+    await Future.delayed(Duration(milliseconds: delay));
+  }
+
+  void loop() async {
+    void stop(ReceivePort receivePort) async {
+      sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.stopped));
+      logger.info("Disposing bot...");
+      await bot.dispose();
+    }
+
+    if (!db.isOpen()) logger.critical("Database is not open");
+
+    int requestNumber = 0;
+    Set<int> guildIDs = {...bot.guilds.entries.map((guild) => guild.key.id)};
+    logger.info("This isolate will work with ${guildIDs.length} guilds");
+    Set<int> discoveredGuilds = {};
 
     for (var guildID in guildIDs) {
       if (_willStop) {
@@ -200,8 +229,9 @@ class Harvester {
 
         userIDSet.add(userID.id);
         requestNumber++;
-        await Future.delayed(const Duration(seconds: 1));
+        await _loopDelay();
       }
+      await _loopDelay();
       discoveredGuilds.add(guildID);
     }
     logger.info("Finished with all guilds.");

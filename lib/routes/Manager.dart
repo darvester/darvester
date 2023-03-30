@@ -5,7 +5,7 @@ import 'package:crypto/crypto.dart';
 
 // Components
 import '../components/MainDrawer.dart';
-import '../components/Isolate.dart';
+import '../components/IsolateCard.dart';
 
 // Util
 import '../util.dart';
@@ -97,7 +97,7 @@ class _ManagerState extends State<Manager> {
           Expanded(
             child: HarvesterIsolateSet.instance.set.isNotEmpty
                 ? GridView.count(
-                    crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 2 : 1,
+                    crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 3 : 1,
                     mainAxisSpacing: 24,
                     crossAxisSpacing: 24,
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -107,7 +107,12 @@ class _ManagerState extends State<Manager> {
                     }).toList(),
                   )
                 : const Center(
-                    child: Text("No harvester isolates spawned"),
+                    child: Text(
+                      style: TextStyle(
+                        color: Color(0xff888888),
+                      ),
+                      "No harvester isolates spawned"
+                    ),
                   ),
           ),
         ],

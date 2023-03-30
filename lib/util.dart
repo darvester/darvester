@@ -391,7 +391,7 @@ class Logger {
   }
 }
 
-class EvictingQueue<E> extends DoubleLinkedQueue<E> {
+class EvictingQueue<E> extends DoubleLinkedQueue<E> with ChangeNotifier {
   final int limit;
 
   EvictingQueue(this.limit);
@@ -399,6 +399,7 @@ class EvictingQueue<E> extends DoubleLinkedQueue<E> {
   @override
   void add(E value) {
     super.add(value);
+    notifyListeners();
     while (super.length > limit) {
       super.removeFirst();
     }

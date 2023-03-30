@@ -13,7 +13,8 @@ class HarvesterIsolateSet {
   /// Gets a [HarvesterIsolate] from the set that matches the [Digest] provided. Can be [null] if not found.
   HarvesterIsolate? get(Digest hash) {
     if (set.isNotEmpty) {
-      return set.where((e) => e.hash == hash).toList()[0];
+      List results = set.where((e) => e.hash == hash).toList();
+      return results.isNotEmpty ? results[0] : null;
     }
     return null;
   }
