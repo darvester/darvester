@@ -137,7 +137,14 @@ class Harvester {
       await bot.dispose();
     }
 
-    if (!db.isOpen()) logger.critical("Database is not open");
+    if (!db.isOpen()) {
+      logger.critical("Database is not open");
+      sendPort.send(HarvesterIsolateMessage(
+        HarvesterIsolateMessageType.state,
+        state: HarvesterIsolateState.stopped,
+      ));
+      return;
+    }
 
     int requestNumber = 0;
     Set<int> guildIDs = {...bot.guilds.entries.map((guild) => guild.key.id)};
