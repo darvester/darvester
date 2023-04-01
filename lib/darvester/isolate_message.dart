@@ -60,6 +60,9 @@ enum HarvesterIsolateState {
 
   /// The isolate is in an unknown state.
   unknown,
+
+  /// The isolate was removed from the [HarvesterIsolateSet]
+  removed,
 }
 
 extension IsolateStateMessage on HarvesterIsolateState {
@@ -81,6 +84,8 @@ extension IsolateStateMessage on HarvesterIsolateState {
         return "Crashed";
       case HarvesterIsolateState.unknown:
         return "Unknown";
+      case HarvesterIsolateState.removed:
+        return "Removed";
     }
   }
 
@@ -102,6 +107,8 @@ extension IsolateStateMessage on HarvesterIsolateState {
         return "Darvester has crashed. Please view the logs for more info";
       case HarvesterIsolateState.unknown:
         return "The isolate is in an unknown state";
+      case HarvesterIsolateState.removed:
+        return "The isolate was recently removed from the isolate set";
     }
   }
 }
