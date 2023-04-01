@@ -93,7 +93,12 @@ class _ManagerState extends State<Manager> {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
                           },
                         ),
-                      )
+                      ),
+                      const Expanded(child: SizedBox()),
+                      IconButton(
+                        onPressed: () => setState(() {}),
+                        icon: const Icon(Icons.refresh),
+                      ),
                     ],
                   ),
                 ),
@@ -105,7 +110,7 @@ class _ManagerState extends State<Manager> {
                 ? GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 3 : 2,
-                      mainAxisExtent: 520,
+                      mainAxisExtent: 420,
                       mainAxisSpacing: 24,
                       crossAxisSpacing: 24,
                     ),
@@ -115,10 +120,11 @@ class _ManagerState extends State<Manager> {
                   )
                 : const Center(
                     child: Text(
-                        style: TextStyle(
-                          color: Color(0xff888888),
-                        ),
-                        "No harvester isolates spawned"),
+                      style: TextStyle(
+                        color: Color(0xff888888),
+                      ),
+                      "No harvester isolates spawned",
+                    ),
                   ),
           ),
         ],

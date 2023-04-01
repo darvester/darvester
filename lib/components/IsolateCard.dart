@@ -63,7 +63,7 @@ class _IsolateCardState extends State<IsolateCard> {
                     style: const TextStyle(
                       fontSize: 24,
                     ),
-                    currentState.printableStateShort
+                    currentState.printableStateShort,
                   ),
                 ),
               ),
@@ -75,11 +75,11 @@ class _IsolateCardState extends State<IsolateCard> {
                 child: Padding(
                   padding: const EdgeInsets.all(4),
                   child: Text(
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xffcccccc),
-                      ),
-                      currentState.printableStateLong
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xffcccccc),
+                    ),
+                    currentState.printableStateLong,
                   ),
                 ),
               ),
@@ -104,13 +104,13 @@ class _IsolateCardState extends State<IsolateCard> {
                     ),
                     // filter for log messages in the message queue and print those out to this console display
                     HarvesterIsolateSet.instance
-                        .get(widget.digest)
-                        ?.messageQueue
-                        .where((message) {
-                      return message.type == HarvesterIsolateMessageType.log;
-                    })
-                        .map((e) => e.data.toString())
-                        .join("\n") ??
+                            .get(widget.digest)
+                            ?.messageQueue
+                            .where((message) {
+                              return message.type == HarvesterIsolateMessageType.log;
+                            })
+                            .map((e) => e.data.toString())
+                            .join("\n") ??
                         "",
                   ),
                 ),
@@ -142,19 +142,18 @@ class _IsolateCardState extends State<IsolateCard> {
                 child: const Text("Stop"),
               ),
               TextButton(
-                onPressed: ([
-                  HarvesterIsolateState.stopped,
-                  HarvesterIsolateState.crashed
-                ]).any((e) => currentState == e) ? () {
-                  HarvesterIsolate? isolate = HarvesterIsolateSet.instance.get(widget.digest);
-                  if (isolate != null) {
-                    isolate.isolate.kill(priority: 0);
-                  }
-                  // TODO: fix removing cards with index 0, index 1 inherits state from index 0 card
-                  setState(() {
-                    HarvesterIsolateSet.instance.set.remove(isolate);
-                  });
-                } : null,
+                onPressed: ([HarvesterIsolateState.stopped, HarvesterIsolateState.crashed]).any((e) => currentState == e)
+                    ? () {
+                        HarvesterIsolate? isolate = HarvesterIsolateSet.instance.get(widget.digest);
+                        if (isolate != null) {
+                          isolate.isolate.kill(priority: 0);
+                        }
+                        setState(() {
+                          HarvesterIsolateSet.instance.set.remove(isolate);
+                          currentState = HarvesterIsolateState.removed;
+                        });
+                      }
+                    : null,
                 child: const Text("Remove"),
               ),
             ],
