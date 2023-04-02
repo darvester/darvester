@@ -3,8 +3,10 @@ import 'dart:core';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:drift/isolate.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 // Util
 import '../util.dart';
@@ -74,9 +76,11 @@ class _GuildState extends State<Guild> {
 
   Future<void> getGuild() async {
     if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
-      guild = await DarvesterDatabase.instance.getGuild(widget.guildID);
-      setState(() async {
-        membersInDatabase = await DarvesterDatabase.instance.getTableCount("guilds", searchTerm: widget.guildID);
+      DriftIsolate driftIsolate = Provider.of<DriftIsolate>(context, listen: false);
+      DarvesterDatabase db = DarvesterDatabase(await driftIsolate.connect());
+      guild = await db.getGuild(widget.guildID);
+      membersInDatabase = await db.getTableCount("guilds", searchTerm: widget.guildID);
+      setState(() {
         try {
           if ((guild.icon?.isNotEmpty ?? false) && checkValidImage(guild.icon)) {
             precacheImage(CachedNetworkImageProvider(guild.icon ?? ""), context);
@@ -201,7 +205,7 @@ class _GuildState extends State<Guild> {
                                       children: <TextSpan>[
                                         TextSpan(
                                           text:
-                                              "  with ${enNumFormat.format(guild.memberCount).toString()} members, first seen on ${DateFormat.yMd().add_jm().format(guild.firstSeen ?? DateTime.now())}",
+                                              "  with ${enNumFormat.format(int.parse(guild.memberCount)).toString()} members, first seen on ${DateFormat.yMd().add_jm().format(guild.firstSeen ?? DateTime.now())}",
                                           style: const TextStyle(
                                             fontSize: 12,
                                             fontFamily: "UnboundedLight",

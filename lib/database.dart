@@ -2,11 +2,15 @@ import 'dart:io';
 
 import 'package:darvester/util.dart';
 import 'package:drift/drift.dart';
+import 'package:drift/isolate.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 part 'database.g.dart';
+
+Logger logger = Logger(name: "database");
 
 @DataClassName("DBGuild")
 class Guilds extends Table {
@@ -53,8 +57,7 @@ class Users extends Table {
 
 @DriftDatabase(tables: [Guilds, Users])
 class DarvesterDatabase extends _$DarvesterDatabase {
-  DarvesterDatabase._privateConstructor() : super(_openConnection());
-  static final DarvesterDatabase instance = DarvesterDatabase._privateConstructor();
+  DarvesterDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
   int get schemaVersion => 1;
@@ -100,6 +103,7 @@ class DarvesterDatabase extends _$DarvesterDatabase {
   }
 
   Future<int> upsertGuild(DBGuild guild) async {
+    logger.debug("Upserting guild: ${guild.id}");
     if ((await getTableCount("guilds", searchTerm: guild.id)) <= 0) {
       guild = guild.copyWith(firstSeen: Value(DateTime.now()));
     }
@@ -107,16 +111,29 @@ class DarvesterDatabase extends _$DarvesterDatabase {
   }
 }
 
+/// Create a [DriftIsolate] for use within Isolates.
+Future<DriftIsolate> createDriftIsolate() async {
+  final RootIsolateToken token = RootIsolateToken.instance!;
+  return await DriftIsolate.spawn(() {
+    BackgroundIsolateBinaryMessenger.ensureInitialized(token);
+
+    logger.info("Giving isolate a DriftIsolate database connector");
+    return _openConnection();
+  });
+}
+
+/// Handles a database open. Used internally.
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final File file;
     String databasePath = await Preferences.instance.getString("databasePath");
     if (databasePath.isEmpty) {
-      final dbFolder = await getApplicationDocumentsDirectory();
+      final dbFolder = await getApplicationSupportDirectory();
       file = File(p.join(dbFolder.path, 'harvested.db'));
     } else {
       file = File(databasePath);
     }
-    return NativeDatabase.createInBackground(file);
+    logger.info("LazyDatabase is opening database file: ${file.absolute.path}");
+    return NativeDatabase(file);
   });
 }

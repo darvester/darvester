@@ -3,7 +3,11 @@ import 'dart:convert';
 import 'dart:isolate';
 import 'package:crypto/crypto.dart';
 import 'package:darvester/darvester/isolate_message.dart';
+import 'package:darvester/database.dart' show DarvesterDatabase;
+import 'package:drift/drift.dart';
+import 'package:drift/isolate.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import './core.dart';
 import '../util.dart';
@@ -33,7 +37,8 @@ class HarvesterIsolate {
   void _spawnHarvester(List<dynamic> args) {
     Harvester(
       args[0] as String,
-      args[1] as SendPort,
+      args[1] as DarvesterDatabase,
+      args[2] as SendPort,
     );
   }
 
@@ -41,12 +46,18 @@ class HarvesterIsolate {
   HarvesterIsolate(String token, BuildContext context) {
     // Set this.hash for comparison
     hash = md5.convert(utf8.encode(token));
+
     // Call _init to spawn the isolate
-    _init(token);
+    DarvesterDatabase db = DarvesterDatabase(
+      DatabaseConnection.delayed(Future.sync(() async {
+        return Provider.of<DriftIsolate>(context, listen: false).connect();
+      }))
+    );
+    _init(token, db);
   }
 
   /// Spawns the [Isolate].
-  Future<void> _init(String token) async {
+  Future<void> _init(String token, DarvesterDatabase db) async {
     ReceivePort receivePort = ReceivePort();
     receivePort.listen((message) {
       if (message is SendPort && !sendPortInitialized) {
@@ -68,7 +79,7 @@ class HarvesterIsolate {
     });
 
     state = HarvesterIsolateState.starting;
-    isolate = await Isolate.spawn(_spawnHarvester, [token, receivePort.sendPort]);
+    isolate = await Isolate.spawn(_spawnHarvester, [token, db, receivePort.sendPort]);
   }
 
   /// Alias of [this.hash.hashCode]

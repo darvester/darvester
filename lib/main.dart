@@ -1,8 +1,11 @@
 // Component packages
 import 'dart:io';
 
+import 'package:darvester/database.dart' show createDriftIsolate;
+import 'package:drift/isolate.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:window_size/window_size.dart';
 
 // Routes
@@ -40,7 +43,7 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-void main() {
+void main() async {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
@@ -48,7 +51,12 @@ void main() {
     setWindowMinSize(const Size(800, 600));
     setWindowMaxSize(Size.infinite);
   }
-  runApp(const Darvester());
+  final DriftIsolate driftIsolate = await createDriftIsolate();
+  runApp(Provider<DriftIsolate>(
+    create: (BuildContext context) => driftIsolate,
+    child: const Darvester(),
+    dispose: (BuildContext context, DriftIsolate driftIsolate) => driftIsolate.shutdownAll(),
+  ));
 }
 
 class Darvester extends StatelessWidget {

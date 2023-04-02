@@ -1,7 +1,9 @@
 import 'package:darvester/database.dart';
 import 'package:darvester/routes/Guild.dart';
+import 'package:drift/isolate.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 // Util
 import '../util.dart';
@@ -24,9 +26,11 @@ class _GuildsState extends State<Guilds> {
   bool isLoading = true;
 
   Future<void> listGuilds() async {
+    DriftIsolate driftIsolate = Provider.of<DriftIsolate>(context, listen: false);
+    DarvesterDatabase db = DarvesterDatabase(await driftIsolate.connect());
     guilds.clear();
     if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
-      guilds = await DarvesterDatabase.instance.getGuilds();
+      guilds = await db.getGuilds();
       if (guilds.isNotEmpty) {
         for (var guild in guilds) {
           precacheImage(NetworkImage(guild?.icon ?? ""), context);

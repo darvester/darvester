@@ -1,6 +1,8 @@
 import 'package:darvester/database.dart';
+import 'package:drift/isolate.dart';
 import "package:flutter/material.dart";
 import "package:lazy_load_scrollview/lazy_load_scrollview.dart";
+import 'package:provider/provider.dart';
 
 import '../util.dart';
 
@@ -22,13 +24,15 @@ class _GuildUsersState extends State<GuildUsers> {
   bool reachedEnd = false;
   static const int limit = 50;
 
-  void loadMoreMembers() {
+  void loadMoreMembers() async {
     if (reachedEnd) {
       logger.debug("End of guild members reached, not getting more");
       return;
     }
     logger.debug("Trying to load another $limit (offset $membersOffset) more members for ${widget.guildID}...");
-    DarvesterDatabase.instance.getGuildMembers(widget.guildID, limit, membersOffset).then((r) {
+    DriftIsolate driftIsolate = Provider.of<DriftIsolate>(context, listen: false);
+    DarvesterDatabase db = DarvesterDatabase(await driftIsolate.connect());
+    db.getGuildMembers(widget.guildID, limit, membersOffset).then((r) {
       if (r.isNotEmpty) {
         setState(() {
           members.addAll(r);

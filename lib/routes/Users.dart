@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:darvester/database.dart';
 import 'package:darvester/util.dart';
+import 'package:drift/isolate.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
+import 'package:provider/provider.dart';
 
 // Components
 import '../components/MainDrawer.dart';
@@ -29,10 +31,14 @@ class _UsersState extends State<Users> {
   int userCount = 0;
 
   Future<void> listUsers() async {
+    DriftIsolate driftIsolate = Provider.of<DriftIsolate>(context, listen: false);
+    DarvesterDatabase db = DarvesterDatabase(
+      await driftIsolate.connect()
+    );
     if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
       setState(() async {
-        userCount = await DarvesterDatabase.instance.getTableCount("users");
-        List<DBUser?> users = await DarvesterDatabase.instance.getUsers(limit: usersLimit, offset: usersOffset);
+        userCount = await db.getTableCount("users");
+        List<DBUser?> users = await db.getUsers(limit: usersLimit, offset: usersOffset);
         if (users.isNotEmpty) {
           for (var user in users) {
             if (checkValidImage(user?.avatarUrl)) {

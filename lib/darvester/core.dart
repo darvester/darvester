@@ -49,7 +49,7 @@ class IsolateLogger extends Logger {
 
 class Harvester {
   late INyxxWebsocket bot;
-  final DarvesterDatabase db = DarvesterDatabase.instance;
+  final DarvesterDatabase db;
   late final Logger logger;
   final Set<int> userIDSet = {};
   final SendPort sendPort;
@@ -61,7 +61,7 @@ class Harvester {
   bool _willStop = false;
   bool _willPause = false;
 
-  Harvester(String token, this.sendPort) {
+  Harvester(String token, this.db, this.sendPort) {
     _digest = md5.convert(utf8.encode(token));
     logger = IsolateLogger(sendPort, name: _digest.toString());
 

@@ -2,8 +2,10 @@ import 'package:darvester/darvester/harvester_isolate.dart';
 import 'package:darvester/darvester/isolate_message.dart';
 import 'package:darvester/darvester/isolate_set.dart';
 import 'package:darvester/database.dart';
+import 'package:drift/isolate.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart' show PieChart, PieChartData, PieChartSectionData;
+import 'package:provider/provider.dart';
 
 import '../components/MainDrawer.dart';
 import '../util.dart';
@@ -23,12 +25,14 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    Preferences.instance.getString("databasePath").then((path) {
+    Preferences.instance.getString("databasePath").then((path) async {
+      DriftIsolate driftIsolate = Provider.of<DriftIsolate>(context, listen: false);
+      DarvesterDatabase db = DarvesterDatabase(await driftIsolate.connect());
       if (path.isNotEmpty) {
-        DarvesterDatabase.instance.getTableCount("guilds").then((n) => setState(() {
+        db.getTableCount("guilds").then((n) => setState(() {
               numOfGuilds = n.toDouble();
             }));
-        DarvesterDatabase.instance.getTableCount("users").then((n) => setState(() {
+        db.getTableCount("users").then((n) => setState(() {
               numOfUsers = n.toDouble();
             }));
       }
