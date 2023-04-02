@@ -5,6 +5,8 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:darvester/database.dart';
+import 'package:drift/drift.dart';
+import 'package:drift/isolate.dart';
 import 'package:nyxx_self/nyxx.dart';
 
 import '../util.dart' show Logger;
@@ -49,7 +51,7 @@ class IsolateLogger extends Logger {
 
 class Harvester {
   late INyxxWebsocket bot;
-  final DarvesterDatabase db;
+  late final DarvesterDatabase db;
   late final Logger logger;
   final Set<int> userIDSet = {};
   final SendPort sendPort;
@@ -61,9 +63,16 @@ class Harvester {
   bool _willStop = false;
   bool _willPause = false;
 
-  Harvester(String token, this.db, this.sendPort) {
+  Harvester(String token, DriftIsolate driftIsolate, this.sendPort) {
     _digest = md5.convert(utf8.encode(token));
     logger = IsolateLogger(sendPort, name: _digest.toString());
+
+    // Initialize a Drift database instance
+    db = DarvesterDatabase(
+      DatabaseConnection.delayed(Future.sync(() async {
+        return driftIsolate.connect();
+      }))
+    );
 
     // Initialize the bot
     bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged | GatewayIntents.guildMembers | GatewayIntents.messageContent)
