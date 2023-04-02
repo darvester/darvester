@@ -1,3 +1,4 @@
+import 'package:darvester/database.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart' show PieChart, PieChartData, PieChartSectionData;
 
@@ -20,18 +21,13 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     Preferences.instance.getString("databasePath").then((path) {
-      if (path != "") {
-        DarvesterDB.instance.openDB(path, context).then((_) {
-          setState(() {
-            databaseOpen = true;
-          });
-          DarvesterDB.instance.getGuildsCount().then((guildCount) => setState(() {
-                numOfGuilds = guildCount.toDouble();
-              }));
-          DarvesterDB.instance.getUsersCount().then((userCount) => setState(() {
-                numOfUsers = userCount.toDouble();
-              }));
-        });
+      if (path.isNotEmpty) {
+        DarvesterDatabase.instance.getTableCount("guilds").then((n) => setState(() {
+              numOfGuilds = n.toDouble();
+            }));
+        DarvesterDatabase.instance.getTableCount("users").then((n) => setState(() {
+              numOfUsers = n.toDouble();
+            }));
       }
     });
   }

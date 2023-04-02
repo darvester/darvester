@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:darvester/database.dart';
 import 'package:darvester/util.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -18,7 +20,7 @@ class Users extends StatefulWidget {
 }
 
 class _UsersState extends State<Users> {
-  Set users = {};
+  Set<DBUser?> users = {};
   int usersOffset = 0;
   static const int usersLimit = 50;
   bool reachedEnd = false;
@@ -27,58 +29,28 @@ class _UsersState extends State<Users> {
   int userCount = 0;
 
   Future listUsers() async {
-    Preferences.instance.getString("databasePath").then((value) {
-      if (value.isNotEmpty) {
-        DarvesterDB.instance.getUsersCount().then((i) {
-          setState(() {
-            userCount = i;
-          });
-        });
-        DarvesterDB.instance.getUsers(context, columns: ["data", "id", "name", "discriminator", "avatar_url"], limit: usersLimit, offset: usersOffset).then(
-          (users) {
-            if (users != null) {
-              if (users.isNotEmpty) {
-                for (var user in users) {
-                  precacheImage(NetworkImage(user["avatar_url"]), context);
-                }
-                setState(() {
-                  this.users.addAll(users);
-                  isLoading = false;
-                });
-                usersOffset += usersLimit;
-              } else {
-                reachedEnd = true;
-              }
-            } else {
-              setState(() {
-                isLoading = false;
-              });
-              showDialog(
-                context: context,
-                builder: (BuildContext builder) {
-                  return AlertDialog(
-                    title: const Text("Users is empty"),
-                    content: const Text("Data is possibly missing here. This shouldn't happen, but you should report this."),
-                    actions: <Widget>[
-                      TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
-                      TextButton(
-                          onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())),
-                          child: const Text("Settings")),
-                    ],
-                  );
-                },
-              );
+    if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
+      setState(() async {
+        userCount = await DarvesterDatabase.instance.getTableCount("users");
+        List<DBUser?> users = await DarvesterDatabase.instance.getUsers(limit: usersLimit, offset: usersOffset);
+        if (users.isNotEmpty) {
+          for (var user in users) {
+            if (checkValidImage(user?.avatarUrl)) {
+              precacheImage(CachedNetworkImageProvider(user?.avatarUrl ?? ""), context);
             }
-          },
-        );
-      } else {
-        showAlertDialog(context, "Users is empty", "Could not load any content from the users database");
-      }
-    });
+          }
+          this.users.addAll(users);
+          usersOffset += usersLimit;
+        } else {
+          reachedEnd = true;
+        }
+        isLoading = false;
+      });
+    }
   }
 
   Widget itemBuilder(idx) {
-    Map user = users.elementAt(idx);
+    DBUser? user = users.elementAt(idx);
     return TextButton(
       style: const ButtonStyle(
         padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
@@ -86,7 +58,7 @@ class _UsersState extends State<Users> {
         overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
       ),
       onPressed: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => User(userID: user["id"].toString())));
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => User(userID: user?.id ?? "")));
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(180),
@@ -108,7 +80,7 @@ class _UsersState extends State<Users> {
                         fit: BoxFit.fitWidth,
                       );
                     },
-                    image: assetOrNetwork(user["avatar_url"]),
+                    image: assetOrNetwork(user?.avatarUrl),
                   ),
                 ),
               ),
@@ -117,7 +89,7 @@ class _UsersState extends State<Users> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  "${user["name"]}\u200b#${user["discriminator"]}",
+                  "${user?.name}\u200b#${user?.discriminator}",
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width > 1000 ? 8 : 12,
                   ),

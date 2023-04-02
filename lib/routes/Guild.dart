@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 // Util
 import '../util.dart';
+import '../database.dart';
 
 // Components
 import '../components/GuildUsers.dart';
@@ -53,7 +54,7 @@ class Guild extends StatefulWidget {
 }
 
 class _GuildState extends State<Guild> {
-  Map guild = {};
+  late DBGuild guild;
   bool isLoading = true;
 
   int membersInDatabase = 0;
@@ -72,40 +73,22 @@ class _GuildState extends State<Guild> {
   }
 
   Future<void> getGuild() async {
-    Preferences.instance.getString("databasePath").then((value) {
-      if (value.isNotEmpty) {
-        DarvesterDB.instance.getGuild(widget.guildID, context, columns: ["data"]).then((r) {
-          DarvesterDB.instance.getUsersCount(searchTerm: widget.guildID).then((value) {
-            setState(() {
-              membersInDatabase = value;
-            });
-          });
-
-          Map guild;
-          try {
-            guild = jsonDecode(r!["data"]);
-            if (checkValidImage(guild["icon"])) {
-              precacheImage(CachedNetworkImageProvider(guild["icon"]), context);
-            }
-
-            setState(() {
-              this.guild = guild;
-              isLoading = false;
-            });
-          } catch (_) {
-            setState(() {
-              isLoading = false;
-            });
-            showAlertDialog(context, "Guild missing", "Data is missing here. This shouldn't happen, but you should still report this.");
+    if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
+      guild = await DarvesterDatabase.instance.getGuild(widget.guildID);
+      setState(() async {
+        membersInDatabase = await DarvesterDatabase.instance.getTableCount("guilds", searchTerm: widget.guildID);
+        try {
+          if ((guild.icon?.isNotEmpty ?? false) && checkValidImage(guild.icon)) {
+            precacheImage(CachedNetworkImageProvider(guild.icon ?? ""), context);
           }
-        });
-      } else {
-        setState(() {
           isLoading = false;
-        });
-        showAlertDialog(context, "Database path missing", "Database path not set. Please configure this in Settings");
-      }
-    });
+        } catch (_) {
+          showAlertDialog(context, "Guild missing", "Data is missing here. This shouldn't happen, but you should still report this.");
+        }
+      });
+    } else {
+      showAlertDialog(context, "Database path missing", "Database path not set. Please configure this in Settings");
+    }
   }
 
   @override
@@ -129,12 +112,12 @@ class _GuildState extends State<Guild> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: guild.isEmpty || isLoading
+      child: isLoading
           ? const CircularProgressIndicator()
           : Scaffold(
               backgroundColor: const Color(0xff111111),
               appBar: AppBar(
-                title: Text(guild["name"]),
+                title: Text(guild.name),
                 backgroundColor: const Color(0xff222222),
               ),
               body: Stack(
@@ -154,7 +137,7 @@ class _GuildState extends State<Guild> {
                               fit: BoxFit.fitWidth,
                             );
                           },
-                          image: assetOrNetwork(guild["splash_url"], fallbackUri: "images/transparent.png"),
+                          image: assetOrNetwork(guild.splashUrl, fallbackUri: "images/transparent.png"),
                         ),
                       ),
                     ),
@@ -186,14 +169,14 @@ class _GuildState extends State<Guild> {
                                                 image: AssetImage('images/default_avatar.png'),
                                               );
                                             },
-                                            image: assetOrNetwork(guild["icon"]),
+                                            image: assetOrNetwork(guild.icon),
                                           ),
                                         ),
                                       ),
                                     ),
                                     Flexible(
                                       child: Text(
-                                        guild["name"],
+                                        guild.name,
                                         style: const TextStyle(
                                           fontSize: 32,
                                         ),
@@ -218,7 +201,7 @@ class _GuildState extends State<Guild> {
                                       children: <TextSpan>[
                                         TextSpan(
                                           text:
-                                              "  with ${enNumFormat.format(guild['member_count'] ?? 0).toString()} members, first seen on ${DateFormat.yMd().add_jm().format(DateTime.fromMillisecondsSinceEpoch(guild["first_seen"] * 1000))}",
+                                              "  with ${enNumFormat.format(guild.memberCount).toString()} members, first seen on ${DateFormat.yMd().add_jm().format(guild.firstSeen ?? DateTime.now())}",
                                           style: const TextStyle(
                                             fontSize: 12,
                                             fontFamily: "UnboundedLight",
@@ -262,7 +245,7 @@ class _GuildState extends State<Guild> {
                                                 sectionHeader("Description"),
                                                 Container(
                                                   padding: const EdgeInsets.all(16),
-                                                  child: Text(guild["description"] ?? "None", style: bodyStyle),
+                                                  child: Text(guild.description ?? "None", style: bodyStyle),
                                                 ), // END Description
                                                 // BEGIN Features
                                                 sectionHeader("Features"),
@@ -280,7 +263,7 @@ class _GuildState extends State<Guild> {
                                                     child: Padding(
                                                       padding: const EdgeInsets.all(14.0),
                                                       child: Text(
-                                                        guild["features"].join("\n") ?? "None",
+                                                        guild.features?.replaceAll(",", "\n") ?? "None",
                                                         style: const TextStyle(
                                                           fontFamily: "Courier",
                                                           fontSize: 14,
@@ -309,19 +292,19 @@ class _GuildState extends State<Guild> {
                                                   ),
                                                   padding: const EdgeInsets.all(8),
                                                   child: () {
-                                                    String? owner;
+                                                    Map owner;
                                                     try {
-                                                      owner = guild["owner"]["name"];
-                                                      return (owner != null)
+                                                      owner = jsonDecode(guild.owner ?? '{"name": "", "id": ""}');
+                                                      return (owner["id"] != null)
                                                           ? TextButton(
                                                               onPressed: () {
-                                                                if (guild["owner"] != null && guild["owner"]["id"].toString().isNotEmpty) {
-                                                                  Navigator.of(context).push(
-                                                                      MaterialPageRoute(builder: (context) => User(userID: guild["owner"]["id"].toString())));
+                                                                if (owner["id"].toString().isNotEmpty) {
+                                                                  Navigator.of(context)
+                                                                      .push(MaterialPageRoute(builder: (context) => User(userID: owner["id"].toString())));
                                                                 }
                                                               },
                                                               child: Text(
-                                                                owner,
+                                                                owner["name"],
                                                                 style: bodyStyle,
                                                               ),
                                                             )
@@ -352,7 +335,7 @@ class _GuildState extends State<Guild> {
                                                   ),
                                                   padding: const EdgeInsets.all(8),
                                                   child: Text(
-                                                    getGuildNitroTier(guild["premium_tier"]),
+                                                    getGuildNitroTier(guild.premiumTier),
                                                     style: bodyStyle,
                                                   ),
                                                 ), // END Nitro Tier
@@ -403,7 +386,8 @@ class _GuildState extends State<Guild> {
                     ],
                   ),
                 ],
-              )),
+              ),
+            ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:darvester/database.dart';
 import 'package:darvester/routes/Guild.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -19,41 +20,19 @@ class Guilds extends StatefulWidget {
 }
 
 class _GuildsState extends State<Guilds> {
-  List<Map> guilds = [];
+  List<DBGuild?> guilds = [];
   bool isLoading = true;
 
   Future listGuilds() async {
     guilds.clear();
-    Preferences.instance.getString("databasePath").then((value) {
-      if (value.isNotEmpty) {
-        DarvesterDB.instance.getGuilds(context, columns: ["name", "icon"]).then((guilds) {
-          if (guilds != null) {
-            for (var guild in guilds) {
-              precacheImage(NetworkImage(guild["icon"]), context);
-            }
-            setState(() {
-              this.guilds.addAll(guilds);
-              isLoading = false;
-            });
-          } else {
-            setState(() {
-              isLoading = false;
-            });
-            showDialog(
-              context: context,
-              builder: (BuildContext builder) {
-                return AlertDialog(
-                  title: const Text("Guilds is empty"),
-                  content: const Text("Data is possibly missing here. This shouldn't happen, but you should report this."),
-                  actions: <Widget>[
-                    TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
-                    TextButton(
-                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())), child: const Text("Settings")),
-                  ],
-                );
-              },
-            );
-          }
+    if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
+      guilds = await DarvesterDatabase.instance.getGuilds();
+      if (guilds.isNotEmpty) {
+        for (var guild in guilds) {
+          precacheImage(NetworkImage(guild?.icon ?? ""), context);
+        }
+        setState(() {
+          isLoading = false;
         });
       } else {
         setState(() {
@@ -63,18 +42,36 @@ class _GuildsState extends State<Guilds> {
           context: context,
           builder: (BuildContext builder) {
             return AlertDialog(
-              title: const Text("Database path empty"),
-              content: const Text("Database path is not set. Please set in Settings"),
+              title: const Text("Guilds is empty"),
+              content: const Text("Data is possibly missing here. This shouldn't happen, but you should report this."),
               actions: <Widget>[
                 TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
                 TextButton(
-                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())), child: const Text("Take me there")),
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())), child: const Text("Settings")),
               ],
             );
           },
         );
       }
-    });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      showDialog(
+        context: context,
+        builder: (BuildContext builder) {
+          return AlertDialog(
+            title: const Text("Database path empty"),
+            content: const Text("Database path is not set. Please set in Settings"),
+            actions: <Widget>[
+              TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
+              TextButton(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())), child: const Text("Take me there")),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -157,7 +154,7 @@ class _GuildsState extends State<Guilds> {
                           overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
                         ),
                         onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => Guild(guildID: e["id"].toString())));
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => Guild(guildID: e?.id ?? "")));
                         },
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(48),
@@ -180,7 +177,7 @@ class _GuildsState extends State<Guilds> {
                                           fit: BoxFit.fitWidth,
                                         );
                                       },
-                                      image: assetOrNetwork(e["icon"]),
+                                      image: assetOrNetwork(e?.icon),
                                     ),
                                   ),
                                 ),
@@ -189,7 +186,7 @@ class _GuildsState extends State<Guilds> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Text(
-                                    e["name"],
+                                    e?.name ?? "Unknown",
                                     style: TextStyle(
                                       fontSize: MediaQuery.of(context).size.width > 1000 ? 8 : 12,
                                     ),

@@ -33,21 +33,20 @@ class HarvesterIsolate {
   void _spawnHarvester(List args) {
     Harvester(
       args[0] as String,
-      args[1] as DarvesterDB,
-      args[2] as SendPort,
+      args[1] as SendPort,
     );
   }
 
   /// Instantiates a [HarvesterIsolate] struct which runs the [Harvester] loop.
-  HarvesterIsolate(String token, DarvesterDB db, BuildContext context) {
+  HarvesterIsolate(String token, BuildContext context) {
     // Set this.hash for comparison
     hash = md5.convert(utf8.encode(token));
     // Call _init to spawn the isolate
-    _init(token, db);
+    _init(token);
   }
 
   /// Spawns the [Isolate].
-  Future<void> _init(String token, DarvesterDB db) async {
+  Future<void> _init(String token) async {
     ReceivePort receivePort = ReceivePort();
     receivePort.listen((message) {
       if (message is SendPort && !sendPortInitialized) {
@@ -69,7 +68,7 @@ class HarvesterIsolate {
     });
 
     state = HarvesterIsolateState.starting;
-    isolate = await Isolate.spawn(_spawnHarvester, [token, db, receivePort.sendPort]);
+    isolate = await Isolate.spawn(_spawnHarvester, [token, receivePort.sendPort]);
   }
 
   /// Alias of [this.hash.hashCode]

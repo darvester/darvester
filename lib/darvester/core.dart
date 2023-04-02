@@ -4,9 +4,10 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:darvester/database.dart';
 import 'package:nyxx_self/nyxx.dart';
 
-import '../util.dart' show DarvesterDB, Logger;
+import '../util.dart' show Logger;
 import './isolate_message.dart';
 
 class IsolateLogger extends Logger {
@@ -48,7 +49,7 @@ class IsolateLogger extends Logger {
 
 class Harvester {
   late INyxxWebsocket bot;
-  final DarvesterDB db;
+  final DarvesterDatabase db = DarvesterDatabase.instance;
   late final Logger logger;
   final Set<int> userIDSet = {};
   final SendPort sendPort;
@@ -60,7 +61,7 @@ class Harvester {
   bool _willStop = false;
   bool _willPause = false;
 
-  Harvester(String token, this.db, this.sendPort) {
+  Harvester(String token, this.sendPort) {
     _digest = md5.convert(utf8.encode(token));
     logger = IsolateLogger(sendPort, name: _digest.toString());
 
@@ -137,15 +138,6 @@ class Harvester {
       await bot.dispose();
     }
 
-    if (!db.isOpen()) {
-      logger.critical("Database is not open");
-      sendPort.send(HarvesterIsolateMessage(
-        HarvesterIsolateMessageType.state,
-        state: HarvesterIsolateState.stopped,
-      ));
-      return;
-    }
-
     int requestNumber = 0;
     Set<int> guildIDs = {...bot.guilds.entries.map((guild) => guild.key.id)};
     logger.info("This isolate will work with ${guildIDs.length} guilds");
@@ -173,25 +165,23 @@ class Harvester {
       }
 
       logger.info('Now working in guild: "${guild.name}"');
-      Map guildData = {
-        "name": guild.name,
-        "icon": guild.iconUrl(), // TODO: implement animated check
-        "owner": {
-          "name": await guild.owner.getOrDownload()
-            ..username,
-          "id": await guild.owner.getOrDownload()
-            ..id,
-        },
-        "splash_url": guild.splashUrl(),
-        "member_count": guild.memberCount ?? guild.approxMemberCount,
-        "description": guild.description,
-        "features": guild.features.map((f) => f.toString()).toList(),
-        "premium_tier": guild.premiumTier.value,
-        "boosts": guild.premiumSubscriptionCount ?? 0,
-      };
-      // TODO: validate guild data
+      IUser owner = await guild.owner.getOrDownload();
+      db.upsertGuild(DBGuild(
+        data: jsonEncode(guild.raw),
+        id: guild.id.toString(),
+        name: guild.name,
+        owner: jsonEncode({
+          "name": "${owner.username}#${owner.formattedDiscriminator}",
+          "id": owner.id.id,
+        }),
+        splashUrl: guild.splash,
+        memberCount: (guild.memberCount ?? 0).toString(),
+        description: guild.description,
+        features: jsonEncode(guild.features.map((e) => e.value).toList()),
+        premiumTier: guild.premiumTier.value,
+        boosts: guild.premiumSubscriptionCount,
+      ));
 
-      // TODO: implement guild insert in utils.dart
       requestNumber++;
       // TODO: implement guild.ack
 

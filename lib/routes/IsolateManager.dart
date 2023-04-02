@@ -31,13 +31,13 @@ class _ManagerState extends State<Manager> {
     );
   }
 
-  Future<Digest> spawnHarvesterThread(String token, DarvesterDB db) async {
+  Future<Digest> spawnHarvesterThread(String token) async {
     Digest hashedToken = md5.convert(utf8.encode(token));
 
     if (HarvesterIsolateSet.instance.get(hashedToken) == null) {
       logger.info("Spawned a new harvester isolate: ${hashedToken.toString()}");
       // TODO: check if context messenger logic needs to be a singleton across routes
-      HarvesterIsolate hIsolate = HarvesterIsolate(token, db, context);
+      HarvesterIsolate hIsolate = HarvesterIsolate(token, context);
       setState(() {
         HarvesterIsolateSet.instance.add(hIsolate);
       });
@@ -89,7 +89,7 @@ class _ManagerState extends State<Manager> {
                             // TODO: when inputting a token that was just removed, the isolate card will be stuck in the removed state until a route change
                             String msg = "Could not validate JWT token";
                             if (validateJwtDiscordToken(token)) {
-                              Digest threadDigest = await spawnHarvesterThread(token, DarvesterDB.instance);
+                              Digest threadDigest = await spawnHarvesterThread(token);
                               msg = "Started ${threadDigest.toString()}";
                             }
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));

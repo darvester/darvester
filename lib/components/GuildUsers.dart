@@ -1,3 +1,4 @@
+import 'package:darvester/database.dart';
 import "package:flutter/material.dart";
 import "package:lazy_load_scrollview/lazy_load_scrollview.dart";
 
@@ -16,7 +17,7 @@ class GuildUsers extends StatefulWidget {
 }
 
 class _GuildUsersState extends State<GuildUsers> {
-  List<Map> members = [];
+  List<DBUser?> members = [];
   int membersOffset = 0;
   bool reachedEnd = false;
   static const int limit = 50;
@@ -27,16 +28,14 @@ class _GuildUsersState extends State<GuildUsers> {
       return;
     }
     logger.debug("Trying to load another $limit (offset $membersOffset) more members for ${widget.guildID}...");
-    DarvesterDB.instance.getGuildMembers(widget.guildID, context, limit: limit, offset: membersOffset).then((r) {
-      if (r != null) {
-        if (r.isNotEmpty) {
-          setState(() {
-            members.addAll(r);
-          });
-          membersOffset += limit;
-        } else {
-          reachedEnd = true;
-        }
+    DarvesterDatabase.instance.getGuildMembers(widget.guildID, limit, membersOffset).then((r) {
+      if (r.isNotEmpty) {
+        setState(() {
+          members.addAll(r);
+        });
+        membersOffset += limit;
+      } else {
+        reachedEnd = true;
       }
     });
   }
@@ -72,7 +71,7 @@ class _GuildUsersState extends State<GuildUsers> {
                   padding: const EdgeInsets.all(36),
                   physics: const AlwaysScrollableScrollPhysics(), // alt: [ClampingScrollPhysics]
                   itemBuilder: (BuildContext context, idx) {
-                    Map member = members[idx];
+                    DBUser? member = members[idx];
                     return TextButton(
                       style: const ButtonStyle(
                         padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
@@ -80,7 +79,7 @@ class _GuildUsersState extends State<GuildUsers> {
                         overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
                       ),
                       onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => User(userID: member["id"].toString())));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => User(userID: member?.id ?? "")));
                       },
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(180),
@@ -102,7 +101,7 @@ class _GuildUsersState extends State<GuildUsers> {
                                         fit: BoxFit.fitWidth,
                                       );
                                     },
-                                    image: assetOrNetwork(member["avatar_url"]),
+                                    image: assetOrNetwork(member?.avatarUrl),
                                   ),
                                 ),
                               ),
@@ -111,7 +110,7 @@ class _GuildUsersState extends State<GuildUsers> {
                               child: Padding(
                                 padding: const EdgeInsets.all(16.0),
                                 child: Text(
-                                  "${member["name"]}\u200b#${member["discriminator"]}",
+                                  "${member?.name}\u200b#${member?.discriminator}",
                                   style: TextStyle(
                                     fontSize: MediaQuery.of(context).size.width > 1000 ? 8 : 12,
                                     color: const Color(0xaaffffff),

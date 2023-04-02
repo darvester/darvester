@@ -1,6 +1,9 @@
+import 'package:darvester/database.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart' show getApplicationDocumentsDirectory;
+import 'package:path/path.dart' as p;
 
 // Util
 import '../util.dart';
@@ -103,12 +106,19 @@ class _SettingsState extends State<_Settings> {
                             onPressed: () {
                               FilePicker.platform
                                   .pickFiles(type: FileType.custom, allowedExtensions: <String>["db"], dialogTitle: "Pick your harvested.db")
-                                  .then((pathToDB) {
+                                  .then((pathToDB) async {
                                 if ((pathToDB?.files.single.path ?? "").isEmpty) {
-                                  showSnackbar(context, ErrorsSnackbars.genericError("Path to database cannot be empty"));
+                                  setKey("databasePath", p.join((await getApplicationDocumentsDirectory()).path, 'harvested.db')).then((_) async {
+                                    showSnackbar(
+                                        context,
+                                        ErrorsSnackbars.genericError(
+                                            "Defaulting to ${p.join((await getApplicationDocumentsDirectory()).path, 'harvested.db')}"));
+                                  }).catchError((err) {
+                                    showSnackbar(context,
+                                        ErrorsSnackbars.genericError(kDebugMode ? "Could not save database setting" : "Could not save database setting: $err"));
+                                  });
                                 } else {
                                   setKey("databasePath", pathToDB?.files.single.path ?? "").then((_) {
-                                    DarvesterDB.instance.openDB(pathToDB?.files.single.path ?? "", context, tryToForce: true);
                                     showSnackbar(context, SettingsSnackbars.settingSaved("databasePath"));
                                   }).catchError((err) {
                                     showSnackbar(context,
@@ -127,7 +137,7 @@ class _SettingsState extends State<_Settings> {
                         children: [
                           ElevatedButton(
                               onPressed: () async {
-                                await DarvesterDB.instance.db?.close();
+                                await DarvesterDatabase.instance.close();
                                 Preferences.instance.setString("databasePath", "").then((_) {
                                   setKey("databasePath", "");
                                   showSnackbar(context, SettingsSnackbars.settingSaved("databasePath"));

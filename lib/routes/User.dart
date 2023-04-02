@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:darvester/database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -447,7 +448,7 @@ class User extends StatefulWidget {
 }
 
 class _UserState extends State<User> {
-  Map user = {};
+  late DBUser user;
   bool isLoading = true;
 
   int tabIndex = 0;
@@ -465,36 +466,19 @@ class _UserState extends State<User> {
   }
 
   Future<void> getUser() async {
-    Preferences.instance.getString("databasePath").then((value) {
-      if (value.isNotEmpty) {
-        DarvesterDB.instance.getUser(widget.userID, context).then((r) {
-          Map user;
-          try {
-            user = jsonDecode(r!["data"]);
-            for (var url in [user["avatar_url"], user["banner"]]) {
-              if (checkValidImage(url)) {
-                precacheImage(CachedNetworkImageProvider(url), context);
-              }
-
-              setState(() {
-                this.user = user;
-                isLoading = false;
-              });
-            }
-          } catch (_) {
-            setState(() {
-              isLoading = false;
-            });
-            showAlertDialog(context, "User not found", "Darvester has not yet encountered this user");
+    if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
+      setState(() async {
+        user = await DarvesterDatabase.instance.getUser(widget.userID);
+        for (String? url in [user.avatarUrl, user.banner]) {
+          if (checkValidImage(url)) {
+            precacheImage(CachedNetworkImageProvider(url ?? ""), context);
           }
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-        showAlertDialog(context, "Database path missing", "Database path not set. Please configure this in Settings");
-      }
-    });
+        }
+        isLoading = false;
+      });
+    } else {
+      showAlertDialog(context, "Database path missing", "Database path not set. Please configure this in Settings");
+    }
   }
 
   @override
@@ -523,7 +507,7 @@ class _UserState extends State<User> {
         child: Scaffold(
           backgroundColor: const Color(0xff191919),
           appBar: AppBar(
-            title: Text("${user["name"]}#${user["discriminator"]}"),
+            title: Text("${user.name}#${user.discriminator}"),
             backgroundColor: const Color(0xff222222),
           ),
           body: Center(
@@ -561,7 +545,7 @@ class _UserState extends State<User> {
                                           fit: BoxFit.cover,
                                         );
                                       },
-                                      image: assetOrNetwork(user["banner"], fallbackUri: "images/transparent.png"),
+                                      image: assetOrNetwork(user.banner, fallbackUri: "images/transparent.png"),
                                     ),
                                   ),
                                 ),
@@ -595,7 +579,7 @@ class _UserState extends State<User> {
                                         fit: BoxFit.cover,
                                       );
                                     },
-                                    image: assetOrNetwork(user["avatar_url"], fallbackUri: "images/default_avatar.png"),
+                                    image: assetOrNetwork(user.avatarUrl, fallbackUri: "images/default_avatar.png"),
                                   ),
                                 ),
                               ),
@@ -625,13 +609,13 @@ class _UserState extends State<User> {
                                         width: 300,
                                         duration: Duration(seconds: 1),
                                       ));
-                                      Clipboard.setData(ClipboardData(text: "${user["name"]}#${user["discriminator"]}"));
+                                      Clipboard.setData(ClipboardData(text: "${user.name}#${user.discriminator}"));
                                     },
                                     style: const ButtonStyle(
                                       padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
                                       foregroundColor: MaterialStatePropertyAll<Color>(Color(0xffffffff)),
                                     ),
-                                    child: Text("${user["name"]}#${user["discriminator"]}"),
+                                    child: Text("${user.name}#${user.discriminator}"),
                                   ),
                                   TextButton(
                                     onPressed: () {
@@ -688,7 +672,7 @@ class _UserState extends State<User> {
                                   child: Builder(
                                     builder: (_) {
                                       return AnimatedCrossFade(
-                                        firstChild: UserInfo(user: user),
+                                        firstChild: UserInfo(user: user.toJson()),
                                         secondChild: const Placeholder(),
                                         crossFadeState: tabIndex == 0 ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                                         duration: const Duration(milliseconds: 300),
