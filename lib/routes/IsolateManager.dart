@@ -77,7 +77,7 @@ class _ManagerState extends State<Manager> {
                     children: [
                       ConstrainedBox(
                         constraints: const BoxConstraints(
-                          maxWidth: 200,
+                          maxWidth: 300,
                         ),
                         child: TextField(
                           obscureText: true,
