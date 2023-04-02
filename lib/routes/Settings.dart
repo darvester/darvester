@@ -126,7 +126,8 @@ class _SettingsState extends State<_Settings> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
+                                await DarvesterDB.instance.db?.close();
                                 Preferences.instance.setString("databasePath", "").then((_) {
                                   setKey("databasePath", "");
                                   showSnackbar(context, SettingsSnackbars.settingSaved("databasePath"));
