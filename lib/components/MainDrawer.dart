@@ -28,7 +28,7 @@ class MainDrawer extends StatelessWidget {
     },
     {
       "icon": Icons.storage,
-      "title": 'Manager',
+      "title": 'Isolates',
       "route": '/manager',
     },
   ];

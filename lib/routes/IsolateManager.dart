@@ -27,6 +27,7 @@ class _ManagerState extends State<Manager> {
   IsolateCard? generateIsolateCards(BuildContext _, int idx) {
     return IsolateCard(
       digest: HarvesterIsolateSet.instance.set.elementAt(idx).hash,
+      key: ValueKey(HarvesterIsolateSet.instance.set.elementAt(idx).hash),
     );
   }
 
@@ -48,7 +49,7 @@ class _ManagerState extends State<Manager> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manager'),
+        title: const Text('Isolate Manager'),
       ),
       drawer: const MainDrawer(),
       body: Column(
@@ -85,6 +86,7 @@ class _ManagerState extends State<Manager> {
                             labelText: "Token",
                           ),
                           onSubmitted: (String token) async {
+                            // TODO: when inputting a token that was just removed, the isolate card will be stuck in the removed state until a route change
                             String msg = "Could not validate JWT token";
                             if (validateJwtDiscordToken(token)) {
                               Digest threadDigest = await spawnHarvesterThread(token, DarvesterDB.instance);

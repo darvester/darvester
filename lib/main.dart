@@ -9,7 +9,7 @@ import 'package:window_size/window_size.dart';
 import 'routes/Home.dart';
 import 'routes/Guilds.dart';
 import 'routes/Users.dart';
-import 'routes/Manager.dart';
+import 'routes/IsolateManager.dart';
 
 final _router = GoRouter(
   routes: <RouteBase>[
