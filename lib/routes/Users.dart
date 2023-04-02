@@ -46,6 +46,21 @@ class _UsersState extends State<Users> {
         }
         isLoading = false;
       });
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext builder) {
+          return AlertDialog(
+            title: const Text("Database path empty"),
+            content: const Text("Database path is not set. Please set in Settings"),
+            actions: <Widget>[
+              TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
+              TextButton(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())), child: const Text("Settings")),
+            ],
+          );
+        },
+      );
     }
   }
 
