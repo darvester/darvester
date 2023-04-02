@@ -23,7 +23,7 @@ class _GuildsState extends State<Guilds> {
   List<DBGuild?> guilds = [];
   bool isLoading = true;
 
-  Future listGuilds() async {
+  Future<void> listGuilds() async {
     guilds.clear();
     if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
       guilds = await DarvesterDatabase.instance.getGuilds();
@@ -38,7 +38,7 @@ class _GuildsState extends State<Guilds> {
         setState(() {
           isLoading = false;
         });
-        showDialog(
+        showDialog<void>(
           context: context,
           builder: (BuildContext builder) {
             return AlertDialog(
@@ -47,7 +47,7 @@ class _GuildsState extends State<Guilds> {
               actions: <Widget>[
                 TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
                 TextButton(
-                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())), child: const Text("Settings")),
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => const Settings())), child: const Text("Settings")),
               ],
             );
           },
@@ -57,7 +57,7 @@ class _GuildsState extends State<Guilds> {
       setState(() {
         isLoading = false;
       });
-      showDialog(
+      showDialog<void>(
         context: context,
         builder: (BuildContext builder) {
           return AlertDialog(
@@ -66,7 +66,7 @@ class _GuildsState extends State<Guilds> {
             actions: <Widget>[
               TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
               TextButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())), child: const Text("Take me there")),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => const Settings())), child: const Text("Take me there")),
             ],
           );
         },
@@ -154,7 +154,7 @@ class _GuildsState extends State<Guilds> {
                           overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
                         ),
                         onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => Guild(guildID: e?.id ?? "")));
+                          Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => Guild(guildID: e?.id ?? "")));
                         },
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(48),

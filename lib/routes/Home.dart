@@ -219,7 +219,7 @@ class _HomeState extends State<Home> {
                             ),
                           ],
                         ),
-                        (isolateSet.length > 0)
+                        (isolateSet.isNotEmpty)
                             ? ConstrainedBox(
                                 constraints: BoxConstraints(
                                   maxHeight: 200,

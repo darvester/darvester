@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:darvester/database.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +28,7 @@ String? getNitroTier() {
 }
 
 class UserConnection extends StatelessWidget {
-  final Map connection;
+  final Map<String, dynamic> connection;
   const UserConnection({Key? key, required this.connection}) : super(key: key);
 
   String? getUrl() {
@@ -273,18 +271,18 @@ class UserConnection extends StatelessWidget {
               width: 300,
               duration: const Duration(seconds: 1),
             ));
-            Clipboard.setData(ClipboardData(text: connection["name"]));
+            Clipboard.setData(ClipboardData(text: connection["name"] as String?));
           }
         },
         child: Row(
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: getIcon(connection["type"][0]),
+              child: getIcon(connection["type"][0] as String),
             ),
             Expanded(
               child: Text(
-                connection["name"],
+                connection["name"] as String,
                 style: const TextStyle(fontFamily: "UnboundedLight", fontSize: 12),
               ),
             ),
@@ -305,7 +303,7 @@ class UserConnection extends StatelessWidget {
 }
 
 class UserConnections extends StatelessWidget {
-  final List connections;
+  final List<Map<String, dynamic>> connections;
   const UserConnections({Key? key, required this.connections}) : super(key: key);
 
   @override
@@ -353,7 +351,7 @@ class UserConnections extends StatelessWidget {
 }
 
 class UserInfo extends StatelessWidget {
-  final Map user;
+  final Map<String, dynamic> user;
   const UserInfo({Key? key, required this.user}) : super(key: key);
 
   @override
@@ -414,7 +412,7 @@ class UserInfo extends StatelessWidget {
             ));
           },
           child: Text(
-            DateFormat.yMd().add_jm().format(DateTime.fromMillisecondsSinceEpoch(user["created_at"] * 1000)),
+            DateFormat.yMd().add_jm().format(DateTime.fromMillisecondsSinceEpoch((user["created_at"] as int) * 1000)),
             style: const TextStyle(color: Color(0xaaffffff), fontFamily: "UnboundedLight", fontSize: 12),
           ),
         ),
@@ -429,7 +427,7 @@ class UserInfo extends StatelessWidget {
             minHeight: 30,
           ),
           child: UserConnections(
-            connections: user["connected_accounts"],
+            connections: user["connected_accounts"] as List<Map<String, dynamic>>,
           ),
         ),
         const SizedBox(height: 16),

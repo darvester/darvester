@@ -28,7 +28,7 @@ class _UsersState extends State<Users> {
   bool isLoading = true;
   int userCount = 0;
 
-  Future listUsers() async {
+  Future<void> listUsers() async {
     if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
       setState(() async {
         userCount = await DarvesterDatabase.instance.getTableCount("users");
@@ -47,7 +47,7 @@ class _UsersState extends State<Users> {
         isLoading = false;
       });
     } else {
-      showDialog(
+      showDialog<void>(
         context: context,
         builder: (BuildContext builder) {
           return AlertDialog(
@@ -56,7 +56,7 @@ class _UsersState extends State<Users> {
             actions: <Widget>[
               TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
               TextButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())), child: const Text("Settings")),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => const Settings())), child: const Text("Settings")),
             ],
           );
         },
@@ -64,7 +64,7 @@ class _UsersState extends State<Users> {
     }
   }
 
-  Widget itemBuilder(idx) {
+  Widget itemBuilder(int idx) {
     DBUser? user = users.elementAt(idx);
     return TextButton(
       style: const ButtonStyle(
@@ -73,7 +73,7 @@ class _UsersState extends State<Users> {
         overlayColor: MaterialStatePropertyAll<Color>(Color(0x00000000)),
       ),
       onPressed: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => User(userID: user?.id ?? "")));
+        Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => User(userID: user?.id ?? "")));
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(180),

@@ -30,7 +30,7 @@ class HarvesterIsolate {
 
   /// Callback that is run in the [isolate]. List of args is token, [DarvesterDB], and a [SendPort]
   /// to communicate with the main isolate.
-  void _spawnHarvester(List args) {
+  void _spawnHarvester(List<dynamic> args) {
     Harvester(
       args[0] as String,
       args[1] as SendPort,

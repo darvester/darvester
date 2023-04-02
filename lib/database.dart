@@ -92,14 +92,14 @@ class DarvesterDatabase extends _$DarvesterDatabase {
     return row.read("COUNT(1)");
   }
 
-  Future upsertUser(DBUser user) async {
+  Future<int> upsertUser(DBUser user) async {
     if ((await getTableCount("users", searchTerm: user.id)) <= 0) {
       user = user.copyWith(firstSeen: Value(DateTime.now()));
     }
     return into(users).insertOnConflictUpdate(user);
   }
 
-  Future upsertGuild(DBGuild guild) async {
+  Future<int> upsertGuild(DBGuild guild) async {
     if ((await getTableCount("guilds", searchTerm: guild.id)) <= 0) {
       guild = guild.copyWith(firstSeen: Value(DateTime.now()));
     }

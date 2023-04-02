@@ -5,7 +5,7 @@ void showSnackbar(BuildContext context, SnackBar snackbar) {
 }
 
 class SettingsSnackbars {
-  static settingSaved(String key) {
+  static SnackBar settingSaved(String key) {
     return SnackBar(
       content: Text("Setting $key saved"),
     );
@@ -15,7 +15,7 @@ class SettingsSnackbars {
 }
 
 class ErrorsSnackbars {
-  static genericError(String msg) {
+  static SnackBar genericError(String msg) {
     return SnackBar(content: Text("Error: $msg"));
   }
 }

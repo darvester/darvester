@@ -10,7 +10,7 @@ class MainDrawer extends StatelessWidget {
     return GoRouter.of(context).location == route;
   }
 
-  static const List<Map> menuItems = [
+  static const List<Map<String, dynamic>> menuItems = [
     {
       "icon": Icons.home,
       "title": 'Home',
@@ -47,13 +47,13 @@ class MainDrawer extends StatelessWidget {
           ),
           ...menuItems
               .map((e) => ListTile(
-                  leading: Icon(e["icon"]),
-                  title: Text(e["title"]),
+                  leading: Icon(e["icon"] as IconData),
+                  title: Text(e["title"] as String),
                   onTap: () {
-                    if (checkLocation(context, e["route"])) {
+                    if (checkLocation(context, e["route"] as String)) {
                       context.pop();
                     } else {
-                      context.go(e["route"]);
+                      context.go(e["route"] as String);
                     }
                   }))
               .toList(),
@@ -61,7 +61,7 @@ class MainDrawer extends StatelessWidget {
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings()));
+                Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (BuildContext context) => const Settings()));
               }),
         ],
       ),

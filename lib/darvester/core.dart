@@ -69,7 +69,7 @@ class Harvester {
     bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged | GatewayIntents.guildMembers | GatewayIntents.messageContent)
       // ..registerPlugin(Logging(logLevel: Level.ALL))
       // ..registerPlugin(IgnoreExceptions())
-      ..connect().catchError((err) {
+      ..connect().catchError((dynamic err) {
         sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.crashed));
         logger.critical("Bot crashed while connecting: $err");
       });
@@ -100,7 +100,7 @@ class Harvester {
             bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged | GatewayIntents.guildMembers | GatewayIntents.messageContent)
               // ..registerPlugin(Logging(logLevel: Level.ALL))
               // ..registerPlugin(IgnoreExceptions())
-              ..connect().catchError((err) {
+              ..connect().catchError((dynamic err) {
                 sendPort.send(HarvesterIsolateMessage(HarvesterIsolateMessageType.state, state: HarvesterIsolateState.crashed));
                 logger.critical("Bot crashed while connecting: $err");
               });
@@ -128,7 +128,7 @@ class Harvester {
   Future<void> _loopDelay() async {
     final int delay = 1000 + _rng.nextInt(1500);
     logger.debug("Sleeping for $delay milliseconds");
-    await Future.delayed(Duration(milliseconds: delay));
+    await Future<void>.delayed(Duration(milliseconds: delay));
   }
 
   void loop() async {
@@ -212,15 +212,11 @@ class Harvester {
 
         if (requestNumber >= 40) {
           logger.info("On cooldown");
-          await Future.delayed(const Duration(seconds: 60));
+          await Future<void>.delayed(const Duration(seconds: 60));
           requestNumber = 0;
         }
 
         // TODO: implement db lookup for recent data, last_scanned logic
-
-        Map<String, List> userMutualGuilds = {
-          "guilds": [],
-        };
 
         // TODO: implement profile db insert
 

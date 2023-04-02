@@ -53,8 +53,8 @@ ImageProvider assetOrNetwork(String? uri, {String? fallbackUri}) {
 }
 
 /* TODO: replace instances of showDialog with this */
-showAlertDialog(BuildContext context, String title, String content) {
-  showDialog(
+void showAlertDialog(BuildContext context, String title, String content) {
+  showDialog<void>(
       context: context,
       builder: (BuildContext builder) {
         return AlertDialog(
@@ -63,7 +63,7 @@ showAlertDialog(BuildContext context, String title, String content) {
           actions: <Widget>[
             TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
             TextButton(
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Settings())),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => const Settings())),
               child: const Text("Settings"),
             ),
           ],
@@ -73,19 +73,18 @@ showAlertDialog(BuildContext context, String title, String content) {
 
 // Classes
 class Preferences {
-  // i dont think this needs to be a singleton
   final Logger logger = Logger(name: "prefs");
   Preferences._privateConstructor();
 
   static final Preferences instance = Preferences._privateConstructor();
 
-  setBool(String key, bool value) async {
+  Future<void> setBool(String key, bool value) async {
     logger.debug("Setting shared_prefs bool: $key=$value");
     SharedPreferences prefsInstance = await SharedPreferences.getInstance();
     prefsInstance.setBool(key, value);
   }
 
-  setString(String key, String value, {bool isSecret = false}) async {
+  Future<void> setString(String key, String value, {bool isSecret = false}) async {
     logger.debug("Setting shared_prefs string: $key${isSecret ? '={secret}' : '=$value'}");
     SharedPreferences prefsInstance = await SharedPreferences.getInstance();
     prefsInstance.setString(key, isSecret ? base64.encode(utf8.encode(value)) : value);

@@ -22,7 +22,7 @@ class _Settings extends StatefulWidget {
 ///
 /// - [Map] [prefs]: contains a key-value pair for each preference entry needed
 class _SettingsState extends State<_Settings> {
-  Map prefs = {};
+  Map<String, dynamic> prefs = {};
 
   @override
   void initState() {
@@ -36,23 +36,23 @@ class _SettingsState extends State<_Settings> {
   /// the settings page with, getting the values from the [Preferences] store,
   /// then will update the state with this [Map].
   Future<void> _loadPrefs() async {
-    Map _prefs = {
+    Map<String, dynamic> prefs = {
       "databasePath": await Preferences.instance.getString("databasePath"),
     };
     setState(() {
-      prefs = _prefs;
+      this.prefs = prefs;
     });
   }
 
   /// Sets a key and value in the state's [prefs].
   Future<String> setKey(String key, String value) async {
-    Map _prefs = prefs;
-    _prefs.update(key, (_) => value, ifAbsent: () => value);
+    Map<String, dynamic> prefs = this.prefs;
+    prefs.update(key, (_) => value, ifAbsent: () => value);
     await Preferences.instance.setString(key, value);
     setState(() {
-      prefs = _prefs;
+      this.prefs = prefs;
     });
-    return prefs[key];
+    return prefs[key] as String;
   }
 
   @override
@@ -93,7 +93,7 @@ class _SettingsState extends State<_Settings> {
                         const SizedBox(width: 36),
                         Expanded(
                             child: Text(
-                          (prefs["databasePath"] == null || prefs["databasePath"].toString().isEmpty) ? "Not set" : prefs["databasePath"],
+                          (prefs["databasePath"] == null || prefs["databasePath"].toString().isEmpty) ? "Not set" : prefs["databasePath"] as String,
                           style: const TextStyle(
                             fontFamily: "Courier",
                           ),
@@ -113,14 +113,14 @@ class _SettingsState extends State<_Settings> {
                                         context,
                                         ErrorsSnackbars.genericError(
                                             "Defaulting to ${p.join((await getApplicationDocumentsDirectory()).path, 'harvested.db')}"));
-                                  }).catchError((err) {
+                                  }).catchError((dynamic err) {
                                     showSnackbar(context,
                                         ErrorsSnackbars.genericError(kDebugMode ? "Could not save database setting" : "Could not save database setting: $err"));
                                   });
                                 } else {
                                   setKey("databasePath", pathToDB?.files.single.path ?? "").then((_) {
                                     showSnackbar(context, SettingsSnackbars.settingSaved("databasePath"));
-                                  }).catchError((err) {
+                                  }).catchError((dynamic err) {
                                     showSnackbar(context,
                                         ErrorsSnackbars.genericError(kDebugMode ? "Could not save database setting" : "Could not save database setting: $err"));
                                   });

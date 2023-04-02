@@ -292,19 +292,19 @@ class _GuildState extends State<Guild> {
                                                   ),
                                                   padding: const EdgeInsets.all(8),
                                                   child: () {
-                                                    Map owner;
+                                                    Map<String, String> owner;
                                                     try {
-                                                      owner = jsonDecode(guild.owner ?? '{"name": "", "id": ""}');
+                                                      owner = jsonDecode(guild.owner ?? '{"name": "", "id": ""}') as Map<String, String>;
                                                       return (owner["id"] != null)
                                                           ? TextButton(
                                                               onPressed: () {
                                                                 if (owner["id"].toString().isNotEmpty) {
                                                                   Navigator.of(context)
-                                                                      .push(MaterialPageRoute(builder: (context) => User(userID: owner["id"].toString())));
+                                                                      .push(MaterialPageRoute<dynamic>(builder: (context) => User(userID: owner["id"].toString())));
                                                                 }
                                                               },
                                                               child: Text(
-                                                                owner["name"],
+                                                                owner["name"] ?? "Unknown",
                                                                 style: bodyStyle,
                                                               ),
                                                             )
