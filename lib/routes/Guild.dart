@@ -3,7 +3,6 @@ import 'dart:core';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:drift/isolate.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -76,8 +75,7 @@ class _GuildState extends State<Guild> {
 
   Future<void> getGuild() async {
     if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
-      DriftIsolate driftIsolate = Provider.of<DriftIsolate>(context, listen: false);
-      DarvesterDatabase db = DarvesterDatabase(await driftIsolate.connect());
+      DarvesterDatabase db = Provider.of<DriftDBPair>(context, listen: false).db;
       guild = await db.getGuild(widget.guildID);
       membersInDatabase = await db.getTableCount("guilds", searchTerm: widget.guildID);
       setState(() {
@@ -303,8 +301,8 @@ class _GuildState extends State<Guild> {
                                                           ? TextButton(
                                                               onPressed: () {
                                                                 if (owner["id"].toString().isNotEmpty) {
-                                                                  Navigator.of(context)
-                                                                      .push(MaterialPageRoute<dynamic>(builder: (context) => User(userID: owner["id"].toString())));
+                                                                  Navigator.of(context).push(
+                                                                      MaterialPageRoute<dynamic>(builder: (context) => User(userID: owner["id"].toString())));
                                                                 }
                                                               },
                                                               child: Text(

@@ -12,6 +12,12 @@ part 'database.g.dart';
 
 Logger logger = Logger(name: "database");
 
+class DriftDBPair {
+  final DriftIsolate driftIsolate;
+  final DarvesterDatabase db;
+  DriftDBPair(this.driftIsolate, this.db);
+}
+
 @DataClassName("DBGuild")
 class Guilds extends Table {
   TextColumn get data => text()();

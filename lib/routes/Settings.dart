@@ -108,10 +108,8 @@ class _SettingsState extends State<_Settings> {
                                   .then((pathToDB) async {
                                 if ((pathToDB?.files.single.path ?? "").isEmpty) {
                                   setKey("databasePath", p.join((await getApplicationSupportDirectory()).path, 'harvested.db')).then((_) async {
-                                    showSnackbar(
-                                        context,
-                                        ErrorsSnackbars.genericError(
-                                            "Defaulting to ${p.join((await getApplicationSupportDirectory()).path, 'harvested.db')}"));
+                                    showSnackbar(context,
+                                        ErrorsSnackbars.genericError("Defaulting to ${p.join((await getApplicationSupportDirectory()).path, 'harvested.db')}"));
                                   }).catchError((dynamic err) {
                                     showSnackbar(context,
                                         ErrorsSnackbars.genericError(kDebugMode ? "Could not save database setting" : "Could not save database setting: $err"));

@@ -1,6 +1,5 @@
 import 'package:darvester/database.dart';
 import 'package:darvester/routes/Guild.dart';
-import 'package:drift/isolate.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -26,8 +25,7 @@ class _GuildsState extends State<Guilds> {
   bool isLoading = true;
 
   Future<void> listGuilds() async {
-    DriftIsolate driftIsolate = Provider.of<DriftIsolate>(context, listen: false);
-    DarvesterDatabase db = DarvesterDatabase(await driftIsolate.connect());
+    DarvesterDatabase db = Provider.of<DriftDBPair>(context, listen: false).db;
     guilds.clear();
     if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
       guilds = await db.getGuilds();
@@ -51,7 +49,8 @@ class _GuildsState extends State<Guilds> {
               actions: <Widget>[
                 TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
                 TextButton(
-                    onPressed: () => Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => const Settings())), child: const Text("Settings")),
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => const Settings())),
+                    child: const Text("Settings")),
               ],
             );
           },
@@ -70,7 +69,8 @@ class _GuildsState extends State<Guilds> {
             actions: <Widget>[
               TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
               TextButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => const Settings())), child: const Text("Take me there")),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => const Settings())),
+                  child: const Text("Take me there")),
             ],
           );
         },

@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:darvester/database.dart';
-import 'package:drift/isolate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -467,8 +466,7 @@ class _UserState extends State<User> {
 
   Future<void> getUser() async {
     if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
-      DriftIsolate driftIsolate = Provider.of<DriftIsolate>(context, listen: false);
-      DarvesterDatabase db = DarvesterDatabase(await driftIsolate.connect());
+      DarvesterDatabase db = Provider.of<DriftDBPair>(context, listen: false).db;
       user = await db.getUser(widget.userID);
       setState(() {
         for (String? url in [user.avatarUrl, user.banner]) {

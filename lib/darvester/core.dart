@@ -68,11 +68,9 @@ class Harvester {
     logger = IsolateLogger(sendPort, name: _digest.toString());
 
     // Initialize a Drift database instance
-    db = DarvesterDatabase(
-      DatabaseConnection.delayed(Future.sync(() async {
-        return driftIsolate.connect();
-      }))
-    );
+    db = DarvesterDatabase(DatabaseConnection.delayed(Future.sync(() async {
+      return driftIsolate.connect();
+    })));
 
     // Initialize the bot
     bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged | GatewayIntents.guildMembers | GatewayIntents.messageContent)

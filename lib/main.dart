@@ -1,7 +1,8 @@
 // Component packages
 import 'dart:io';
 
-import 'package:darvester/database.dart' show createDriftIsolate;
+import 'package:darvester/database.dart' show DarvesterDatabase, createDriftIsolate, DriftDBPair;
+import 'package:drift/drift.dart';
 import 'package:drift/isolate.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -52,10 +53,22 @@ void main() async {
     setWindowMaxSize(Size.infinite);
   }
   final DriftIsolate driftIsolate = await createDriftIsolate();
-  runApp(Provider<DriftIsolate>(
-    create: (BuildContext context) => driftIsolate,
+  runApp(Provider<DriftDBPair>(
+    create: (BuildContext context) => DriftDBPair(
+      driftIsolate,
+      DarvesterDatabase(
+        DatabaseConnection.delayed(
+          Future.sync(() async {
+            return driftIsolate.connect();
+          }),
+        ),
+      ),
+    ),
     child: const Darvester(),
-    dispose: (BuildContext context, DriftIsolate driftIsolate) => driftIsolate.shutdownAll(),
+    dispose: (BuildContext context, DriftDBPair pair) {
+      pair.driftIsolate.shutdownAll();
+      pair.db.close();
+    },
   ));
 }
 

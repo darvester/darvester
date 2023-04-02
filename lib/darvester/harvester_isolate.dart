@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:isolate';
 import 'package:crypto/crypto.dart';
 import 'package:darvester/darvester/isolate_message.dart';
+import 'package:darvester/database.dart';
 import 'package:drift/isolate.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,7 +47,7 @@ class HarvesterIsolate {
     hash = md5.convert(utf8.encode(token));
 
     // Call _init to spawn the isolate
-    _init(token, Provider.of<DriftIsolate>(context, listen: false));
+    _init(token, Provider.of<DriftDBPair>(context, listen: false).driftIsolate);
   }
 
   /// Spawns the [Isolate].

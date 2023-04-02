@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:darvester/database.dart';
 import 'package:darvester/util.dart';
-import 'package:drift/isolate.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
@@ -31,10 +30,7 @@ class _UsersState extends State<Users> {
   int userCount = 0;
 
   Future<void> listUsers() async {
-    DriftIsolate driftIsolate = Provider.of<DriftIsolate>(context, listen: false);
-    DarvesterDatabase db = DarvesterDatabase(
-      await driftIsolate.connect()
-    );
+    DarvesterDatabase db = Provider.of<DriftDBPair>(context, listen: false).db;
     if ((await Preferences.instance.getString("databasePath")).isNotEmpty) {
       setState(() async {
         userCount = await db.getTableCount("users");
@@ -62,7 +58,8 @@ class _UsersState extends State<Users> {
             actions: <Widget>[
               TextButton(onPressed: () => context.go("/"), child: const Text("Go back")),
               TextButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => const Settings())), child: const Text("Settings")),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute<dynamic>(builder: (context) => const Settings())),
+                  child: const Text("Settings")),
             ],
           );
         },

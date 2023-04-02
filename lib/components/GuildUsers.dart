@@ -1,5 +1,4 @@
 import 'package:darvester/database.dart';
-import 'package:drift/isolate.dart';
 import "package:flutter/material.dart";
 import "package:lazy_load_scrollview/lazy_load_scrollview.dart";
 import 'package:provider/provider.dart';
@@ -30,8 +29,7 @@ class _GuildUsersState extends State<GuildUsers> {
       return;
     }
     logger.debug("Trying to load another $limit (offset $membersOffset) more members for ${widget.guildID}...");
-    DriftIsolate driftIsolate = Provider.of<DriftIsolate>(context, listen: false);
-    DarvesterDatabase db = DarvesterDatabase(await driftIsolate.connect());
+    DarvesterDatabase db = Provider.of<DriftDBPair>(context, listen: false).db;
     db.getGuildMembers(widget.guildID, limit, membersOffset).then((r) {
       if (r.isNotEmpty) {
         setState(() {
