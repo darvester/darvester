@@ -172,22 +172,7 @@ class Harvester {
       }
 
       logger.info('Now working in guild: "${guild.name}"');
-      IUser owner = await guild.owner.getOrDownload();
-      db.upsertGuild(DBGuild(
-        data: jsonEncode(guild.raw),
-        id: guild.id.toString(),
-        name: guild.name,
-        owner: jsonEncode({
-          "name": "${owner.username}#${owner.formattedDiscriminator}",
-          "id": owner.id.id,
-        }),
-        splashUrl: guild.splash,
-        memberCount: (guild.memberCount ?? 0).toString(),
-        description: guild.description,
-        features: jsonEncode(guild.features.map((e) => e.value).toList()),
-        premiumTier: guild.premiumTier.value,
-        boosts: guild.premiumSubscriptionCount,
-      ));
+      db.upsertGuild(await NyxxToDB.toGuild(guild));
 
       requestNumber++;
       // TODO: implement guild.ack
