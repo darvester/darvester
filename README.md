@@ -3,6 +3,8 @@
 <img width="50%" height="50%" align="center" src="https://user-images.githubusercontent.com/29584664/146680484-b63cbde2-5386-4feb-8cbe-f4807ea99b61.png" />
 </p>
 
+[![wakatime](https://wakatime.com/badge/user/5695f814-ebe9-4e6d-83fd-211468aa6597/project/2a6edb4f-b63b-4fcf-9726-3ef343694a2f.svg)](https://wakatime.com/badge/user/5695f814-ebe9-4e6d-83fd-211468aa6597/project/2a6edb4f-b63b-4fcf-9726-3ef343694a2f)
+
 ## 🖥️ PoC Discord user and guild information harvester
 Darvester aims to provide safe Discord OSINT harvesting, abiding by sane rate limiting and providing automated processing - _now written in Dart/Flutter_
 
