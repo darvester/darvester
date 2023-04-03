@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:darvester/util.dart';
@@ -5,6 +6,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/isolate.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
+import 'package:nyxx_self/nyxx.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
@@ -142,4 +144,56 @@ LazyDatabase _openConnection() {
     logger.info("LazyDatabase is opening database file: ${file.absolute.path}");
     return NativeDatabase(file);
   });
+}
+
+class NyxxToDB {
+  static DBUser toUser(IProfile profile) {
+    return DBUser(
+      data: jsonEncode(profile.raw),
+      id: profile.id.toString(),
+      name: profile.user.username,
+      discriminator: profile.user.formattedDiscriminator,
+      bio: profile.user.bio,
+      mutualGuilds: jsonEncode(profile.mutualGuilds.map((e) => e?.id.toString())),
+      avatarUrl: profile.user.avatarUrl(),
+      // TODO: parse bitwise userFlags into list of enum values
+      publicFlags: profile.user.userFlags.toString(),
+      createdAt: profile.createdAt,
+      connectedAccounts: jsonEncode(profile.connectedAccounts.where((e) => e != null).map((c) {
+        return {
+          "type": c!.type,
+          "id": c.id,
+          "name": c.name,
+          "verified": c.verified,
+          "url": c.url,
+        };
+      })),
+      // TODO: implement activities
+      // TODO: implement status
+      lastScanned: DateTime.now(),
+      premium: profile.nitroType.value,
+      premiumSince: profile.nitroSince,
+      banner: profile.user.bannerUrl(),
+    );
+  }
+
+  static Future<DBGuild> toGuild(IGuild guild) async {
+    IUser owner = await guild.owner.getOrDownload();
+    return DBGuild(
+      data: jsonEncode(guild.raw),
+      id: guild.id.toString(),
+      name: guild.name,
+      icon: guild.iconUrl(),
+      owner: jsonEncode({
+        "name": "${owner.username}#${owner.formattedDiscriminator}",
+        "id": owner.id.toString(),
+      }),
+      splashUrl: guild.splashUrl(),
+      memberCount: (guild.memberCount ?? 0).toString(),
+      description: guild.description,
+      features: jsonEncode(guild.features.map((e) => e.value)),
+      premiumTier: guild.premiumSubscriptionCount ?? 0,
+      boosts: guild.premiumSubscriptionCount,
+    );
+  }
 }
