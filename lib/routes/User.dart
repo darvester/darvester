@@ -447,7 +447,7 @@ class User extends StatefulWidget {
 }
 
 class _UserState extends State<User> {
-  late DBUser user;
+  DBUser? user;
   bool isLoading = true;
 
   int tabIndex = 0;
@@ -469,7 +469,7 @@ class _UserState extends State<User> {
       DarvesterDatabase db = Provider.of<DriftDBPair>(context, listen: false).db;
       user = await db.getUser(widget.userID);
       setState(() {
-        for (String? url in [user.avatarUrl, user.banner]) {
+        for (String? url in [user?.avatarUrl, user?.banner]) {
           if (checkValidImage(url)) {
             precacheImage(CachedNetworkImageProvider(url ?? ""), context);
           }
@@ -507,189 +507,194 @@ class _UserState extends State<User> {
         child: Scaffold(
           backgroundColor: const Color(0xff191919),
           appBar: AppBar(
-            title: Text("${user.name}#${user.discriminator}"),
+            title: Text(user != null ? "${user?.name}#${user?.discriminator}" : ""),
             backgroundColor: const Color(0xff222222),
           ),
           body: Center(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.6,
-              height: MediaQuery.of(context).size.height * 0.7,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: DecoratedBox(
-                  decoration: const BoxDecoration(
-                    color: Color(0xff111111),
-                  ),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        flex: 4,
-                        child: Stack(
+            child: user != null
+                ? SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    height: MediaQuery.of(context).size.height * 0.7,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: DecoratedBox(
+                        decoration: const BoxDecoration(
+                          color: Color(0xff111111),
+                        ),
+                        child: Column(
                           children: [
-                            Column(
-                              children: [
-                                Expanded(
-                                  flex: 6,
-                                  child: DecoratedBox(
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xff333333),
+                            Expanded(
+                              flex: 4,
+                              child: Stack(
+                                children: [
+                                  Column(
+                                    children: [
+                                      Expanded(
+                                        flex: 6,
+                                        child: DecoratedBox(
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xff333333),
+                                          ),
+                                          child: FadeInImage(
+                                            height: double.infinity,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            placeholder: const AssetImage('images/transparent.png'),
+                                            imageErrorBuilder: (context, error, stackTrace) {
+                                              return const Image(
+                                                image: AssetImage('images/transparent.png'),
+                                                fit: BoxFit.cover,
+                                              );
+                                            },
+                                            image: assetOrNetwork(user?.banner, fallbackUri: "images/transparent.png"),
+                                          ),
+                                        ),
+                                      ),
+                                      const Expanded(
+                                        flex: 4,
+                                        child: SizedBox(),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(
+                                      left: 22,
+                                      top: (MediaQuery.of(context).size.height > 800) ? 110 : 30,
                                     ),
-                                    child: FadeInImage(
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                      placeholder: const AssetImage('images/transparent.png'),
-                                      imageErrorBuilder: (context, error, stackTrace) {
-                                        return const Image(
-                                          image: AssetImage('images/transparent.png'),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(180),
+                                      child: Container(
+                                        constraints: const BoxConstraints(
+                                          minHeight: 120,
+                                          minWidth: 120,
+                                        ),
+                                        height: 120,
+                                        width: 120,
+                                        child: FadeInImage(
+                                          width: double.infinity,
                                           fit: BoxFit.cover,
-                                        );
-                                      },
-                                      image: assetOrNetwork(user.banner, fallbackUri: "images/transparent.png"),
+                                          placeholder: const AssetImage('images/default_avatar.png'),
+                                          imageErrorBuilder: (context, error, stackTrace) {
+                                            return const Image(
+                                              image: AssetImage('images/default_avatar.png'),
+                                              fit: BoxFit.cover,
+                                            );
+                                          },
+                                          image: assetOrNetwork(user?.avatarUrl, fallbackUri: "images/default_avatar.png"),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const Expanded(
-                                  flex: 4,
-                                  child: SizedBox(),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(
-                                left: 22,
-                                top: (MediaQuery.of(context).size.height > 800) ? 110 : 30,
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(180),
-                                child: Container(
-                                  constraints: const BoxConstraints(
-                                    minHeight: 120,
-                                    minWidth: 120,
+                                  Center(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(top: 100, right: 20, left: 160),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: const [
+                                          Text("Badges"),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  height: 120,
-                                  width: 120,
-                                  child: FadeInImage(
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    placeholder: const AssetImage('images/default_avatar.png'),
-                                    imageErrorBuilder: (context, error, stackTrace) {
-                                      return const Image(
-                                        image: AssetImage('images/default_avatar.png'),
-                                        fit: BoxFit.cover,
-                                      );
-                                    },
-                                    image: assetOrNetwork(user.avatarUrl, fallbackUri: "images/default_avatar.png"),
-                                  ),
-                                ),
+                                  Container(
+                                    margin: const EdgeInsets.only(left: 24, bottom: 14),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        TextButton(
+                                          onPressed: () {
+                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                              content: Text("Copied username to clipboard"),
+                                              behavior: SnackBarBehavior.floating,
+                                              width: 300,
+                                              duration: Duration(seconds: 1),
+                                            ));
+                                            Clipboard.setData(ClipboardData(text: "${user?.name}#${user?.discriminator}"));
+                                          },
+                                          style: const ButtonStyle(
+                                            padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
+                                            foregroundColor: MaterialStatePropertyAll<Color>(Color(0xffffffff)),
+                                          ),
+                                          child: Text("${user?.name}#${user?.discriminator}"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                              content: Text("Copied user ID to clipboard"),
+                                              behavior: SnackBarBehavior.floating,
+                                              width: 300,
+                                              duration: Duration(seconds: 1),
+                                            ));
+                                            Clipboard.setData(ClipboardData(text: widget.userID));
+                                          },
+                                          style: const ButtonStyle(
+                                            padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
+                                          ),
+                                          child: Text(
+                                            widget.userID,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontFamily: "UnboundedLight",
+                                              color: Color(0xaa777777),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
-                            Center(
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 100, right: 20, left: 160),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: const [
-                                    Text("Badges"),
+                            Expanded(
+                              flex: 6,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 16, right: 16),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: TabBar(
+                                            onTap: (index) {
+                                              setState(() {
+                                                tabIndex = index;
+                                              });
+                                            },
+                                            tabs: const <Widget>[Tab(text: "User Info"), Tab(text: "Last Activities")],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Expanded(
+                                      flex: 1,
+                                      child: SingleChildScrollView(
+                                        child: Builder(
+                                          builder: (_) {
+                                            return AnimatedCrossFade(
+                                              firstChild: UserInfo(user: user?.toJson() ?? {}),
+                                              secondChild: const Placeholder(),
+                                              crossFadeState: tabIndex == 0 ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                                              duration: const Duration(milliseconds: 300),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
-                            Container(
-                              margin: const EdgeInsets.only(left: 24, bottom: 14),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  TextButton(
-                                    onPressed: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                        content: Text("Copied username to clipboard"),
-                                        behavior: SnackBarBehavior.floating,
-                                        width: 300,
-                                        duration: Duration(seconds: 1),
-                                      ));
-                                      Clipboard.setData(ClipboardData(text: "${user.name}#${user.discriminator}"));
-                                    },
-                                    style: const ButtonStyle(
-                                      padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
-                                      foregroundColor: MaterialStatePropertyAll<Color>(Color(0xffffffff)),
-                                    ),
-                                    child: Text("${user.name}#${user.discriminator}"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                        content: Text("Copied user ID to clipboard"),
-                                        behavior: SnackBarBehavior.floating,
-                                        width: 300,
-                                        duration: Duration(seconds: 1),
-                                      ));
-                                      Clipboard.setData(ClipboardData(text: widget.userID));
-                                    },
-                                    style: const ButtonStyle(
-                                      padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(0)),
-                                    ),
-                                    child: Text(
-                                      widget.userID,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontFamily: "UnboundedLight",
-                                        color: Color(0xaa777777),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
                           ],
                         ),
                       ),
-                      Expanded(
-                        flex: 6,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16, right: 16),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TabBar(
-                                      onTap: (index) {
-                                        setState(() {
-                                          tabIndex = index;
-                                        });
-                                      },
-                                      tabs: const <Widget>[Tab(text: "User Info"), Tab(text: "Last Activities")],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Expanded(
-                                flex: 1,
-                                child: SingleChildScrollView(
-                                  child: Builder(
-                                    builder: (_) {
-                                      return AnimatedCrossFade(
-                                        firstChild: UserInfo(user: user.toJson()),
-                                        secondChild: const Placeholder(),
-                                        crossFadeState: tabIndex == 0 ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                                        duration: const Duration(milliseconds: 300),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                  )
+                : const Text(
+                    "User not found",
+                    style: TextStyle(color: Color(0xff777777)),
                   ),
-                ),
-              ),
-            ),
           ),
         ),
       ),
