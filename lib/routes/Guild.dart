@@ -265,7 +265,7 @@ class _GuildState extends State<Guild> {
                                                     child: Padding(
                                                       padding: const EdgeInsets.all(14.0),
                                                       child: Text(
-                                                        guild.features?.replaceAll(",", "\n") ?? "None",
+                                                        (jsonDecode(guild.features as String) as List? ?? ["None"]).join("\n"),
                                                         style: const TextStyle(
                                                           fontFamily: "Courier",
                                                           fontSize: 14,
