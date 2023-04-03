@@ -294,9 +294,9 @@ class _GuildState extends State<Guild> {
                                                   ),
                                                   padding: const EdgeInsets.all(8),
                                                   child: () {
-                                                    Map<String, String> owner;
+                                                    Map<String, dynamic> owner;
                                                     try {
-                                                      owner = jsonDecode(guild.owner ?? '{"name": "", "id": ""}') as Map<String, String>;
+                                                      owner = jsonDecode(guild.owner ?? '{"name": "", "id": ""}') as Map<String, dynamic>;
                                                       return (owner["id"] != null)
                                                           ? TextButton(
                                                               onPressed: () {
@@ -306,7 +306,7 @@ class _GuildState extends State<Guild> {
                                                                 }
                                                               },
                                                               child: Text(
-                                                                owner["name"] ?? "Unknown",
+                                                                owner["name"] as String? ?? "Unknown",
                                                                 style: bodyStyle,
                                                               ),
                                                             )
