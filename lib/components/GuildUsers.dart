@@ -21,6 +21,7 @@ class _GuildUsersState extends State<GuildUsers> {
   List<DBUser?> members = [];
   int membersOffset = 0;
   bool reachedEnd = false;
+  bool isLoaded = false;
   static const int limit = 50;
 
   void loadMoreMembers() async {
@@ -31,14 +32,15 @@ class _GuildUsersState extends State<GuildUsers> {
     logger.debug("Trying to load another $limit (offset $membersOffset) more members for ${widget.guildID}...");
     DarvesterDatabase db = Provider.of<DriftDBPair>(context, listen: false).db;
     db.getGuildMembers(widget.guildID, limit, membersOffset).then((r) {
-      if (r.isNotEmpty) {
-        setState(() {
+      setState(() {
+        if (r.isNotEmpty) {
           members.addAll(r);
-        });
-        membersOffset += limit;
-      } else {
-        reachedEnd = true;
-      }
+          membersOffset += limit;
+        } else {
+          reachedEnd = true;
+        }
+        isLoaded = true;
+      });
     });
   }
 
@@ -57,7 +59,7 @@ class _GuildUsersState extends State<GuildUsers> {
           color: const Color(0x55333333),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: (members.isEmpty)
+        child: (members.isEmpty && !isLoaded)
             ? const Center(
                 child: CircularProgressIndicator(),
               )
