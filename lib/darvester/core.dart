@@ -161,7 +161,7 @@ class Harvester {
           if (lastMessage.type == HarvesterIsolateMessageType.start) _willPause = false;
         }
       }
-      IGuild guild = await bot.fetchGuild(Snowflake(guildID), withCounts: true);
+      IGuild guild = bot.guilds[Snowflake(guildID)] ?? await bot.fetchGuild(Snowflake(guildID), withCounts: true);
 
       // TODO: implement IGNORE_GUILD / SWAP_IGNORE logic
       // TODO: implement extensive member chunking logic
