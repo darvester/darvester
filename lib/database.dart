@@ -191,7 +191,7 @@ class NyxxToDB {
       splashUrl: guild.splashUrl(),
       memberCount: (guild.memberCount ?? 0).toString(),
       description: guild.description,
-      features: jsonEncode(guild.features.map((e) => e.value)),
+      features: jsonEncode(guild.raw["features"]),
       premiumTier: guild.premiumSubscriptionCount ?? 0,
       boosts: guild.premiumSubscriptionCount,
     );
