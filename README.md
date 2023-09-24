@@ -8,12 +8,16 @@
 ## 🖥️ PoC Discord user and guild information harvester
 Darvester aims to provide safe Discord OSINT harvesting, abiding by sane rate limiting and providing automated processing - _now written in Dart/Flutter_
 
+# Repo Notice  
+> Currently, there is no activity and much of this code is likely outdated. The main task at hand is making [nyxx-self](https://github.com/V3ntus/nyxx-self) feature complete, comparable to the discord-py.self library.
+> Aside from that, the ported harvester loop in the gen2 branch is incomplete and is waiting for nyxx-self. Although there is much to work on, the frontend supports importing an SQLite database populated with the Python branch.
+
 ## ✨ Features
 
 - Rate-limit/soft ban avoidance
 - Automated processing
 - Flexible configuration
-- ~~Utilization of the Git version control system to provide chronological data~~ Planned!
+- Utilization of the Git version control system to provide chronological data
 - Detailed logging
 - and more
 
